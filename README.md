@@ -16,12 +16,14 @@ Member | Email | Photo
 --- | --- | ---
 Anna Boonyanit| annaboon@stanford.edu | <img src="https://i.ibb.co/z2XtGhL/IMG-9544.jpg" alt="Anna Boonyanit" width="157.5" height="157.5">
 Andrea Dahl| ahdahl@stanford.edu | <img src="https://i.ibb.co/TqKDkFn/IMG-1918-copy.jpg" alt="IMG-1918-copy" width="157.5" height="157.5">
+Alex Hurtado | hurtado@stanford.edu | <img src="https://user-images.githubusercontent.com/42363192/105772584-43202a00-5f17-11eb-9851-b49296b7dcb8.png" alt="Alex Hurtado" width=159 height=157.5>
 # Team Skills Matrix:
 
 Member | Technical Skills | Non-Technical Skills | Personal Traits | Desired Growth | Weaknesses
 --- | --- | --- | --- | --- | ---
 Anna | Machine learning, Python, Java, Android development | Time management, gets things done early | Planner, cautious | Mobile development, experience working on product from scratch | Presentation, often asks peers for approval on ideas, easily anxious
 Andrea | Python, JavaScript, React, machine learning | Flexibility | Efficient, on-time | Product management | Lacks patience, ideas require peer approval
+Alex | Deep learning, Java, Python, React | Listening skills, time management | Detail-oriented, organized | Mobile development, UI/UX, design thinking | Interpersonal communication, presentation skills, lacks patience
 
 # Team Communication:
 1. Email us at [2buckchuck210@gmail.com](2buckchuck210@gmail.com)
