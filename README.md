@@ -9,8 +9,6 @@ Daimler vehicles are connected to the cloud and make their data and functions ac
 
 [Team Song](https://www.youtube.com/watch?v=6vwNcNOTVzY)
 
-[Code Repository] ??
-
 # Team Members
 Member | Email | Photo
 --- | --- | ---
@@ -19,7 +17,7 @@ Anna Boonyanit| annaboon@stanford.edu | <img src="https://i.ibb.co/z2XtGhL/IMG-9
 
 Member | Technical Skills | Non-Technical Skills | Personal Traits | Desired Growth | Weaknesses
 --- | --- | --- | --- | --- | ---
-Anna | Machine learning, Python, Java, Android development | Time management, gets things done early | Planner, cautious | Mobile development, experience working on product from scratch | Presentation, often asks peers for approval on ideas, easily anxious
+Anna | Machine learning, Python, Java, Android development | Time management, gets things done early | Planner, cautious | Mobile development, experience working on product from scratch | Presentation, often asks peers for approval on ideas, can be slow to grasp a new concept
 
 
 # Team Communication:
