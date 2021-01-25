@@ -15,7 +15,7 @@ Daimler vehicles are connected to the cloud and make their data and functions ac
 Member | Email | Photo
 --- | --- | ---
 Anna Boonyanit| annaboon@stanford.edu | <img src="https://i.ibb.co/z2XtGhL/IMG-9544.jpg" alt="Anna Boonyanit" width="157.5" height="157.5">
-Andrea Dahl| ahdahl@stanford.edu | <img src="https://i.ibb.co/sFKFn4C/andrea-dahl.jpg" alt="andrea-dahl" border="0"> width="157.5" height="157.5">
+Andrea Dahl| ahdahl@stanford.edu | <img src="https://i.ibb.co/sFKFn4C/andrea-dahl.jpg" alt="andrea-dahl" width="157.5" height="157.5">
 # Team Skills Matrix:
 
 Member | Technical Skills | Non-Technical Skills | Personal Traits | Desired Growth | Weaknesses
