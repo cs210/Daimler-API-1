@@ -14,7 +14,7 @@ Member | Email | Photo
 --- | --- | ---
 Anna Boonyanit| annaboon@stanford.edu | <img src="https://i.ibb.co/z2XtGhL/IMG-9544.jpg" alt="Anna Boonyanit" width="157.5" height="157.5">
 Andrea Dahl| ahdahl@stanford.edu | <img src="https://i.ibb.co/TqKDkFn/IMG-1918-copy.jpg" alt="IMG-1918-copy" width="157.5" height="157.5">
-Christina Ding| cding21@stanford.edu | <img src="https://ibb.co/LSs9Xjd/me.jpg" alt="christinading" width="157.5" height="157.5">
+Christina Ding| cding21@stanford.edu | <img src="https://user-images.githubusercontent.com/44299723/105804514-d88ddf00-5f54-11eb-8341-5604a9ded247.JPG" alt="christinading" width="157.5" height="157.5">
 Alex Hurtado | hurtado@stanford.edu | <img src="https://user-images.githubusercontent.com/42363192/105772584-43202a00-5f17-11eb-9851-b49296b7dcb8.png" alt="Alex Hurtado" width=159 height=157.5>
 # Team Skills Matrix:
 
