@@ -9,8 +9,6 @@ Daimler vehicles are connected to the cloud and make their data and functions ac
 
 [Team Song](https://www.youtube.com/watch?v=6vwNcNOTVzY)
 
-[Code Repository] ??
-
 # Team Members
 Member | Email | Photo
 --- | --- | ---
@@ -21,7 +19,7 @@ Alex Hurtado | hurtado@stanford.edu | <img src="https://user-images.githubuserco
 
 Member | Technical Skills | Non-Technical Skills | Personal Traits | Desired Growth | Weaknesses
 --- | --- | --- | --- | --- | ---
-Anna | Machine learning, Python, Java, Android development | Time management, gets things done early | Planner, cautious | Mobile development, experience working on product from scratch | Presentation, often asks peers for approval on ideas, easily anxious
+Anna | Machine learning, Python, Java, Android development | Time management, gets things done early | Planner, cautious | Mobile development, experience working on product from scratch | Presentation, often asks peers for approval on ideas, can be slow to grasp complex ideas
 Andrea | Python, JavaScript, React, machine learning | Flexibility | Efficient, on-time | Product management | Lacks patience, ideas require peer approval
 Alex | Deep learning, Java, Python, React | Listening skills, time management | Detail-oriented, organized | Mobile development, UI/UX, design thinking | Interpersonal communication, presentation skills, lacks patience
 
