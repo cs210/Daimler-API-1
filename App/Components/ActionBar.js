@@ -17,7 +17,7 @@ export default function ActionBar( {onPressNext, onPressPrev, onPressBoost} ) {
       </TouchableOpacity>
       <TouchableOpacity onPress={onPressBoost}>
         <View style={styles.circle}>
-          <Image style={styles.boostIcon} source={Images.boost} />
+          <Image style={styles.boostIcon} source={Images.rewind} />
         </View>
       </TouchableOpacity>
       <TouchableOpacity onPress={onPressNext}>
