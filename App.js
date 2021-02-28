@@ -7,7 +7,6 @@ export default function App() {
   const haroldProfile = Profiles.harold;
   const [prevProfile, setPreviousProfile] = useState(haroldProfile);
   const [currProfile, setCurrentProfile] = useState(haroldProfile);
-  const [profileImage, setProfileImage] = useState(haroldProfile.image);
   const [name, setName] = useState(haroldProfile.name);
   const [age, setAge] = useState(haroldProfile.age);
   const [occupation, setOccupation] = useState(haroldProfile.occupation);
@@ -16,7 +15,6 @@ export default function App() {
     setPreviousProfile(currProfile);
     const newProfile = Profiles.random();
     setCurrentProfile(newProfile);
-    setProfileImage(newProfile.image);
     setName(newProfile.name);
     setAge(newProfile.age);
     setOccupation(newProfile.occupation);
@@ -27,7 +25,6 @@ export default function App() {
       Alert.alert("Can't load previous profile!")
     } else {
       setCurrentProfile(prevProfile);
-      setProfileImage(prevProfile.image);
       setName(prevProfile.name);
       setAge(prevProfile.age);
       setOccupation(prevProfile.occupation);
@@ -42,7 +39,6 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <NavBar />
       <ProfileCard 
-        profileImage={profileImage} 
         name={name} 
         age={age} 
         occupation={occupation}

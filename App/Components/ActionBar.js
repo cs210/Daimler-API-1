@@ -1,35 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, Image, TouchableOpacity } from 'react-native';
-import { Images, Metrics } from '../Themes';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { Metrics } from '../Themes';
 
 export default function ActionBar( {onPressNext, onPressPrev, onPressBoost} ) {
   return (
     <View style={styles.actionBar}>
-      <TouchableOpacity onPress={onPressPrev}>
-        <View style={styles.circle}>
-          <Image style={styles.rewindIcon} source={Images.rewind} />
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onPressNext}>
-        <View style={styles.bigCircle}>
-          <Image style={styles.nopeIcon} source={Images.nope} />
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onPressBoost}>
-        <View style={styles.circle}>
-          <Image style={styles.boostIcon} source={Images.rewind} />
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onPressNext}>
-        <View style={styles.bigCircle}>  
-          <Image style={styles.likeIcon} source={Images.like} />
-        </View>
-        </TouchableOpacity>
-      <TouchableOpacity onPress={onPressNext}>
-        <View style={styles.circle}> 
-          <Image style={styles.superLikeIcon} source={Images.superLike} />
-        </View>
-      </TouchableOpacity>
+      <Text> yote </Text>
     </View>
   );
 }

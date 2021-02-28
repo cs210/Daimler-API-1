@@ -1,17 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, Image, TouchableOpacity } from 'react-native';
-import { Images, Metrics } from '../Themes';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { Metrics } from '../Themes';
 
 export default function NavBar() {
   return (
     <View style={styles.navbar}>
-      <TouchableOpacity>
-        <Image style={styles.button} source={Images.settings} />
-      </TouchableOpacity>
-      <Image style={styles.logo} source={Images.logo} />
-      <TouchableOpacity>
-        <Image style={styles.button} source={Images.chat} />
-      </TouchableOpacity>
+      <Text> Yeet </Text>
     </View>
   );
 }
