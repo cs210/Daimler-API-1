@@ -1,63 +1,19 @@
-import React, { useState } from 'react';
-import { StyleSheet, SafeAreaView, Alert } from 'react-native';
-import { Profiles, Metrics } from './App/Themes';
-import { NavBar, ProfileCard, ActionBar } from './App/Components/';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function App() {
-  const haroldProfile = Profiles.harold;
-  const [prevProfile, setPreviousProfile] = useState(haroldProfile);
-  const [currProfile, setCurrentProfile] = useState(haroldProfile);
-  const [name, setName] = useState(haroldProfile.name);
-  const [age, setAge] = useState(haroldProfile.age);
-  const [occupation, setOccupation] = useState(haroldProfile.occupation);
-
-  let loadNextProfile = () => {
-    setPreviousProfile(currProfile);
-    const newProfile = Profiles.random();
-    setCurrentProfile(newProfile);
-    setName(newProfile.name);
-    setAge(newProfile.age);
-    setOccupation(newProfile.occupation);
-  }
-
-  let loadPreviousProfile = () => {
-    if (currProfile === prevProfile) {
-      Alert.alert("Can't load previous profile!")
-    } else {
-      setCurrentProfile(prevProfile);
-      setName(prevProfile.name);
-      setAge(prevProfile.age);
-      setOccupation(prevProfile.occupation);
-    }
-  }
-
-  let boostProfile = () => {
-    Alert.alert("Boosting your profile!");
-  }
-
   return (
-    <SafeAreaView style={styles.container}>
-      <NavBar />
-      <ProfileCard 
-        name={name} 
-        age={age} 
-        occupation={occupation}
-      />
-      <ActionBar 
-        onPressNext={loadNextProfile} 
-        onPressPrev={loadPreviousProfile}
-        onPressBoost={boostProfile}
-      />
-    </SafeAreaView>
+    <View style={styles.container}>
+      <Text>welcome to team two dollar wine</Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column',
+    backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: Metrics.lightBackground,
+    justifyContent: 'center',
   },
 });
