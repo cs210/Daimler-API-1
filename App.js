@@ -1,19 +1,32 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import "react-native-gesture-handler";
 
-export default function App() {
+import * as React from "react";
+
+import { Home } from "./screens/Home";
+import { NavigationContainer } from "@react-navigation/native";
+import PastTrips from "./screens/PastTrips";
+import TripMap from "./screens/TripMap";
+import { createStackNavigator } from "@react-navigation/stack";
+
+const App = () => {
+  const Stack = createStackNavigator();
+
   return (
-    <View style={styles.container}>
-      <Text>welcome to team two dollar wine</Text>
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="TripMap" component={TripMap} />
+        <Stack.Screen name="PastTrips" component={PastTrips} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
+
+// color scheme:
+// black: #000
+// white: #fff
+// grey: #AEB8C1
+// teal: #00A398
+// purple: #8275BD
