@@ -7,11 +7,11 @@ import TripMap from "./TripMap";
 export const Home = ({ navigation }) => {
   const onPressStart = () => {
     console.log("pressed start trip");
-    navigation.navigate("TripMap");
+    navigation.navigate("Trip Map");
   };
   const onPressView = () => {
     console.log("pressed view past trips");
-    navigation.navigate("PastTrips");
+    navigation.navigate("Past Trips");
   };
   return (
     <View style={styles.container}>
