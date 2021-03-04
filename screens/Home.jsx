@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Button, Text, TouchableOpacity, View, Linking } from "react-native";
 
 import PastTrips from "./PastTrips";
 import React from "react";
@@ -16,6 +16,9 @@ export const Home = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Road Trip Buddy</Text>
+      <Button title="Log In with Mercedes-Benz" onPress={ ()=>{
+        Linking.openURL('https://id.mercedes-benz.com/as/authorization.oauth2?response_type=code&client_id=142a054e-e379-4af0-92ee-4c896c8b4573&redirect_uri=https://localhost&scope=mb:vehicle:status:general mb:user:pool:reader offline_access&state=xyzABC123')}
+      } />
       <TouchableOpacity
         onPress={onPressStart}
         style={styles.appButtonContainer}
