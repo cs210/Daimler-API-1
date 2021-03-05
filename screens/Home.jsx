@@ -27,6 +27,25 @@ const useInitialURL = () => {
 
   return { url, processing };
 };
+// const base64 = require('base-64');
+
+// const getAccessToken = async () => {
+//   try {
+//     let response = await fetch('https://id.mercedes-benz.com/as/token.oauth2', {
+//       method: 'POST',
+//       headers: {
+//         'Authorization': 'Basic ' + base64.encode('<insert_your_base64_encoded_client_id_and_client_secret_here>'),
+//         'Content-Type': 'application/x-www-form-urlencoded'
+//       },
+//       body: JSON.stringify({
+//         grant_type: authorization_code,
+//         password: value.password,
+//       })
+//     }
+
+//     );
+//   }
+// }
 
 export const Home = ({ navigation }) => {
   const { url: initialUrl } = useInitialURL();
