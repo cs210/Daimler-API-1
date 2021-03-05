@@ -1,12 +1,39 @@
 import { StyleSheet, Button, Text, TouchableOpacity, View, Linking } from "react-native";
 
 import PastTrips from "./PastTrips";
-import React from "react";
+import React, {useState, useEffect} from "react";
 import TripMap from "./TripMap";
 
+const useMount = func => useEffect(() => func(), []);
+
+const useInitialURL = () => {
+  const [url, setUrl] = useState(null);
+  const [processing, setProcessing] = useState(true);
+
+  useMount(() => {
+    const getUrlAsync = async () => {
+      // Get the deep link used to open the app
+      const initialUrl = await Linking.getInitialURL();
+
+      // The setTimeout is just for testing purpose
+      setTimeout(() => {
+        setUrl(initialUrl);
+        setProcessing(false);
+      }, 1000);
+    };
+
+    getUrlAsync();
+  });
+
+  return { url, processing };
+};
+
 export const Home = ({ navigation }) => {
+  const { url: initialUrl } = useInitialURL();
+
   const onPressStart = () => {
     console.log("pressed start trip");
+    console.log("inital url: ", initialUrl);
     navigation.navigate("Trip Map");
   };
   const onPressView = () => {
@@ -17,7 +44,7 @@ export const Home = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={styles.header}>Road Trip Buddy</Text>
       <Button title="Log In with Mercedes-Benz" onPress={ ()=>{
-        Linking.openURL('https://id.mercedes-benz.com/as/authorization.oauth2?response_type=code&client_id=142a054e-e379-4af0-92ee-4c896c8b4573&redirect_uri=https://localhost&scope=mb:vehicle:status:general mb:user:pool:reader offline_access&state=xyzABC123')}
+        Linking.openURL('https://id.mercedes-benz.com/as/authorization.oauth2?response_type=code&client_id=142a054e-e379-4af0-92ee-4c896c8b4573&redirect_uri=https://' + initialUrl + '&scope=mb:vehicle:status:general mb:user:pool:reader offline_access&state=xyzABC123')}
       } />
       <TouchableOpacity
         onPress={onPressStart}
