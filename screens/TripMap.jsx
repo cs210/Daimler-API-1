@@ -1,9 +1,47 @@
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-
-import React from "react";
+import * as Location from 'expo-location';
+import React, { useState, useEffect } from 'react';
 
 export default function TripMap() {
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const initialRegion = {latitude: 37.42773007993738,
+  longitude: -122.16972973155477,
+  latitudeDelta: 0.922,
+  longitudeDelta: 0.922};
+  const [region, setRegion] = useState(null); 
+
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+      setRegion({latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.5,
+        longitudeDelta: 0.5});
+    })();
+  }, []);
+
+  // let text = 'Waiting..';
+  // if (errorMsg) {
+  //   text = errorMsg;
+  // } else if (location) {
+  //   text = location.coords.latitude;
+  // }
+  
+
+  // const onRegionChange = (region) {
+  //   setRegion
+  // }
+  
   const pins = [
     {
       latlng: { latitude: 37.42773007993738, longitude: -122.16972973155477 },
@@ -21,12 +59,9 @@ export default function TripMap() {
       <Text style={styles.header}>Map of Trip</Text>
       <MapView
         style={styles.map}
-        initialRegion={{
-          latitude: 37.42773007993738,
-          longitude: -122.16972973155477,
-          latitudeDelta: 0.922,
-          longitudeDelta: 0.922,
-        }}
+        initialRegion={initialRegion}
+        region={region}
+        showsUserLocation={true}
       >
         {pins.map((marker, index) => (
           <Marker
