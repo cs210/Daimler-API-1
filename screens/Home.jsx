@@ -16,9 +16,14 @@ export const Home = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Road Trip Buddy</Text>
-      <Button title="Log In with Mercedes-Benz" onPress={ ()=>{
-        Linking.openURL('https://id.mercedes-benz.com/as/authorization.oauth2?response_type=code&client_id=142a054e-e379-4af0-92ee-4c896c8b4573&redirect_uri=https://localhost&scope=mb:vehicle:status:general mb:user:pool:reader offline_access&state=xyzABC123')}
-      } />
+      <TouchableOpacity
+        onPress={() => Linking.openURL('https://id.mercedes-benz.com/as/authorization.oauth2?response_type=code&client_id=142a054e-e379-4af0-92ee-4c896c8b4573&redirect_uri=https://localhost&scope=mb:vehicle:status:general mb:user:pool:reader offline_access&state=xyzABC123')}
+        style={styles.loginButtonContainer}
+      >
+        <Text style={styles.loginButtonText}>
+          Log In with Mercedes-Benz
+        </Text>
+      </TouchableOpacity>
       <TouchableOpacity
         onPress={onPressStart}
         style={styles.appButtonContainer}
@@ -58,5 +63,18 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     alignSelf: "center",
     textTransform: "uppercase",
+  },
+  loginButtonContainer: {
+    elevation: 8,
+    backgroundColor: "#AEB8C1",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  loginButtonText: {
+    fontSize: 14,
+    color: "#fff",
+    fontWeight: "bold",
+    alignSelf: "center",
   },
 });
