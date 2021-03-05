@@ -8,8 +8,33 @@ import PastTrips from "./screens/PastTrips";
 import TripMap from "./screens/TripMap";
 import { createStackNavigator } from "@react-navigation/stack";
 
+// const useMount = func => useEffect(() => func(), []);
+
+// const useInitialURL = () => {
+//   const [url, setUrl] = useState(null);
+//   const [processing, setProcessing] = useState(true);
+
+//   useMount(() => {
+//     const getUrlAsync = async () => {
+//       // Get the deep link used to open the app
+//       const initialUrl = await Linking.getInitialURL();
+
+//       // The setTimeout is just for testing purpose
+//       setTimeout(() => {
+//         setUrl(initialUrl);
+//         setProcessing(false);
+//       }, 1000);
+//     };
+
+//     getUrlAsync();
+//   });
+
+//   return { url, processing };
+// };
+
 const App = () => {
   const Stack = createStackNavigator();
+  // const { url: initialUrl, processing } = useInitialURL();
 
   return (
     <NavigationContainer>
