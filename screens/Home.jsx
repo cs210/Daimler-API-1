@@ -1,4 +1,4 @@
-import { StyleSheet, Button, Text, TouchableOpacity, View, Linking } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, Linking } from "react-native";
 
 import PastTrips from "./PastTrips";
 import React from "react";
