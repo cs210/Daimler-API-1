@@ -38,8 +38,7 @@ const useInitialURL = () => {
 //         'Content-Type': 'application/x-www-form-urlencoded'
 //       },
 //       body: JSON.stringify({
-//         grant_type: authorization_code,
-//         password: value.password,
+
 //       })
 //     }
 
