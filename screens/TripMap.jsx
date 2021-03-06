@@ -32,7 +32,7 @@ export default function TripMap() {
 
   useEffect(() => {
    async function startWatching() {
-     locationService.subscribe(onLocationUpdate)
+     // locationService.subscribe(onLocationUpdate)
      try {
        let { status } = await Location.requestPermissionsAsync();
        if (status !== 'granted') {
@@ -54,7 +54,7 @@ export default function TripMap() {
        return;
      }
    };
-   startWatching()
+   // startWatching()
  }, []);
 
  TaskManager.defineTask('firstTask', ({ data, error }) => {
