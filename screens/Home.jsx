@@ -27,28 +27,28 @@ const useInitialURL = () => {
 
   return { url, processing };
 };
-// const base64 = require('base-64');
-//
-// const getAccessToken = async () => {
-//   try {
-//     let response = await fetch('https://id.mercedes-benz.com/as/token.oauth2', {
-//       method: 'POST',
-//       headers: {
-//         'Authorization': 'Basic ' + base64.encode('<insert_your_base64_encoded_client_id_and_client_secret_here>'),
-//         'Content-Type': 'application/x-www-form-urlencoded'
-//       },
-//       body: JSON.stringify({
-//         "grant_type": "authorization_code",
-//         "code": "RP0jKBpywPRdB8ivTt6gK4l6qfzwsC_dZ_VLWIW3",
-//         "redirect_uri": "exp://10.0.0.7:19000"
-//       })
-//     );
-//     let json = await response.json();
-//     return json.access_token;
-//     } catch (error) {
-//       console.error(error);
-//     }
-// };
+const base64 = require('base-64');
+
+const getAccessToken = async () => {
+  try {
+    let response = await fetch('https://id.mercedes-benz.com/as/token.oauth2', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + base64.encode('<insert_your_base64_encoded_client_id_and_client_secret_here>'),
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: JSON.stringify({
+        "grant_type": "authorization_code",
+        "code": "RP0jKBpywPRdB8ivTt6gK4l6qfzwsC_dZ_VLWIW3",
+        "redirect_uri": "exp://10.0.0.7:19000"
+      }),
+    });
+    let json = await response.json();
+    return json.access_token;
+    } catch (error) {
+      console.error(error);
+    }
+};
 
 export const Home = ({ navigation }) => {
   const { url: initialUrl } = useInitialURL();

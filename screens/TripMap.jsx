@@ -1,7 +1,8 @@
 import { Dimensions, StyleSheet, Text, View } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Polyline } from "react-native-maps";
 import * as Location from 'expo-location';
 import React, { useState, useEffect } from 'react';
+import * as TaskManager from 'expo-task-manager';
 
 export default function TripMap() {
   const [location, setLocation] = useState(null);
@@ -10,25 +11,67 @@ export default function TripMap() {
   longitude: -122.16972973155477,
   latitudeDelta: 0.922,
   longitudeDelta: 0.922};
-  const [region, setRegion] = useState(null); 
+  const [region, setRegion] = useState(null);
 
+  // useEffect(() => {
+  //   (async () => {
+  //     let { status } = await Location.requestPermissionsAsync();
+  //     if (status !== 'granted') {
+  //       setErrorMsg('Permission to access location was denied');
+  //       return;
+  //     }
+  //
+  //     let location = await Location.getCurrentPositionAsync({});
+  //     setLocation(location);
+  //     setRegion({latitude: location.coords.latitude,
+  //       longitude: location.coords.longitude,
+  //       latitudeDelta: 0.5,
+  //       longitudeDelta: 0.5});
+  //   })();
+  // }, []);
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        return;
-      }
+   async function startWatching() {
+     locationService.subscribe(onLocationUpdate)
+     try {
+       let { status } = await Location.requestPermissionsAsync();
+       if (status !== 'granted') {
+         setErrorMsg('Permission to access location was denied');
+         return;
+       }
+       let isRegistered = await TaskManager.isTaskRegisteredAsync('firstTask');
+       if (isRegistered) {
+         TaskManager.unregisterTaskAsync('firstTask')
+       }
+       let location = await Location.startLocationUpdatesAsync('firstTask', {
+         accuracy: Location.Accuracy.BestForNavigation,
+         timeInterval: 60000,
+         activityType: Location.ActivityType.AutomotiveNavigation,
+         deferredUpdatesInterval: 90000
+       });
+     } catch (e) {
+       setErrMsg(e);
+       return;
+     }
+   };
+   startWatching()
+ }, []);
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-      setRegion({latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.5,
-        longitudeDelta: 0.5});
-    })();
-  }, []);
+ TaskManager.defineTask('firstTask', ({ data, error }) => {
+   if (error) {
+     // Error occurred - check `error.message` for more details.
+     return;
+   }
+   if (data) {
+     const { latitude, longitude } = data.locations[0].coords
+     locationService.setLocation({latitude, longitude})
+     // console.log('locations', locations);
+     locationService.setRegion({latitude: location.coords.latitude,
+       longitude: location.coords.longitude,
+       latitudeDelta: 0.5,
+       longitudeDelta: 0.5});
+   }
+ });
 
   // let text = 'Waiting..';
   // if (errorMsg) {
@@ -36,12 +79,12 @@ export default function TripMap() {
   // } else if (location) {
   //   text = location.coords.latitude;
   // }
-  
+
 
   // const onRegionChange = (region) {
   //   setRegion
   // }
-  
+
   const pins = [
     {
       latlng: { latitude: 37.42773007993738, longitude: -122.16972973155477 },
@@ -71,6 +114,14 @@ export default function TripMap() {
             description={marker.description}
           />
         ))}
+        <Polyline
+          coordinates={[
+  			       { latitude: 37.42773007993738, longitude: -122.16972973155477 },
+  			       { latitude: 37.872226652833305, longitude: -122.2585604834523 }
+  		    ]}
+          strokeColor="#FF0000"
+		      strokeWidth={2}
+        />
       </MapView>
     </View>
   );
