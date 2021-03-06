@@ -32,29 +32,23 @@ export default function TripMap() {
 
   useEffect(() => {
    async function startWatching() {
-     // locationService.subscribe(onLocationUpdate)
-     try {
-       let { status } = await Location.requestPermissionsAsync();
-       if (status !== 'granted') {
-         setErrorMsg('Permission to access location was denied');
-         return;
-       }
-       let isRegistered = await TaskManager.isTaskRegisteredAsync('firstTask');
-       if (isRegistered) {
-         TaskManager.unregisterTaskAsync('firstTask')
-       }
-       let location = await Location.startLocationUpdatesAsync('firstTask', {
-         accuracy: Location.Accuracy.BestForNavigation,
-         timeInterval: 60000,
-         activityType: Location.ActivityType.AutomotiveNavigation,
-         deferredUpdatesInterval: 90000
-       });
-     } catch (e) {
-       setErrMsg(e);
+     let { status } = await Location.requestPermissionsAsync();
+     if (status !== 'granted') {
+       setErrorMsg('Permission to access location was denied');
        return;
      }
+     let isRegistered = await TaskManager.isTaskRegisteredAsync('firstTask');
+     if (isRegistered) {
+       TaskManager.unregisterTaskAsync('firstTask')
+     }
+     let location = await Location.startLocationUpdatesAsync('firstTask', {
+       accuracy: Location.Accuracy.BestForNavigation,
+       timeInterval: 60000,
+       activityType: Location.ActivityType.AutomotiveNavigation,
+       deferredUpdatesInterval: 90000
+     });
    };
-   // startWatching()
+   startWatching()
  }, []);
 
  TaskManager.defineTask('firstTask', ({ data, error }) => {
