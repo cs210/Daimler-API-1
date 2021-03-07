@@ -10,8 +10,8 @@ export default function TripMap() {
   longitude: -122.16972973155477,
   latitudeDelta: 0.922,
   longitudeDelta: 0.922};
-  const [region, setRegion] = useState(null); 
-
+  const [region, setRegion] = useState(null);
+  const [pins, setPins] = useState([]); 
 
   useEffect(() => {
     (async () => {
@@ -30,30 +30,13 @@ export default function TripMap() {
     })();
   }, []);
 
-  // let text = 'Waiting..';
-  // if (errorMsg) {
-  //   text = errorMsg;
-  // } else if (location) {
-  //   text = location.coords.latitude;
-  // }
+  const onMapPress = (e) => {
+    const newpins = [...pins, {
+      key: pins.length, 
+      coordinate: e.nativeEvent.coordinate}]; //fix key
+    setPins(newpins);
+  }
   
-
-  // const onRegionChange = (region) {
-  //   setRegion
-  // }
-  
-  const pins = [
-    {
-      latlng: { latitude: 37.42773007993738, longitude: -122.16972973155477 },
-      title: "Stanford",
-      description: "Started our road trip 🎉",
-    },
-    {
-      latlng: { latitude: 37.872226652833305, longitude: -122.2585604834523 },
-      title: "Berkeley",
-      description: "Stopped here to visit friends ☺️",
-    },
-  ];
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Map of Trip</Text>
@@ -62,11 +45,12 @@ export default function TripMap() {
         initialRegion={initialRegion}
         region={region}
         showsUserLocation={true}
+        onLongPress={onMapPress}
       >
-        {pins.map((marker, index) => (
+        {pins.map(marker => (
           <Marker
-            key={index}
-            coordinate={marker.latlng}
+            key={marker.key}
+            coordinate={marker.coordinate}
             title={marker.title}
             description={marker.description}
           />
