@@ -1,5 +1,5 @@
 import { Dimensions, StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Polyline } from "react-native-maps";
 import * as Location from 'expo-location';
 import React, { useState, useEffect } from 'react';
 import DialogInput from 'react-native-dialog-input';
@@ -13,6 +13,8 @@ export default function TripMap() {
   const [dialog, setDialog] = useState(false);
   //Pin currently being editted
   const [currentPin, setCurrentPin] = useState([]); 
+  const [coordinates, setCoordinates] = useState([]);
+
 
   useEffect(() => {
     (async () => {
