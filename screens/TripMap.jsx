@@ -2,16 +2,16 @@ import { Dimensions, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from 'expo-location';
 import React, { useState, useEffect } from 'react';
+import DialogInput from 'react-native-dialog-input';
 
 export default function TripMap() {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const initialRegion = {latitude: 37.42773007993738,
-  longitude: -122.16972973155477,
-  latitudeDelta: 0.922,
-  longitudeDelta: 0.922};
   const [region, setRegion] = useState(null);
   const [pins, setPins] = useState([]); 
+  const [dialog, setDialog] = useState(false);
+  //Pin currently being editted
+  const [currentPin, setCurrentPin] = useState([]); 
 
   useEffect(() => {
     (async () => {
@@ -24,28 +24,54 @@ export default function TripMap() {
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
       setRegion({latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.5,
-        longitudeDelta: 0.5});
+          longitude: location.coords.longitude,
+          latitudeDelta: 0.5,
+          longitudeDelta: 0.5});
     })();
   }, []);
 
   const onMapPress = (e) => {
-    const newpins = [...pins, {
+    const newPins = [...pins, {
       key: pins.length, 
-      coordinate: e.nativeEvent.coordinate}]; //fix key
-    setPins(newpins);
+      coordinate: e.nativeEvent.coordinate}];
+    setPins(newPins);
   }
-  
+
+  const onMarkerPress = (e) => {
+    const marker = pins.find(
+      m => m.coordinate.latitude === e.nativeEvent.coordinate.latitude 
+        && m.coordinate.longitude === e.nativeEvent.coordinate.longitude
+    );
+    setDialog(true);
+    setCurrentPin(marker);
+  }
+
+  const onNewTitleSubmit = (newTitle) => {
+     const newPins = pins.map((pin) => {
+      if (pin === currentPin) {
+        const updatedPin = {
+          ...pin,
+          title: newTitle,
+        };
+        return updatedPin;
+      }
+      return pin;
+    });
+    console.log("Pins", newPins);
+    setPins(newPins);
+    setDialog(false);
+  }
+   
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Map of Trip</Text>
       <MapView
         style={styles.map}
-        initialRegion={initialRegion}
-        region={region}
+        initialRegion={region}
         showsUserLocation={true}
         onLongPress={onMapPress}
+        draggable
+        onMarkerPress={onMarkerPress}
       >
         {pins.map(marker => (
           <Marker
@@ -53,9 +79,16 @@ export default function TripMap() {
             coordinate={marker.coordinate}
             title={marker.title}
             description={marker.description}
+            // onPress={onMarkerPress(marker.key)}
           />
         ))}
       </MapView>
+      <DialogInput isDialogVisible={dialog}
+                  title={"Enter pin title"}
+                  hintInput ={"Pin title"}
+                  submitInput={(inputText) => {onNewTitleSubmit(inputText)}}
+                  closeDialog={() => {setDialog(false)}}>
+      </DialogInput>
     </View>
   );
 }
