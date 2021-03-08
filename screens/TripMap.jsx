@@ -12,72 +12,41 @@ export default function TripMap() {
   latitudeDelta: 0.922,
   longitudeDelta: 0.922};
   const [region, setRegion] = useState(null);
+  const [coordinates, setCoordinates] = useState([]);
 
-  // useEffect(() => {
-  //   (async () => {
-  //     let { status } = await Location.requestPermissionsAsync();
-  //     if (status !== 'granted') {
-  //       setErrorMsg('Permission to access location was denied');
-  //       return;
-  //     }
-  //
-  //     let location = await Location.getCurrentPositionAsync({});
-  //     setLocation(location);
-  //     setRegion({latitude: location.coords.latitude,
-  //       longitude: location.coords.longitude,
-  //       latitudeDelta: 0.5,
-  //       longitudeDelta: 0.5});
-  //   })();
-  // }, []);
+ useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
 
-  useEffect(() => {
-   async function startWatching() {
-     let { status } = await Location.requestPermissionsAsync();
-     if (status !== 'granted') {
-       setErrorMsg('Permission to access location was denied');
-       return;
-     }
-     let isRegistered = await TaskManager.isTaskRegisteredAsync('firstTask');
-     if (isRegistered) {
-       TaskManager.unregisterTaskAsync('firstTask')
-     }
-     let location = await Location.startLocationUpdatesAsync('firstTask', {
-       accuracy: Location.Accuracy.BestForNavigation,
-       timeInterval: 60000,
-       activityType: Location.ActivityType.AutomotiveNavigation,
-       deferredUpdatesInterval: 90000
-     });
-   };
-   startWatching()
- }, []);
-
- TaskManager.defineTask('firstTask', ({ data, error }) => {
-   if (error) {
-     // Error occurred - check `error.message` for more details.
-     return;
-   }
-   if (data) {
-     const { latitude, longitude } = data.locations[0].coords
-     locationService.setLocation({latitude, longitude})
-     // console.log('locations', locations);
-     locationService.setRegion({latitude: location.coords.latitude,
-       longitude: location.coords.longitude,
-       latitudeDelta: 0.5,
-       longitudeDelta: 0.5});
-   }
- });
-
-  // let text = 'Waiting..';
-  // if (errorMsg) {
-  //   text = errorMsg;
-  // } else if (location) {
-  //   text = location.coords.latitude;
-  // }
-
-
-  // const onRegionChange = (region) {
-  //   setRegion
-  // }
+      let watchLocation = await Location.watchPositionAsync({
+        accuracy:Location.Accuracy.High,
+        timeInterval: 60000,
+        distanceInterval: 10 // meters
+      }, location => {
+          setLocation(location);
+          setRegion({latitude: location.coords.latitude,
+             longitude: location.coords.longitude,
+             latitudeDelta: 0.5,
+             longitudeDelta: 0.5});
+          let keys = {
+             latitude : location.coords.latitude,
+             longitude : location.coords.longitude
+          }
+          const newcoordinates = [...coordinates, keys]; //fix key
+          setCoordinates(newcoordinates);
+        }
+      )
+      setLocation(location);
+      setRegion({latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.5,
+        longitudeDelta: 0.5});
+    })();
+  }, []);
 
   const pins = [
     {
@@ -110,9 +79,19 @@ export default function TripMap() {
         ))}
         <Polyline
           coordinates={[
-  			       { latitude: 37.42773007993738, longitude: -122.16972973155477 },
-  			       { latitude: 37.872226652833305, longitude: -122.2585604834523 }
+            { latitude: 37.42773007993738, longitude: -122.16972973155477 },
+            { latitude: 37.3688, longitude: -122.0363 },
+            { latitude: 37.4323, longitude: -121.8996 },
+            { latitude: 37.5485, longitude: -121.9886 },
+            { latitude: 37.6688, longitude: -122.0810 },
+            { latitude: 37.8044, longitude: -122.2712 },
+            { latitude: 37.872226652833305, longitude: -122.2585604834523 }
   		    ]}
+          strokeColor="#FF0000"
+		      strokeWidth={2}
+        />
+        <Polyline
+          coordinates={coordinates}
           strokeColor="#FF0000"
 		      strokeWidth={2}
         />
