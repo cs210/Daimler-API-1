@@ -1,11 +1,55 @@
-import { StyleSheet, Text, View } from "react-native";
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity } from "react-native";
+import db from '../firebase';
 
-import React from "react";
 
-export default function PastTrips() {
+export default function PastTrips({ navigation}) {
+
+  const [loading, setLoading] = useState(false);
+  const [pastTrips, setPastTrips] = useState([]);
+
+  const parseTripsFromDatabase = (tripsFromDatabase) => {
+    const parsedTrips = [];
+    tripsFromDatabase.forEach(trip => {
+      const tripData = trip.data();
+      tripData["id"] = trip.id;
+      parsedTrips.push(tripData);
+    });
+    return parsedTrips;
+  };
+
+  const loadPastTrips = async () => {
+    setLoading(true);
+    setPastTrips([]);
+    const collRef = db.collection('trips');
+    const tripsFromDatabase = await collRef.get();
+    const parsedTrips = parseTripsFromDatabase(tripsFromDatabase); 
+    setPastTrips(parsedTrips);
+    setLoading(false);
+  };
+  
+  useEffect(() => {
+    loadPastTrips();
+  }, []);
+
+  const pastTripComponent = ({ item }) => {
+    return (
+      <TouchableOpacity onPress={() => console.log(item)} style={styles.itemContainer}>
+        <Text>Trip Reference: {item.id}</Text>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Past Trips</Text>
+      {loading 
+        ? <ActivityIndicator />
+        : <FlatList 
+            data={pastTrips}
+            renderItem={pastTripComponent}
+          />
+      }
     </View>
   );
 }
@@ -22,5 +66,12 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: "#8275BD",
     fontWeight: "bold",
+  },
+  itemContainer: {
+    elevation: 8,
+    backgroundColor: "#00A398",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginVertical: 4,
   },
 });

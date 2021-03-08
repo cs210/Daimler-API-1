@@ -1,8 +1,9 @@
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from 'expo-location';
 import React, { useState, useEffect } from 'react';
 import DialogInput from 'react-native-dialog-input';
+import db from '../firebase';
 
 export default function TripMap() {
   const [location, setLocation] = useState(null);
@@ -63,6 +64,15 @@ export default function TripMap() {
     setDialog(false);
   }
    
+  const onSaveTripPress = async () => {
+    if (pins.length == 0) return; // do nothing if no pins are placed
+    const data = {trip0: pins}; // hard-coding trip name as "trip0"
+    const collRef = db.collection('trips');
+    const newTripRef = await collRef.add(data);
+    console.log(`Added trip to Firebase reference: ${newTripRef.id}`);
+    setPins([]);
+  }
+  
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Map of Trip</Text>
@@ -91,6 +101,9 @@ export default function TripMap() {
                   submitInput={(inputText) => {onNewTitleSubmit(inputText)}}
                   closeDialog={() => {setDialog(false)}}>
       </DialogInput>
+      <TouchableOpacity onPress={onSaveTripPress} style={styles.appButtonContainer}>
+        <Text style={styles.appButtonText}>Save Trip</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -110,6 +123,20 @@ const styles = StyleSheet.create({
   },
   map: {
     width: Dimensions.get("window").width * 0.9,
-    height: Dimensions.get("window").height * 0.8,
+    height: Dimensions.get("window").height * 0.7,
+  },
+  appButtonContainer: {
+    elevation: 8,
+    backgroundColor: "#00A398",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  appButtonText: {
+    fontSize: 18,
+    color: "#fff",
+    fontWeight: "bold",
+    alignSelf: "center",
+    textTransform: "uppercase",
   },
 });
