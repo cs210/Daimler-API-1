@@ -33,7 +33,8 @@ export default function TripMap() {
   const onMapPress = (e) => {
     const newPins = [...pins, {
       key: pins.length, 
-      coordinate: e.nativeEvent.coordinate}];
+      coordinate: e.nativeEvent.coordinate,
+      title: ''}];
     setPins(newPins);
   }
 
@@ -85,6 +86,7 @@ export default function TripMap() {
       </MapView>
       <DialogInput isDialogVisible={dialog}
                   title={"Enter pin title"}
+                  message={"Current pin title: " + currentPin.title}
                   hintInput ={"Pin title"}
                   submitInput={(inputText) => {onNewTitleSubmit(inputText)}}
                   closeDialog={() => {setDialog(false)}}>
