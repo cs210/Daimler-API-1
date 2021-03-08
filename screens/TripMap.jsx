@@ -38,15 +38,10 @@ export default function TripMap() {
              latitude : location.coords.latitude,
              longitude : location.coords.longitude
           }
-          const newcoordinates = [...coordinates, keys]; //fix key
+          const newcoordinates = [...coordinates, keys];
           setCoordinates(newcoordinates);
         }
       )
-      setLocation(location);
-      setRegion({latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          latitudeDelta: 0.5,
-          longitudeDelta: 0.5});
     })();
   }, []);
 
