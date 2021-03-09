@@ -93,7 +93,7 @@ export default function TripMap() {
         initialRegion={region}
         showsUserLocation={true}
         onLongPress={onMapPress}
-        draggable
+  
         // onMarkerPress={onMarkerPress}
       >
         {pins.map(marker => (
@@ -102,6 +102,7 @@ export default function TripMap() {
             coordinate={marker.coordinate}
             title={marker.title}
             description={marker.description}
+            draggable
             ref={ref => {
               markers[marker.key] = ref;}}
             stopPropagation={true}
