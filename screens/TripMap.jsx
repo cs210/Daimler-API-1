@@ -14,6 +14,7 @@ export default function TripMap() {
   //Pin currently being editted
   const [currentPin, setCurrentPin] = useState([]); 
   const [coordinates, setCoordinates] = useState([]);
+  const [markers, setMarkers] = useState([]);
 
 
   useEffect(() => {
@@ -53,13 +54,10 @@ export default function TripMap() {
     setPins(newPins);
   }
 
-  const onMarkerPress = (e) => {
-    const marker = pins.find(
-      m => m.coordinate.latitude === e.nativeEvent.coordinate.latitude 
-        && m.coordinate.longitude === e.nativeEvent.coordinate.longitude
-    );
+  const onMarkerPress = (marker) => {
     setDialog(true);
     setCurrentPin(marker);
+    markers[marker.key].hideCallout();
   }
 
   const onNewTitleSubmit = (newTitle) => {
@@ -77,7 +75,7 @@ export default function TripMap() {
     setPins(newPins);
     setDialog(false);
   }
-   
+
   const onSaveTripPress = async () => {
     if (pins.length == 0) return; // do nothing if no pins are placed
     const data = {trip0: pins}; // hard-coding trip name as "trip0"
@@ -96,7 +94,7 @@ export default function TripMap() {
         showsUserLocation={true}
         onLongPress={onMapPress}
         draggable
-        onMarkerPress={onMarkerPress}
+        // onMarkerPress={onMarkerPress}
       >
         {pins.map(marker => (
           <Marker
@@ -104,7 +102,10 @@ export default function TripMap() {
             coordinate={marker.coordinate}
             title={marker.title}
             description={marker.description}
-            // onPress={onMarkerPress(marker.key)}
+            ref={ref => {
+              markers[marker.key] = ref;}}
+            stopPropagation={true}
+            onCalloutPress={() => onMarkerPress(marker)}
           />
         ))}
         <Polyline
