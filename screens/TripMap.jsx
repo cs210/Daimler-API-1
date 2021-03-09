@@ -23,6 +23,7 @@ export default function TripMap({ navigation }) {
   const [currentPin, setCurrentPin] = useState([]);
   const [coordinates, setCoordinates] = useState([]);
   const [markers, setMarkers] = useState([]);
+  const [isTripPaused, setIsTripPaused] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -92,6 +93,9 @@ export default function TripMap({ navigation }) {
   };
 
   const onNewTitleSubmit = (newTitle) => {
+    if (newTitle == null) {
+      newTitle = "";
+    }
     const newPins = pins.map((pin) => {
       if (pin === currentPin) {
         const updatedPin = {
@@ -114,12 +118,11 @@ export default function TripMap({ navigation }) {
     const collRef = db.collection("trips");
     const newTripRef = await collRef.add(data);
     console.log(`Added trip to Firebase reference: ${newTripRef.id}`);
-    setPins([]);
     navigation.navigate("Trip Overview", data);
   };
 
   const onPauseTripPress = async () => {
-    console.log("pressed paused");
+    setIsTripPaused(!isTripPaused);
   };
 
   return (
@@ -181,7 +184,7 @@ export default function TripMap({ navigation }) {
           onPress={onPauseTripPress}
           style={styles.appButtonContainer}
         >
-          <Text style={styles.appButtonText}>Pause Trip</Text>
+          <Text style={styles.appButtonText}>{isTripPaused ? 'Pause Trip' : 'Resume Trip'} </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={onFinishTripPress}
