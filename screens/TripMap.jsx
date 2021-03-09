@@ -85,12 +85,7 @@ export default function TripMap({ navigation }) {
     setPins(newPins);
   };
 
-  const onMarkerPress = (e) => {
-    const marker = pins.find(
-      (m) =>
-        m.coordinate.latitude === e.nativeEvent.coordinate.latitude &&
-        m.coordinate.longitude === e.nativeEvent.coordinate.longitude
-    );
+  const onMarkerPress = (marker) => {
     setDialog(true);
     setCurrentPin(marker);
         markers[marker.key].hideCallout();
@@ -135,7 +130,6 @@ export default function TripMap({ navigation }) {
         initialRegion={region}
         showsUserLocation={true}
         onLongPress={onMapPress}
-  
         // onMarkerPress={onMarkerPress}
       >
         {pins.map((marker) => (
