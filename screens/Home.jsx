@@ -1,10 +1,13 @@
-import { StyleSheet, Text, TouchableOpacity, View, Linking } from "react-native";
+import {
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 
-import PastTrips from "./PastTrips";
-import React, {useState, useEffect} from "react";
-import TripMap from "./TripMap";
-
-const useMount = func => useEffect(() => func(), []);
+const useMount = (func) => useEffect(() => func(), []);
 
 const useInitialURL = () => {
   const [url, setUrl] = useState(null);
@@ -27,51 +30,55 @@ const useInitialURL = () => {
 
   return { url, processing };
 };
-const base64 = require('base-64');
+const base64 = require("base-64");
 
 const getAccessToken = async () => {
   try {
-    let response = await fetch('https://id.mercedes-benz.com/as/token.oauth2', {
-      method: 'POST',
+    let response = await fetch("https://id.mercedes-benz.com/as/token.oauth2", {
+      method: "POST",
       headers: {
-        'Authorization': 'Basic ' + base64.encode('<insert_your_base64_encoded_client_id_and_client_secret_here>'),
-        'Content-Type': 'application/x-www-form-urlencoded'
+        Authorization:
+          "Basic " +
+          base64.encode(
+            "<insert_your_base64_encoded_client_id_and_client_secret_here>"
+          ),
+        "Content-Type": "application/x-www-form-urlencoded",
       },
       body: JSON.stringify({
-        "grant_type": "authorization_code",
-        "code": "RP0jKBpywPRdB8ivTt6gK4l6qfzwsC_dZ_VLWIW3",
-        "redirect_uri": "exp://10.0.0.7:19000"
+        grant_type: "authorization_code",
+        code: "RP0jKBpywPRdB8ivTt6gK4l6qfzwsC_dZ_VLWIW3",
+        redirect_uri: "exp://10.0.0.7:19000",
       }),
     });
     let json = await response.json();
     return json.access_token;
-    } catch (error) {
-      console.error(error);
-    }
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 export const Home = ({ navigation }) => {
   const { url: initialUrl } = useInitialURL();
 
   const onPressStart = () => {
-    console.log("pressed start trip");
     console.log("inital url: ", initialUrl);
     navigation.navigate("Trip Map");
   };
   const onPressView = () => {
-    console.log("pressed view past trips");
     navigation.navigate("Past Trips");
   };
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Road Trip Buddy</Text>
       <TouchableOpacity
-        onPress={() => Linking.openURL('https://id.mercedes-benz.com/as/authorization.oauth2?response_type=code&client_id=142a054e-e379-4af0-92ee-4c896c8b4573&redirect_uri=https://localhost&scope=mb:vehicle:status:general mb:user:pool:reader offline_access&state=xyzABC123')}
+        onPress={() =>
+          Linking.openURL(
+            "https://id.mercedes-benz.com/as/authorization.oauth2?response_type=code&client_id=142a054e-e379-4af0-92ee-4c896c8b4573&redirect_uri=https://localhost&scope=mb:vehicle:status:general mb:user:pool:reader offline_access&state=xyzABC123"
+          )
+        }
         style={styles.loginButtonContainer}
       >
-        <Text style={styles.loginButtonText}>
-          Log In with Mercedes-Benz
-        </Text>
+        <Text style={styles.loginButtonText}>Log In with Mercedes-Benz</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={onPressStart}
