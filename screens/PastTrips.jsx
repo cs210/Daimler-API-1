@@ -1,16 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity } from "react-native";
-import db from '../firebase';
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 
+import db from "../firebase";
 
-export default function PastTrips({ navigation}) {
-
+export default function PastTrips({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [pastTrips, setPastTrips] = useState([]);
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
     const parsedTrips = [];
-    tripsFromDatabase.forEach(trip => {
+    tripsFromDatabase.forEach((trip) => {
       const tripData = trip.data();
       tripData["id"] = trip.id;
       parsedTrips.push(tripData);
@@ -21,20 +27,23 @@ export default function PastTrips({ navigation}) {
   const loadPastTrips = async () => {
     setLoading(true);
     setPastTrips([]);
-    const collRef = db.collection('trips');
+    const collRef = db.collection("trips");
     const tripsFromDatabase = await collRef.get();
-    const parsedTrips = parseTripsFromDatabase(tripsFromDatabase); 
+    const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
     setPastTrips(parsedTrips);
     setLoading(false);
   };
-  
+
   useEffect(() => {
     loadPastTrips();
   }, []);
 
   const pastTripComponent = ({ item }) => {
     return (
-      <TouchableOpacity onPress={() => console.log(item)} style={styles.itemContainer}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("Trip Overview", item)}
+        style={styles.itemContainer}
+      >
         <Text>Trip Reference: {item.id}</Text>
       </TouchableOpacity>
     );
@@ -43,13 +52,11 @@ export default function PastTrips({ navigation}) {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Past Trips</Text>
-      {loading 
-        ? <ActivityIndicator />
-        : <FlatList 
-            data={pastTrips}
-            renderItem={pastTripComponent}
-          />
-      }
+      {loading ? (
+        <ActivityIndicator />
+      ) : (
+        <FlatList data={pastTrips} renderItem={pastTripComponent} />
+      )}
     </View>
   );
 }

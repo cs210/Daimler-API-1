@@ -1,67 +1,98 @@
-import { Dimensions, StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import MapView, { Marker, Polyline } from "react-native-maps";
-import * as Location from 'expo-location';
-import React, { useState, useEffect } from 'react';
-import DialogInput from 'react-native-dialog-input';
-import db from '../firebase';
+import * as Location from "expo-location";
 
-export default function TripMap() {
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import MapView, { Marker, Polyline } from "react-native-maps";
+import React, { useEffect, useState } from "react";
+
+import DialogInput from "react-native-dialog-input";
+import db from "../firebase";
+
+export default function TripMap({ navigation }) {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [region, setRegion] = useState(null);
-  const [pins, setPins] = useState([]); 
+  const [pins, setPins] = useState([]);
   const [dialog, setDialog] = useState(false);
   //Pin currently being editted
-  const [currentPin, setCurrentPin] = useState([]); 
+  const [currentPin, setCurrentPin] = useState([]);
   const [coordinates, setCoordinates] = useState([]);
   const [markers, setMarkers] = useState([]);
-
 
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
         return;
       }
 
-      let watchLocation = await Location.watchPositionAsync({
-        accuracy:Location.Accuracy.High,
-        timeInterval: 60000,
-        distanceInterval: 10 // meters
-      }, location => {
+      let watchLocation = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 60000,
+          distanceInterval: 10, // meters
+        },
+        (location) => {
           setLocation(location);
-          setRegion({latitude: location.coords.latitude,
-             longitude: location.coords.longitude,
-             latitudeDelta: 0.5,
-             longitudeDelta: 0.5});
+          setRegion({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            latitudeDelta: 0.5,
+            longitudeDelta: 0.5,
+          });
           let keys = {
-             latitude : location.coords.latitude,
-             longitude : location.coords.longitude
-          }
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          };
           const newcoordinates = [...coordinates, keys];
           setCoordinates(newcoordinates);
         }
-      )
+      );
     })();
   }, []);
 
+  useEffect(() => {
+    if (location && pins.length == 0) {
+      const marker = {
+        key: 0,
+        coordinate: {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        },
+        title: "Started Trip",
+      };
+      setPins([marker]);
+      setCurrentPin(marker);
+      setDialog(true);
+    }
+  });
+
   const onMapPress = (e) => {
-    const newPins = [...pins, {
-      key: pins.length, 
-      coordinate: e.nativeEvent.coordinate,
-      title: ''}];
+    const newPins = [
+      ...pins,
+      {
+        key: pins.length,
+        coordinate: e.nativeEvent.coordinate,
+        title: "Stop " + (pins.length + 1),
+      },
+    ];
     setPins(newPins);
-  }
+  };
 
   const onMarkerPress = (marker) => {
     setDialog(true);
     setCurrentPin(marker);
-    markers[marker.key].hideCallout();
-  }
+        markers[marker.key].hideCallout();
+  };
 
   const onNewTitleSubmit = (newTitle) => {
-     const newPins = pins.map((pin) => {
+    const newPins = pins.map((pin) => {
       if (pin === currentPin) {
         const updatedPin = {
           ...pin,
@@ -74,17 +105,23 @@ export default function TripMap() {
     console.log("Pins", newPins);
     setPins(newPins);
     setDialog(false);
-  }
+  };
 
-  const onSaveTripPress = async () => {
+  const onFinishTripPress = async () => {
+
     if (pins.length == 0) return; // do nothing if no pins are placed
-    const data = {trip0: pins}; // hard-coding trip name as "trip0"
-    const collRef = db.collection('trips');
+    const data = { trip0: pins }; // hard-coding trip name as "trip0"
+    const collRef = db.collection("trips");
     const newTripRef = await collRef.add(data);
     console.log(`Added trip to Firebase reference: ${newTripRef.id}`);
     setPins([]);
-  }
-  
+    navigation.navigate("Trip Overview", data);
+  };
+
+  const onPauseTripPress = async () => {
+    console.log("pressed paused");
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Map of Trip</Text>
@@ -93,10 +130,9 @@ export default function TripMap() {
         initialRegion={region}
         showsUserLocation={true}
         onLongPress={onMapPress}
-  
         // onMarkerPress={onMarkerPress}
       >
-        {pins.map(marker => (
+        {pins.map((marker) => (
           <Marker
             key={marker.key}
             coordinate={marker.coordinate}
@@ -115,29 +151,45 @@ export default function TripMap() {
             { latitude: 37.3688, longitude: -122.0363 },
             { latitude: 37.4323, longitude: -121.8996 },
             { latitude: 37.5485, longitude: -121.9886 },
-            { latitude: 37.6688, longitude: -122.0810 },
+            { latitude: 37.6688, longitude: -122.081 },
             { latitude: 37.8044, longitude: -122.2712 },
-            { latitude: 37.872226652833305, longitude: -122.2585604834523 }
-  		    ]}
+            { latitude: 37.872226652833305, longitude: -122.2585604834523 },
+          ]}
           strokeColor="#FF0000"
-		      strokeWidth={2}
+          strokeWidth={2}
         />
         <Polyline
           coordinates={coordinates}
           strokeColor="#FF0000"
-		      strokeWidth={2}
+          strokeWidth={2}
         />
       </MapView>
-      <DialogInput isDialogVisible={dialog}
-                  title={"Enter pin title"}
-                  message={"Current pin title: " + currentPin.title}
-                  hintInput ={"Pin title"}
-                  submitInput={(inputText) => {onNewTitleSubmit(inputText)}}
-                  closeDialog={() => {setDialog(false)}}>
-      </DialogInput>
-      <TouchableOpacity onPress={onSaveTripPress} style={styles.appButtonContainer}>
-        <Text style={styles.appButtonText}>Save Trip</Text>
-      </TouchableOpacity>
+      <DialogInput
+        isDialogVisible={dialog}
+        title={"Enter pin title"}
+        message={"Current pin title: " + currentPin.title}
+        hintInput={"Pin title"}
+        submitInput={(inputText) => {
+          onNewTitleSubmit(inputText);
+        }}
+        closeDialog={() => {
+          setDialog(false);
+        }}
+      ></DialogInput>
+      <View style={{ flexDirection: "row" }}>
+        <TouchableOpacity
+          onPress={onPauseTripPress}
+          style={styles.appButtonContainer}
+        >
+          <Text style={styles.appButtonText}>Pause Trip</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={onFinishTripPress}
+          style={styles.appButtonContainer}
+        >
+          <Text style={styles.appButtonText}>Finish Trip</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -165,6 +217,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
+    margin: 5,
   },
   appButtonText: {
     fontSize: 18,
