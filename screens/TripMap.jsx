@@ -184,7 +184,7 @@ export default function TripMap({ navigation }) {
           onPress={onPauseTripPress}
           style={styles.appButtonContainer}
         >
-          <Text style={styles.appButtonText}>{isTripPaused ? 'Pause Trip' : 'Resume Trip'} </Text>
+          <Text style={styles.appButtonText}>{isTripPaused ? 'Resume Trip' : 'Pause Trip'} </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={onFinishTripPress}
