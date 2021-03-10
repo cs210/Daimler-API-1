@@ -1,4 +1,6 @@
 import {
+  Dimensions,
+  Image,
   Linking,
   StyleSheet,
   Text,
@@ -69,6 +71,10 @@ export const Home = ({ navigation }) => {
   };
   return (
     <View style={styles.container}>
+      <Image
+        style={styles.logo}
+        source={require("../assets/daimler-logo.png")}
+      />
       <Text style={styles.header}>Road Trip Buddy</Text>
       <TouchableOpacity
         onPress={() =>
@@ -100,6 +106,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-around",
     margin: 15,
+  },
+  logo: {
+    width: Dimensions.get("window").width * 0.7,
+    height: "10%",
+    resizeMode: "contain",
   },
   header: {
     fontSize: 30,
