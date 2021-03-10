@@ -11,7 +11,6 @@ import MapView, { Marker, Polyline } from "react-native-maps";
 import React, { useEffect, useState } from "react";
 
 import DialogInput from "react-native-dialog-input";
-import db from "../firebase";
 
 export default function TripMap({ navigation }) {
   const [location, setLocation] = useState(null);
@@ -106,18 +105,13 @@ export default function TripMap({ navigation }) {
       }
       return pin;
     });
-    console.log("Pins", newPins);
     setPins(newPins);
     setDialog(false);
   };
 
   const onFinishTripPress = async () => {
-
     if (pins.length == 0) return; // do nothing if no pins are placed
-    const data = { trip0: pins }; // hard-coding trip name as "trip0"
-    const collRef = db.collection("trips");
-    const newTripRef = await collRef.add(data);
-    console.log(`Added trip to Firebase reference: ${newTripRef.id}`);
+    const data = { tripTitleText: "", pins: pins }; 
     navigation.navigate("Trip Overview", data);
   };
 
@@ -133,7 +127,6 @@ export default function TripMap({ navigation }) {
         initialRegion={region}
         showsUserLocation={true}
         onLongPress={onMapPress}
-        // onMarkerPress={onMarkerPress}
       >
         {pins.map((marker) => (
           <Marker

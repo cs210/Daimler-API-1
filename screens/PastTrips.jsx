@@ -18,7 +18,9 @@ export default function PastTrips({ navigation }) {
     const parsedTrips = [];
     tripsFromDatabase.forEach((trip) => {
       const tripData = trip.data();
+      console.log("tripData", tripData)
       tripData["id"] = trip.id;
+      tripData["tripTitle"] = tripData.tripTitleText;
       parsedTrips.push(tripData);
     });
     return parsedTrips;
@@ -44,7 +46,7 @@ export default function PastTrips({ navigation }) {
         onPress={() => navigation.navigate("Trip Overview", item)}
         style={styles.itemContainer}
       >
-        <Text>Trip Reference: {item.id}</Text>
+        <Text>Trip Name: {item.tripTitle}</Text>
       </TouchableOpacity>
     );
   };
