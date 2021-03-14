@@ -10,6 +10,7 @@ import {
 import MapView, { Marker, Polyline } from "react-native-maps";
 import React, { useEffect, useState, createContext } from "react";
 import PinPopup from './PinPopup';
+import {v4 as uuidv4} from 'uuid';
 
 export default function TripMap({ navigation }) {
   const [location, setLocation] = useState(null);
@@ -22,6 +23,7 @@ export default function TripMap({ navigation }) {
   const [coordinates, setCoordinates] = useState([]);
   const [markers, setMarkers] = useState([]);
   const [isTripPaused, setIsTripPaused] = useState(false);
+  const [isStartPinCreated, setIsStartPinCreated] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -57,9 +59,9 @@ export default function TripMap({ navigation }) {
   }, []);
 
   useEffect(() => {
-    if (location && pins.length == 0) { // will cause an issue if user tries to delete starting pin
+    if (!isStartPinCreated && location && pins.length == 0) {
       const marker = {
-        key: 0,
+        key: uuidv4(),
         coordinate: {
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
@@ -70,6 +72,7 @@ export default function TripMap({ navigation }) {
       setPins([marker]);
       setCurrentPin(marker);
       setIsPinPopupVisible(true);
+      setIsStartPinCreated(true);
     }
   });
 
@@ -77,9 +80,9 @@ export default function TripMap({ navigation }) {
     const newPins = [
       ...pins,
       {
-        key: pins.length, //will become problematic when array size changes
+        key: uuidv4(),
         coordinate: e.nativeEvent.coordinate,
-        title: "Stop " + (pins.length + 1), //will become problematic when array size changes
+        title: "Stop " + (pins.length + 1), // Using pins.length + 1 can become problematic when array size changes
         description: "",
       },
     ];
@@ -93,7 +96,10 @@ export default function TripMap({ navigation }) {
   };
 
   const onFinishTripPress = async () => {
-    if (pins.length == 0) return; // do nothing if no pins are placed
+    if (pins.length == 0) {
+      navigation.navigate("Home");
+      return;
+    }
     const data = { tripTitleText: "", pins: pins }; 
     navigation.navigate("Trip Overview", data);
   };
@@ -115,16 +121,7 @@ export default function TripMap({ navigation }) {
   };
 
   const deletePin = (pinToDelete) => {
-    console.log("pin to delete", pinToDelete.key);
-    // const newPins = pins.map((pin) => {
-    //   console.log("pin.key", pin.key);
-    //   if (pin.key != pinToDelete.key) {
-    //     console.log("not equal");
-    //     return pin;
-    //   }
-    // });
-    newPins = pins.filter(pin => pin.key != pinToDelete.key);
-    console.log("new pins", newPins);
+    const newPins = pins.filter(pin => pin.key != pinToDelete.key);
     setPins(newPins);
     setIsPinPopupVisible(false);
   }
@@ -225,3 +222,4 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
 });
+

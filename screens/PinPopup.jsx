@@ -30,26 +30,28 @@ export default function PinPopup(props) {
                 defaultValue={pinDescrip}
               />
             </View>
-            <TouchableOpacity
-              style={styles.appButtonContainer}
-              onPress={() => {
-                props.getUpdatedPin({
-                    ...props.pin,
-                    title: pinTitle,
-                    description: pinDescrip,
-                  });
-                }
-              }>
-              <Text style={styles.appButtonText}> Save pin</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.appButtonContainer}
-              onPress={() => {
-                props.deletePin(props.pin);
-                }
-              }>
-              <Text style={styles.appButtonText}> Delete pin</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonFlexView}>
+              <TouchableOpacity
+                style={styles.appButtonContainer}
+                onPress={() => {
+                  props.getUpdatedPin({
+                      ...props.pin,
+                      title: pinTitle,
+                      description: pinDescrip,
+                    });
+                  }
+                }>
+                <Text style={styles.appButtonText}> Save pin</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.appButtonContainer}
+                onPress={() => {
+                  props.deletePin(props.pin);
+                  }
+                }>
+                <Text style={styles.appButtonText}> Delete pin</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -84,7 +86,13 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     height: 40,
     flexDirection:'row'
-   },
+  },
+  buttonFlexView: {
+    marginBottom: 15,
+    alignItems: 'stretch',
+    height: 53,
+    flexDirection:'row'
+  },
   text: {
      marginTop: 10,
      marginRight: 10,
