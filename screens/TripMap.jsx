@@ -57,7 +57,7 @@ export default function TripMap({ navigation }) {
   }, []);
 
   useEffect(() => {
-    if (location && pins.length == 0) {
+    if (location && pins.length == 0) { // will cause an issue if user tries to delete starting pin
       const marker = {
         key: 0,
         coordinate: {
@@ -77,9 +77,9 @@ export default function TripMap({ navigation }) {
     const newPins = [
       ...pins,
       {
-        key: pins.length,
+        key: pins.length, //will become problematic when array size changes
         coordinate: e.nativeEvent.coordinate,
-        title: "Stop " + (pins.length + 1),
+        title: "Stop " + (pins.length + 1), //will become problematic when array size changes
         description: "",
       },
     ];
@@ -114,6 +114,21 @@ export default function TripMap({ navigation }) {
     setIsPinPopupVisible(false);
   };
 
+  const deletePin = (pinToDelete) => {
+    console.log("pin to delete", pinToDelete.key);
+    // const newPins = pins.map((pin) => {
+    //   console.log("pin.key", pin.key);
+    //   if (pin.key != pinToDelete.key) {
+    //     console.log("not equal");
+    //     return pin;
+    //   }
+    // });
+    newPins = pins.filter(pin => pin.key != pinToDelete.key);
+    console.log("new pins", newPins);
+    setPins(newPins);
+    setIsPinPopupVisible(false);
+  }
+ 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Map of Trip</Text>
@@ -157,7 +172,8 @@ export default function TripMap({ navigation }) {
       </MapView>
       {isPinPopupVisible && <PinPopup
         pin={currentPin}
-        getUpdatedPin={getUpdatedPin} />}
+        getUpdatedPin={getUpdatedPin}
+        deletePin={deletePin} />}
       <View style={{ flexDirection: "row" }}>
         <TouchableOpacity
           onPress={onPauseTripPress}

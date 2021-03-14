@@ -42,6 +42,14 @@ export default function PinPopup(props) {
               }>
               <Text style={styles.appButtonText}> Save pin</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.appButtonContainer}
+              onPress={() => {
+                props.deletePin(props.pin);
+                }
+              }>
+              <Text style={styles.appButtonText}> Delete pin</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
