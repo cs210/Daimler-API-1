@@ -7,6 +7,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import PastTrips from "./screens/PastTrips";
 import TripMap from "./screens/TripMap";
 import TripOverview from "./screens/TripOverview";
+import TripViewer from "./screens/TripViewer";
 import { createStackNavigator } from "@react-navigation/stack";
 
 // const useMount = func => useEffect(() => func(), []);
@@ -44,6 +45,7 @@ const App = () => {
         <Stack.Screen name="Trip Map" component={TripMap} />
         <Stack.Screen name="Past Trips" component={PastTrips} />
         <Stack.Screen name="Trip Overview" component={TripOverview} />
+        <Stack.Screen name="Trip Viewer" component={TripViewer} />
       </Stack.Navigator>
     </NavigationContainer>
   );

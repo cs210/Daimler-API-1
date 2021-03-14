@@ -48,6 +48,11 @@ export default function TripOverview({ navigation, route }) {
     navigation.navigate("Home");
   }
 
+  const onViewOnMap = () => {
+    const { pins, tripTitle } = route.params;
+    navigation.navigate("Trip Viewer", {pins: pins, tripTitle: tripTitle});
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Trip Overview</Text>
@@ -67,11 +72,18 @@ export default function TripOverview({ navigation, route }) {
           keyExtractor={(item, index) => index.toString()}
           />
       )}
-      <TouchableOpacity
-        onPress={onSaveTrip}
-        style={styles.appButtonContainer}>
-        <Text style={styles.appButtonText}>Save Trip</Text>
-      </TouchableOpacity>
+      <View style={styles.rowContainer}>
+        <TouchableOpacity
+          onPress={onSaveTrip}
+          style={styles.appButtonContainer}>
+          <Text style={styles.appButtonText}>Save Trip</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={onViewOnMap}
+          style={styles.appButtonContainer}>
+          <Text style={styles.appButtonText}>View on Map</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -111,37 +123,42 @@ const styles = StyleSheet.create({
     borderColor: "#00A398",
     borderWidth: 5,
   },
- tripTitleView: {
-  margin: 10,
-  alignItems: 'stretch',
-  height: 40,
-  flexDirection:'row'
- },
- tripTitleText: {
-   marginTop: 10,
-   marginRight: 10,
-   fontWeight: "bold", 
- },
- titleInput: {
-  borderWidth: 1,
-  flex: 2,
-  borderColor: '#00A398',
-  padding: 5
- },
- appButtonContainer: {
-  elevation: 8,
-  backgroundColor: "#00A398",
-  borderRadius: 10,
-  paddingVertical: 10,
-  paddingHorizontal: 12,
-  marginVertical: 15
-},
-appButtonText: {
-  fontSize: 18,
-  color: "#fff",
-  fontWeight: "bold",
-  alignSelf: "center",
-  textTransform: "uppercase",
-},
- 
+  tripTitleView: {
+    margin: 10,
+    alignItems: 'stretch',
+    height: 40,
+    flexDirection:'row'
+  },
+  tripTitleText: {
+    marginTop: 10,
+    marginRight: 10,
+    fontWeight: "bold", 
+  },
+  titleInput: {
+    borderWidth: 1,
+    flex: 2,
+    borderColor: '#00A398',
+    padding: 5
+  },
+  appButtonContainer: {
+    elevation: 8,
+    backgroundColor: "#00A398",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginVertical: 15,
+    marginHorizontal: 4,
+  },
+  appButtonText: {
+    fontSize: 18,
+    color: "#fff",
+    fontWeight: "bold",
+    alignSelf: "center",
+    textTransform: "uppercase",
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
