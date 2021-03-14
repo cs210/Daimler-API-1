@@ -24,6 +24,7 @@ export default function TripMap({ navigation }) {
   const [markers, setMarkers] = useState([]);
   const [isTripPaused, setIsTripPaused] = useState(false);
   const [isStartPinCreated, setIsStartPinCreated] = useState(false);
+  const [locations, setLocations] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -36,10 +37,16 @@ export default function TripMap({ navigation }) {
       let watchLocation = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.High,
-          timeInterval: 60000,
+          timeInterval: 30000,
           distanceInterval: 10, // meters
         },
         (location) => {
+          const newLocations = [
+            ...locations,
+              location.coords
+            ,
+          ];
+          setLocations(newLocations);
           setLocation(location);
           setRegion({
             latitude: location.coords.latitude,
@@ -56,7 +63,7 @@ export default function TripMap({ navigation }) {
         }
       );
     })();
-  }, []);
+  }, [locations]);
 
   useEffect(() => {
     if (!isStartPinCreated && location && pins.length == 0) {
@@ -151,9 +158,13 @@ export default function TripMap({ navigation }) {
         <Polyline 
           strokeColor="#FF0000"
           strokeWidth={2}
-          coordinates={pins.map((pin) => ({
-            latitude: pin.coordinate.latitude,
-            longitude: pin.coordinate.longitude,
+          // coordinates={pins.map((pin) => ({
+          //   latitude: pin.coordinate.latitude,
+          //   longitude: pin.coordinate.longitude,
+          // }))}
+          coordinates={locations.map((coords) => ({
+              latitude: coords.latitude,
+              longitude: coords.longitude,
           }))}
         />
       </MapView>
