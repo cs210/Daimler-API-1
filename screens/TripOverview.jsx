@@ -21,10 +21,13 @@ export default function TripOverview({ navigation, route }) {
         style={styles.itemContainer}
       >
         {item.title ? (
-          <Text style={styles.pinHeader}>{item.title}</Text>
+          <Text style={styles.pinTitle}>{item.title}</Text>
         ) : (
-          <Text style={styles.pinHeader}>Pinned Stop</Text>
+          <Text style={styles.pinTitle}>Pinned Stop</Text>
         )}
+        {item.description != "" && item.description &&
+          (<Text style={styles.pinDescrip}>{item.description}</Text>)
+        }
 
         <Text style={styles.pinText}>Latitude: {item.coordinate.latitude}</Text>
         <Text style={styles.pinText}>
@@ -94,16 +97,18 @@ const styles = StyleSheet.create({
     color: "#8275BD",
     margin: 10,
   },
-  pinHeader: {
+  pinTitle: {
     fontSize: 15,
     fontWeight: "bold",
   },
+  pinDescrip: {
+    fontSize: 13,
+  },
   pinText: {
-    fontSize: 15,
+    fontSize: 11,
   },
   itemContainer: {
     elevation: 8,
-    // backgroundColor: "#00A398",
     paddingVertical: 10,
     paddingHorizontal: 12,
     marginVertical: 4,

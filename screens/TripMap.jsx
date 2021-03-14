@@ -8,18 +8,17 @@ import {
   View,
 } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
-import React, { useEffect, useState } from "react";
-
-import DialogInput from "react-native-dialog-input";
+import React, { useEffect, useState, createContext } from "react";
+import PinPopup from './PinPopup';
 
 export default function TripMap({ navigation }) {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [region, setRegion] = useState(null);
   const [pins, setPins] = useState([]);
-  const [dialog, setDialog] = useState(false);
+  const [isPinPopupVisible, setIsPinPopupVisible] = useState(false);
   //Pin currently being editted
-  const [currentPin, setCurrentPin] = useState([]);
+  const [currentPin, setCurrentPin] = useState(null);
   const [coordinates, setCoordinates] = useState([]);
   const [markers, setMarkers] = useState([]);
   const [isTripPaused, setIsTripPaused] = useState(false);
@@ -66,10 +65,11 @@ export default function TripMap({ navigation }) {
           longitude: location.coords.longitude,
         },
         title: "Started Trip",
+        description: "",
       };
       setPins([marker]);
       setCurrentPin(marker);
-      setDialog(true);
+      setIsPinPopupVisible(true);
     }
   });
 
@@ -80,33 +80,16 @@ export default function TripMap({ navigation }) {
         key: pins.length,
         coordinate: e.nativeEvent.coordinate,
         title: "Stop " + (pins.length + 1),
+        description: "",
       },
     ];
     setPins(newPins);
   };
 
   const onMarkerPress = (marker) => {
-    setDialog(true);
+    setIsPinPopupVisible(true);
     setCurrentPin(marker);
-        markers[marker.key].hideCallout();
-  };
-
-  const onNewTitleSubmit = (newTitle) => {
-    if (newTitle == null) {
-      newTitle = "";
-    }
-    const newPins = pins.map((pin) => {
-      if (pin === currentPin) {
-        const updatedPin = {
-          ...pin,
-          title: newTitle,
-        };
-        return updatedPin;
-      }
-      return pin;
-    });
-    setPins(newPins);
-    setDialog(false);
+    markers[marker.key].hideCallout();
   };
 
   const onFinishTripPress = async () => {
@@ -117,6 +100,18 @@ export default function TripMap({ navigation }) {
 
   const onPauseTripPress = async () => {
     setIsTripPaused(!isTripPaused);
+  };
+
+  const getUpdatedPin = (newPin) => {
+    // Callback to set pin with updated pin
+    const newPins = pins.map((pin) => {
+      if (pin.key === newPin.key) {
+        return newPin;
+      }
+      return pin;
+    });
+    setPins(newPins);
+    setIsPinPopupVisible(false);
   };
 
   return (
@@ -160,18 +155,9 @@ export default function TripMap({ navigation }) {
           strokeWidth={2}
         />
       </MapView>
-      <DialogInput
-        isDialogVisible={dialog}
-        title={"Enter pin title"}
-        message={"Current pin title: " + currentPin.title}
-        hintInput={"Pin title"}
-        submitInput={(inputText) => {
-          onNewTitleSubmit(inputText);
-        }}
-        closeDialog={() => {
-          setDialog(false);
-        }}
-      ></DialogInput>
+      {isPinPopupVisible && <PinPopup
+        pin={currentPin}
+        getUpdatedPin={getUpdatedPin} />}
       <View style={{ flexDirection: "row" }}>
         <TouchableOpacity
           onPress={onPauseTripPress}
