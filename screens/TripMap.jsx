@@ -148,23 +148,13 @@ export default function TripMap({ navigation }) {
             onCalloutPress={() => onMarkerPress(marker)}
           />
         ))}
-        <Polyline
-          coordinates={[
-            { latitude: 37.42773007993738, longitude: -122.16972973155477 },
-            { latitude: 37.3688, longitude: -122.0363 },
-            { latitude: 37.4323, longitude: -121.8996 },
-            { latitude: 37.5485, longitude: -121.9886 },
-            { latitude: 37.6688, longitude: -122.081 },
-            { latitude: 37.8044, longitude: -122.2712 },
-            { latitude: 37.872226652833305, longitude: -122.2585604834523 },
-          ]}
+        <Polyline 
           strokeColor="#FF0000"
           strokeWidth={2}
-        />
-        <Polyline
-          coordinates={coordinates}
-          strokeColor="#FF0000"
-          strokeWidth={2}
+          coordinates={pins.map((pin) => ({
+            latitude: pin.coordinate.latitude,
+            longitude: pin.coordinate.longitude,
+          }))}
         />
       </MapView>
       {isPinPopupVisible && <PinPopup
