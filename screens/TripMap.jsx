@@ -24,7 +24,7 @@ export default function TripMap({ navigation }) {
   const [markers, setMarkers] = useState([]);
   const [isTripPaused, setIsTripPaused] = useState(false);
   const [isStartPinCreated, setIsStartPinCreated] = useState(false);
-  const [locations, setLocations] = useState([]);
+  let watchLocation;
 
   useEffect(() => {
     (async () => {
@@ -34,19 +34,13 @@ export default function TripMap({ navigation }) {
         return;
       }
 
-      let watchLocation = await Location.watchPositionAsync(
+      watchLocation = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.High,
           timeInterval: 30000,
           distanceInterval: 10, // meters
         },
         (location) => {
-          const newLocations = [
-            ...locations,
-              location.coords
-            ,
-          ];
-          setLocations(newLocations);
           setLocation(location);
           setRegion({
             latitude: location.coords.latitude,
@@ -63,7 +57,7 @@ export default function TripMap({ navigation }) {
         }
       );
     })();
-  }, [locations]);
+  }, [coordinates]);
 
   useEffect(() => {
     if (!isStartPinCreated && location && pins.length == 0) {
@@ -162,9 +156,9 @@ export default function TripMap({ navigation }) {
           //   latitude: pin.coordinate.latitude,
           //   longitude: pin.coordinate.longitude,
           // }))}
-          coordinates={locations.map((coords) => ({
-              latitude: coords.latitude,
-              longitude: coords.longitude,
+          coordinates={coordinates.map((coordinate) => ({
+              latitude: coordinate.latitude,
+              longitude: coordinate.longitude,
           }))}
         />
       </MapView>
