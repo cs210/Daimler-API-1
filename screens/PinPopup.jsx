@@ -1,22 +1,49 @@
+import * as ImagePicker from "expo-image-picker";
+
+import {
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React, { useState } from "react";
-import { Modal, StyleSheet, Text, View, TextInput, TouchableOpacity } from "react-native";
+
+import { ScrollView } from "react-native-gesture-handler";
 
 export default function PinPopup(props) {
-    const [pinTitle, setPinTitle] = useState(props.pin.title);
-    const [pinDescrip, setPinDescrip] = useState('');
-    // potentailly add feature to allow user to set new location
+  const [pinTitle, setPinTitle] = useState(props.pin.title);
+  const [pinDescrip, setPinDescrip] = useState("");
+  const [pinPhotos, setPinPhotos] = useState([]);
 
-    return (
+  // potentailly add feature to allow user to set new location
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (!result.cancelled) {
+      const updatedPhotos = pinPhotos.concat([
+        { key: pinPhotos.length, uri: result.uri },
+      ]);
+      setPinPhotos(updatedPhotos);
+    }
+  };
+
+  return (
     <View style={styles.centeredView}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-      >
+      <Modal animationType="slide" transparent={true}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <View style={styles.flexView}>
               <Text style={styles.text}> Pin title </Text>
-              <TextInput style={styles.titleInput}
+              <TextInput
+                style={styles.titleInput}
                 placeholder="Pin title"
                 onChangeText={(text) => setPinTitle(text)}
                 defaultValue={pinTitle}
@@ -24,31 +51,56 @@ export default function PinPopup(props) {
             </View>
             <View style={styles.flexView}>
               <Text style={styles.text}> Pin description </Text>
-              <TextInput style={styles.titleInput}
+              <TextInput
+                style={styles.titleInput}
                 placeholder="Pin description"
                 onChangeText={(text) => setPinDescrip(text)}
                 defaultValue={pinDescrip}
               />
+            </View>
+            <View
+              style={{
+                height: pinPhotos.length == 0 ? 50 : 250,
+                justifyContent: "center",
+                flexDirection: "column",
+              }}
+            >
+              <ScrollView horizontal={true}>
+                {pinPhotos.map((photo, i) => (
+                  <Image
+                    key={photo.key}
+                    source={{ uri: photo.uri }}
+                    style={{ width: 200, height: 200, margin: 5 }}
+                  />
+                ))}
+              </ScrollView>
+              <TouchableOpacity
+                style={styles.appButtonContainer}
+                onPress={pickImage}
+              >
+                <Text style={styles.appButtonText}> Add Photo</Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.buttonFlexView}>
               <TouchableOpacity
                 style={styles.appButtonContainer}
                 onPress={() => {
                   props.getUpdatedPin({
-                      ...props.pin,
-                      title: pinTitle,
-                      description: pinDescrip,
-                    });
-                  }
-                }>
+                    ...props.pin,
+                    title: pinTitle,
+                    description: pinDescrip,
+                    photos: pinPhotos,
+                  });
+                }}
+              >
                 <Text style={styles.appButtonText}> Save pin</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.appButtonContainer}
                 onPress={() => {
                   props.deletePin(props.pin);
-                  }
-                }>
+                }}
+              >
                 <Text style={styles.appButtonText}> Delete pin</Text>
               </TouchableOpacity>
             </View>
@@ -57,14 +109,14 @@ export default function PinPopup(props) {
       </Modal>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22
+    marginTop: 22,
   },
   modalView: {
     margin: 20,
@@ -75,34 +127,34 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2
+      height: 2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5
+    elevation: 5,
   },
   flexView: {
     marginBottom: 15,
-    alignItems: 'stretch',
+    alignItems: "stretch",
     height: 40,
-    flexDirection:'row'
+    flexDirection: "row",
   },
   buttonFlexView: {
     marginBottom: 15,
-    alignItems: 'stretch',
+    alignItems: "stretch",
     height: 53,
-    flexDirection:'row'
+    flexDirection: "row",
   },
   text: {
-     marginTop: 10,
-     marginRight: 10,
-     fontWeight: "bold", 
-   },
+    marginTop: 10,
+    marginRight: 10,
+    fontWeight: "bold",
+  },
   titleInput: {
     borderWidth: 1,
     flex: 2,
-    borderColor: '#00A398',
-    padding: 5
+    borderColor: "#00A398",
+    padding: 5,
   },
   appButtonContainer: {
     elevation: 8,

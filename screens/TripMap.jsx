@@ -1,3 +1,4 @@
+import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 
 import {
@@ -8,9 +9,10 @@ import {
   View,
 } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
-import React, { useEffect, useState, createContext } from "react";
-import PinPopup from './PinPopup';
-import {v4 as uuidv4} from 'uuid';
+import React, { createContext, useEffect, useState } from "react";
+
+import PinPopup from "./PinPopup";
+import { v4 as uuidv4 } from "uuid";
 
 export default function TripMap({ navigation }) {
   const [location, setLocation] = useState(null);
@@ -24,6 +26,14 @@ export default function TripMap({ navigation }) {
   const [markers, setMarkers] = useState([]);
   const [isTripPaused, setIsTripPaused] = useState(false);
   const [isStartPinCreated, setIsStartPinCreated] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const {
+        status,
+      } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -100,7 +110,7 @@ export default function TripMap({ navigation }) {
       navigation.navigate("Home");
       return;
     }
-    const data = { tripTitleText: "", pins: pins }; 
+    const data = { tripTitleText: "", pins: pins };
     navigation.navigate("Trip Overview", data);
   };
 
@@ -121,11 +131,11 @@ export default function TripMap({ navigation }) {
   };
 
   const deletePin = (pinToDelete) => {
-    const newPins = pins.filter(pin => pin.key != pinToDelete.key);
+    const newPins = pins.filter((pin) => pin.key != pinToDelete.key);
     setPins(newPins);
     setIsPinPopupVisible(false);
-  }
- 
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Map of Trip</Text>
@@ -142,13 +152,14 @@ export default function TripMap({ navigation }) {
             title={marker.title}
             description={marker.description}
             draggable
-            ref={ref => {
-              markers[marker.key] = ref;}}
+            ref={(ref) => {
+              markers[marker.key] = ref;
+            }}
             stopPropagation={true}
             onCalloutPress={() => onMarkerPress(marker)}
           />
         ))}
-        <Polyline 
+        <Polyline
           strokeColor="#FF0000"
           strokeWidth={2}
           coordinates={pins.map((pin) => ({
@@ -157,16 +168,21 @@ export default function TripMap({ navigation }) {
           }))}
         />
       </MapView>
-      {isPinPopupVisible && <PinPopup
-        pin={currentPin}
-        getUpdatedPin={getUpdatedPin}
-        deletePin={deletePin} />}
+      {isPinPopupVisible && (
+        <PinPopup
+          pin={currentPin}
+          getUpdatedPin={getUpdatedPin}
+          deletePin={deletePin}
+        />
+      )}
       <View style={{ flexDirection: "row" }}>
         <TouchableOpacity
           onPress={onPauseTripPress}
           style={styles.appButtonContainer}
         >
-          <Text style={styles.appButtonText}>{isTripPaused ? 'Resume Trip' : 'Pause Trip'} </Text>
+          <Text style={styles.appButtonText}>
+            {isTripPaused ? "Resume Trip" : "Pause Trip"}{" "}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={onFinishTripPress}
@@ -212,4 +228,3 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
 });
-
