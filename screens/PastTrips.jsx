@@ -10,6 +10,11 @@ import React, { useEffect, useState } from "react";
 
 import db from "../firebase";
 
+/**
+ * This component shows a list of all past trips when user presses the "Past Trip"
+ * button from the home screen. Clicking on a past trip will take you to the trip
+ * overview.
+ */
 export default function PastTrips({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [pastTrips, setPastTrips] = useState([]);
@@ -18,7 +23,7 @@ export default function PastTrips({ navigation }) {
     const parsedTrips = [];
     tripsFromDatabase.forEach((trip) => {
       const tripData = trip.data();
-      console.log("tripData", tripData)
+      console.log("tripData", tripData);
       tripData["id"] = trip.id;
       tripData["tripTitle"] = tripData.tripTitleText;
       parsedTrips.push(tripData);

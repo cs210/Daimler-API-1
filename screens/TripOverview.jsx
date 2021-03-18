@@ -1,5 +1,4 @@
 import {
-  ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
@@ -7,12 +6,15 @@ import {
   View,
   TextInput,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import db from "../firebase";
 
+/**
+ * This component shows an overview of the trip such as a list of pins and a map
+ * of the trip. The user can also enter a trip title and save the trip.
+ */
 export default function TripOverview({ navigation, route }) {
   const [tripTitle, setTripTitle] = useState("");
-  console.log("route", route.params);
 
   const pastTripComponent = ({ item }) => {
     return (
@@ -25,9 +27,9 @@ export default function TripOverview({ navigation, route }) {
         ) : (
           <Text style={styles.pinTitle}>Pinned Stop</Text>
         )}
-        {item.description != "" && item.description &&
-          (<Text style={styles.pinDescrip}>{item.description}</Text>)
-        }
+        {item.description != "" && item.description && (
+          <Text style={styles.pinDescrip}>{item.description}</Text>
+        )}
 
         <Text style={styles.pinText}>Latitude: {item.coordinate.latitude}</Text>
         <Text style={styles.pinText}>
@@ -39,51 +41,54 @@ export default function TripOverview({ navigation, route }) {
 
   const onSaveTrip = async () => {
     const pins = route.params["pins"];
-    var tripTitleText = tripTitle['text'];
+    var tripTitleText = tripTitle["text"];
     if (tripTitleText == null) {
       // Currently using a default name of road trip if user doesn't enter name
       tripTitleText = "Road Trip";
     }
-    const tripData = { tripTitleText, pins }; 
+    const tripData = { tripTitleText, pins };
     const collRef = db.collection("trips");
     const newTripRef = await collRef.add(tripData);
     console.log(`Added trip to Firebase reference: ${newTripRef.id}`);
     navigation.navigate("Home");
-  }
+  };
 
   const onViewOnMap = () => {
     const { pins, tripTitle } = route.params;
-    navigation.navigate("Trip Viewer", {pins: pins, tripTitle: tripTitle});
-  }
+    navigation.navigate("Trip Viewer", { pins: pins, tripTitle: tripTitle });
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Trip Overview</Text>
       <View style={styles.tripTitleView}>
         <Text style={styles.tripTitleText}> Trip title </Text>
-        <TextInput style={styles.titleInput}
+        <TextInput
+          style={styles.titleInput}
           placeholder="Enter trip title"
-          onChangeText={(text) => setTripTitle({text})}
+          onChangeText={(text) => setTripTitle({ text })}
           defaultValue={route.params["tripTitleText"]}
         />
       </View>
       <Text style={styles.title}>Stops along the way:</Text>
       {route.params["pins"].length > 0 && (
-        <FlatList 
-          data={route.params["pins"]} 
+        <FlatList
+          data={route.params["pins"]}
           renderItem={pastTripComponent}
           keyExtractor={(item, index) => index.toString()}
-          />
+        />
       )}
       <View style={styles.rowContainer}>
         <TouchableOpacity
           onPress={onSaveTrip}
-          style={styles.appButtonContainer}>
+          style={styles.appButtonContainer}
+        >
           <Text style={styles.appButtonText}>Save Trip</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={onViewOnMap}
-          style={styles.appButtonContainer}>
+          style={styles.appButtonContainer}
+        >
           <Text style={styles.appButtonText}>View on Map</Text>
         </TouchableOpacity>
       </View>
@@ -130,20 +135,20 @@ const styles = StyleSheet.create({
   },
   tripTitleView: {
     margin: 10,
-    alignItems: 'stretch',
+    alignItems: "stretch",
     height: 40,
-    flexDirection:'row'
+    flexDirection: "row",
   },
   tripTitleText: {
     marginTop: 10,
     marginRight: 10,
-    fontWeight: "bold", 
+    fontWeight: "bold",
   },
   titleInput: {
     borderWidth: 1,
     flex: 2,
-    borderColor: '#00A398',
-    padding: 5
+    borderColor: "#00A398",
+    padding: 5,
   },
   appButtonContainer: {
     elevation: 8,
@@ -162,8 +167,8 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   rowContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

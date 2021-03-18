@@ -10,15 +10,17 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
-
 import { ScrollView } from "react-native-gesture-handler";
 
+/**
+ * This component allows the user to edit the pin title, description, as well
+ * as add photos.
+ */
 export default function PinPopup(props) {
   const [pinTitle, setPinTitle] = useState(props.pin.title);
   const [pinDescrip, setPinDescrip] = useState("");
   const [pinPhotos, setPinPhotos] = useState([]);
-
-  // potentailly add feature to allow user to set new location
+  // TODO: Add feature to allow user to set new location
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({

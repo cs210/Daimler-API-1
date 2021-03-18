@@ -9,11 +9,16 @@ import {
   View,
 } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
-import React, { createContext, useEffect, useState } from "react";
-
+import React, { useEffect, useState } from "react";
 import PinPopup from "./PinPopup";
 import { v4 as uuidv4 } from "uuid";
 
+/**
+ * This component shows the user's current location and route. By doing a long
+ * press on the screen, the user can add a pin. When the user taps on the pin,
+ * a pin marker is shown. When they press on the marker, they are shown the 
+ * pin popup, allowing them to edit information about the pin.
+ */
 export default function TripMap({ navigation }) {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -92,7 +97,7 @@ export default function TripMap({ navigation }) {
       {
         key: uuidv4(),
         coordinate: e.nativeEvent.coordinate,
-        title: "Stop " + (pins.length + 1), // Using pins.length + 1 can become problematic when array size changes
+        title: "Stop " + (pins.length + 1),
         description: "",
       },
     ];
@@ -119,7 +124,6 @@ export default function TripMap({ navigation }) {
   };
 
   const getUpdatedPin = (newPin) => {
-    // Callback to set pin with updated pin
     const newPins = pins.map((pin) => {
       if (pin.key === newPin.key) {
         return newPin;
