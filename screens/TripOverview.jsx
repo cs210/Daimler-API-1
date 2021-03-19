@@ -8,10 +8,13 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
-
 import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
 
+/**
+ * This component shows an overview of the trip such as a list of pins and a map
+ * of the trip. The user can also enter a trip title and save the trip.
+ */
 export default function TripOverview({ navigation, route }) {
   const [tripTitle, setTripTitle] = useState("");
 
