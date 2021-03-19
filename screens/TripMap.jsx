@@ -89,7 +89,7 @@ export default function TripMap({ navigation }) {
       setIsPinPopupVisible(true);
       setIsStartPinCreated(true);
     }
-  });
+  }, []);
 
   const onMapPress = (e) => {
     const newPins = [
