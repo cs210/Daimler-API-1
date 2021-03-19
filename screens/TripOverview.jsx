@@ -1,12 +1,14 @@
 import {
   FlatList,
+  Image,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
-  TextInput,
 } from "react-native";
 import React, { useState } from "react";
+import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
 
 /**
@@ -18,10 +20,7 @@ export default function TripOverview({ navigation, route }) {
 
   const pastTripComponent = ({ item }) => {
     return (
-      <TouchableOpacity
-        onPress={() => console.log(item)}
-        style={styles.itemContainer}
-      >
+      <View style={styles.itemContainer}>
         {item.title ? (
           <Text style={styles.pinTitle}>{item.title}</Text>
         ) : (
@@ -30,12 +29,18 @@ export default function TripOverview({ navigation, route }) {
         {item.description != "" && item.description && (
           <Text style={styles.pinDescrip}>{item.description}</Text>
         )}
-
-        <Text style={styles.pinText}>Latitude: {item.coordinate.latitude}</Text>
-        <Text style={styles.pinText}>
-          Longitude: {item.coordinate.longitude}
-        </Text>
-      </TouchableOpacity>
+        {item.photos && (
+          <ScrollView horizontal={true}>
+            {item.photos.map((photo, i) => (
+              <Image
+                key={photo.key}
+                source={{ uri: photo.uri }}
+                style={{ width: 200, height: 200, margin: 5, padding: 5 }}
+              />
+            ))}
+          </ScrollView>
+        )}
+      </View>
     );
   };
 
