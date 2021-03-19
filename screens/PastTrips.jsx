@@ -18,7 +18,6 @@ export default function PastTrips({ navigation }) {
     const parsedTrips = [];
     tripsFromDatabase.forEach((trip) => {
       const tripData = trip.data();
-      console.log("tripData", tripData)
       tripData["id"] = trip.id;
       tripData["tripTitle"] = tripData.tripTitleText;
       parsedTrips.push(tripData);
