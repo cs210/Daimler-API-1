@@ -68,6 +68,7 @@ export default function TripMap({ navigation }) {
           };
           const newcoordinates = [...coordinates, keys];
           setCoordinates(newcoordinates);
+          // console.log("coordinates", coordinates);
         }
       );
     })();
@@ -139,6 +140,10 @@ export default function TripMap({ navigation }) {
     setPins(newPins);
     setIsPinPopupVisible(false);
   };
+
+  console.log("location", location);
+  console.log("coordinates", coordinates);
+
 
   return (
     <View style={styles.container}>
