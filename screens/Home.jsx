@@ -69,6 +69,9 @@ export const Home = ({ navigation }) => {
   const onPressView = () => {
     navigation.navigate("Past Trips");
   };
+  const onPressLogin = () => {
+    navigation.navigate("Login");
+  }
   return (
     <View style={styles.container}>
       <Image
@@ -76,6 +79,11 @@ export const Home = ({ navigation }) => {
         source={require("../assets/daimler-logo.png")}
       />
       <Text style={styles.header}>Road Trip Buddy</Text>
+      <TouchableOpacity
+        onPress={onPressLogin}
+        style={styles.loginButtonContainer}>
+        <Text style={styles.loginButtonText}>Log In</Text>
+      </TouchableOpacity>
       <TouchableOpacity
         onPress={() =>
           Linking.openURL(
