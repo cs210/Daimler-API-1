@@ -54,7 +54,18 @@ export default function TripOverview({ navigation, route }) {
     const tripData = { tripTitleText, pins };
     const collRef = db.collection("trips");
     const newTripRef = await collRef.add(tripData);
+    const user = firebase.auth().currentUser;
+    const userRef = db.collection("users");
+    const userDocRef = userRef.doc(user.uid);
+    var userTrips;
+    userDocRef.get().then((doc) => {
+      if (doc.exists) {
+        userTrips = docRef.data().trips;
+        userTrips.push(tripData);
+      }
+    });
     console.log(`Added trip to Firebase reference: ${newTripRef.id}`);
+    console.log(userTrips);
     navigation.navigate("Home");
   };
 

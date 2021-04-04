@@ -33,10 +33,20 @@ export default function PastTrips({ navigation }) {
   const loadPastTrips = async () => {
     setLoading(true);
     setPastTrips([]);
-    const collRef = db.collection("trips");
-    const tripsFromDatabase = await collRef.get();
-    const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
-    setPastTrips(parsedTrips);
+    // const collRef = db.collection("trips");
+    // const tripsFromDatabase = await collRef.get();
+    // const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
+    const user = firebase.auth().currentUser;
+    const userRef = db.collection("users");
+    const userDocRef = userRef.doc(user.uid);
+    var tripsFromUserDatabase;
+    userDocRef.get().then((doc) => {
+      if (doc.exists) {
+        tripsFromUserDatabase = docRef.data().trips;
+      }
+    });
+    const parsedUserTrips = parseTripsFromDatabase(tripsFromUserDatabase);
+    setPastTrips(parsedUserTrips);
     setLoading(false);
   };
 
