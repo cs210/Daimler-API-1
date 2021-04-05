@@ -21,24 +21,19 @@ export default function PastTrips({ navigation }) {
   const [pastTrips, setPastTrips] = useState([]);
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
-    console.log("tripsfromdatabase");
-    console.log(tripsFromDatabase);
     const parsedTrips = [];
-    tripsFromDatabase.forEach((trip) => {
-      const tripData = trip.data();
-      tripData["id"] = trip.id;
+    for (var trip in tripsFromDatabase) {
+      const tripData = tripsFromDatabase[trip];
+      tripData["id"] = trip;
       tripData["tripTitle"] = tripData.tripTitleText;
       parsedTrips.push(tripData);
-    });
+    }
     return parsedTrips;
   };
 
   const loadPastTrips = async () => {
     setLoading(true);
     setPastTrips([]);
-    // const collRef = db.collection("trips");
-    // const tripsFromDatabase = await collRef.get();
-    // const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
     const user = firebase.auth().currentUser;
     const userRef = db.collection("users");
     const userDocRef = userRef.doc(user.uid);
@@ -46,12 +41,15 @@ export default function PastTrips({ navigation }) {
     userDocRef.get().then((doc) => {
       if (doc.exists) {
         tripsFromUserDatabase = doc.data().trips;
+        const parsedUserTrips = parseTripsFromDatabase(tripsFromUserDatabase);
+        console.log(parsedUserTrips);
+        setPastTrips(parsedUserTrips);
+        console.log(setPastTrips);
+        setLoading(false);
       }
+    }).catch((error) => {
+      console.log("Error getting document:", error);
     });
-    const parsedUserTrips = parseTripsFromDatabase(tripsFromUserDatabase);
-    setPastTrips(parsedUserTrips);
-    console.log(setPastTrips);
-    setLoading(false);
   };
 
   useEffect(() => {

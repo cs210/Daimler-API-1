@@ -26,7 +26,7 @@ export default function Signup() {
           uid: response.user.uid,
           email: email,
           name: name,
-          trips: []
+          trips: {}
         }
         db.collection("users")
           .doc(response.user.uid)

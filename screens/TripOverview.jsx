@@ -63,7 +63,7 @@ export default function TripOverview({ navigation, route }) {
     userDocRef.get().then((doc) => {
       if (doc.exists) {
         userTrips = doc.data().trips;
-        userTrips.push(tripData);
+        userTrips[newTripRef.id] = tripData;
         console.log("pushed userTrip");
         console.log(userTrips);
       }
