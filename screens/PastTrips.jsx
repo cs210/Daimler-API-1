@@ -9,6 +9,7 @@ import {
 import React, { useEffect, useState } from "react";
 
 import db from "../firebase";
+import * as firebase from "firebase"
 
 /**
  * This component shows a list of all past trips when user presses the "Past Trip"
@@ -20,6 +21,8 @@ export default function PastTrips({ navigation }) {
   const [pastTrips, setPastTrips] = useState([]);
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
+    console.log("tripsfromdatabase");
+    console.log(tripsFromDatabase);
     const parsedTrips = [];
     tripsFromDatabase.forEach((trip) => {
       const tripData = trip.data();
@@ -42,11 +45,12 @@ export default function PastTrips({ navigation }) {
     var tripsFromUserDatabase;
     userDocRef.get().then((doc) => {
       if (doc.exists) {
-        tripsFromUserDatabase = docRef.data().trips;
+        tripsFromUserDatabase = doc.data().trips;
       }
     });
     const parsedUserTrips = parseTripsFromDatabase(tripsFromUserDatabase);
     setPastTrips(parsedUserTrips);
+    console.log(setPastTrips);
     setLoading(false);
   };
 

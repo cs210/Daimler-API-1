@@ -10,6 +10,7 @@ import {
 import React, { useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
+import * as firebase from "firebase"
 
 /**
  * This component shows an overview of the trip such as a list of pins and a map
@@ -55,17 +56,25 @@ export default function TripOverview({ navigation, route }) {
     const collRef = db.collection("trips");
     const newTripRef = await collRef.add(tripData);
     const user = firebase.auth().currentUser;
+    console.log(user);
     const userRef = db.collection("users");
     const userDocRef = userRef.doc(user.uid);
     var userTrips;
     userDocRef.get().then((doc) => {
       if (doc.exists) {
-        userTrips = docRef.data().trips;
+        userTrips = doc.data().trips;
         userTrips.push(tripData);
+        console.log("pushed userTrip");
+        console.log(userTrips);
       }
+      userDocRef.update({
+        trips: userTrips
+      });
+    }).catch((error) => {
+      console.log("Error getting document:", error);
     });
+
     console.log(`Added trip to Firebase reference: ${newTripRef.id}`);
-    console.log(userTrips);
     navigation.navigate("Home");
   };
 
