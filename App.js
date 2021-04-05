@@ -13,6 +13,7 @@ import Signup from "./screens/Signup";
 
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // const useMount = func => useEffect(() => func(), []);
 
@@ -43,10 +44,39 @@ const Tab = createBottomTabNavigator();
 
 function HomeTabs() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Record Trip" component={TripMap} />
-      <Stack.Screen name="Past Trips" component={PastTrips} />
+    <Tab.Navigator 
+    tabBarOptions={{
+      activeTintColor: '#00A398',
+    }}>
+      <Tab.Screen 
+        name="Home" 
+        component={Home}
+        options={{
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="home" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen   
+        name="Record Trip" 
+        component={TripMap}
+        options={{
+          tabBarLabel: 'Record Trip',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="circle-slice-8" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={PastTrips}
+        options={{
+          tabBarLabel: 'Profile',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account" color={color} size={size} />
+          ),
+        }}/>
     </Tab.Navigator>
   );
 }
