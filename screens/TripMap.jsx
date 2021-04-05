@@ -41,40 +41,6 @@ export default function TripMap({ navigation }) {
   }, []);
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        return;
-      }
-
-      let watchLocation = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.High,
-          timeInterval: 60000,
-          distanceInterval: 10, // meters
-        },
-        (location) => {
-          setLocation(location);
-          setRegion({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            latitudeDelta: 0.5,
-            longitudeDelta: 0.5,
-          });
-          let keys = {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          };
-          const newcoordinates = [...coordinates, keys];
-          setCoordinates(newcoordinates);
-          // console.log("coordinates", coordinates);
-        }
-      );
-    })();
-  }, []);
-
-  useEffect(() => {
     if (!isStartPinCreated && location && pins.length == 0) {
       const marker = {
         key: uuidv4(),
@@ -91,6 +57,41 @@ export default function TripMap({ navigation }) {
       setIsStartPinCreated(true);
     }
   }, []);
+
+  useEffect(() => {
+    updateUsersLocation();
+    let timer = setInterval(updateUsersLocation, 5000);
+    // clean-up interval timer on un-mount
+    return () => {
+      clearInterval(timer);
+    }
+  }, []);
+
+  const updateUsersLocation = async () => {
+    let { status } = await Location.requestPermissionsAsync();
+    if (status !== "granted") {
+      setErrorMsg("Permission to access location was denied");
+      return;
+    }
+    let locationAccuracy = { accuracy: Location.Accuracy.Balanced }
+    let location = await Location.getCurrentPositionAsync(locationAccuracy);
+    updateLocationInfo(location);
+  };
+
+  const updateLocationInfo = (location) => {
+    setLocation(location);
+    setRegion({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      latitudeDelta: 0.5,
+      longitudeDelta: 0.5,
+    });
+    let keys = {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    };
+    setCoordinates(coords => [...coords, keys]);
+  }
 
   const onMapPress = (e) => {
     const newPins = [
@@ -140,9 +141,6 @@ export default function TripMap({ navigation }) {
     setPins(newPins);
     setIsPinPopupVisible(false);
   };
-
-  console.log("location", location);
-  console.log("coordinates", coordinates);
 
 
   return (
