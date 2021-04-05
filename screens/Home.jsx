@@ -94,15 +94,6 @@ export const Home = ({ navigation }) => {
       >
         <Text style={styles.loginButtonText}>Log In with Mercedes-Benz</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={onPressStart}
-        style={styles.appButtonContainer}
-      >
-        <Text style={styles.appButtonText}>Start Trip</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onPressView} style={styles.appButtonContainer}>
-        <Text style={styles.appButtonText}>View Past Trips</Text>
-      </TouchableOpacity>
     </View>
   );
 };

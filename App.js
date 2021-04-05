@@ -12,6 +12,7 @@ import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 
 import { createStackNavigator } from "@react-navigation/stack";
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 // const useMount = func => useEffect(() => func(), []);
 
@@ -37,14 +38,24 @@ import { createStackNavigator } from "@react-navigation/stack";
 //   return { url, processing };
 // };
 
-const App = () => {
-  const Stack = createStackNavigator();
-  // const { url: initialUrl, processing } = useInitialURL();
+const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
+function HomeTabs() {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="Home" component={Home} />
+      <Tab.Screen name="Record Trip" component={TripMap} />
+      <Stack.Screen name="Past Trips" component={PastTrips} />
+    </Tab.Navigator>
+  );
+}
+
+const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Home" component={HomeTabs} />
         <Stack.Screen name="Trip Map" component={TripMap} />
         <Stack.Screen name="Past Trips" component={PastTrips} />
         <Stack.Screen name="Trip Overview" component={TripOverview} />
@@ -54,9 +65,8 @@ const App = () => {
       </Stack.Navigator>
     </NavigationContainer>
   );
-};
-
-export default App;
+}
+export default App
 
 // color scheme:
 // black: #000
