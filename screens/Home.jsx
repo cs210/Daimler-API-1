@@ -62,13 +62,13 @@ const getAccessToken = async () => {
 export const Home = ({ navigation }) => {
   const { url: initialUrl } = useInitialURL();
 
-  const onPressStart = () => {
-    console.log("inital url: ", initialUrl);
-    navigation.navigate("Trip Map");
-  };
-  const onPressView = () => {
-    navigation.navigate("Past Trips");
-  };
+  // const onPressStart = () => {
+  //   console.log("inital url: ", initialUrl);
+  //   navigation.navigate("Trip Map");
+  // };
+  // const onPressView = () => {
+  //   navigation.navigate("Past Trips");
+  // };
   const onPressLogin = () => {
     navigation.navigate("Login");
   }

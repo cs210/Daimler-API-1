@@ -141,10 +141,6 @@ export default function TripMap({ navigation }) {
     setIsPinPopupVisible(false);
   };
 
-  console.log("location", location);
-  console.log("coordinates", coordinates);
-
-
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Map of Trip</Text>

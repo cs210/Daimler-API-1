@@ -42,7 +42,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function HomeTabs() {
+function Tabs() {
   return (
     <Tab.Navigator 
     tabBarOptions={{
@@ -85,7 +85,7 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeTabs} />
+        <Stack.Screen name="Tabs" component={Tabs} />
         <Stack.Screen name="Trip Map" component={TripMap} />
         <Stack.Screen name="Past Trips" component={PastTrips} />
         <Stack.Screen name="Trip Overview" component={TripOverview} />
