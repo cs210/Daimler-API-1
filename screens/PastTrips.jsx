@@ -9,6 +9,7 @@ import {
 import React, { useEffect, useState } from "react";
 
 import db from "../firebase";
+import * as firebase from "firebase"
 
 /**
  * This component shows a list of all past trips when user presses the "Past Trip"
@@ -21,23 +22,34 @@ export default function PastTrips({ navigation }) {
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
     const parsedTrips = [];
-    tripsFromDatabase.forEach((trip) => {
-      const tripData = trip.data();
-      tripData["id"] = trip.id;
+    for (var trip in tripsFromDatabase) {
+      const tripData = tripsFromDatabase[trip];
+      tripData["id"] = trip;
       tripData["tripTitle"] = tripData.tripTitleText;
       parsedTrips.push(tripData);
-    });
+    }
     return parsedTrips;
   };
 
   const loadPastTrips = async () => {
     setLoading(true);
     setPastTrips([]);
-    const collRef = db.collection("trips");
-    const tripsFromDatabase = await collRef.get();
-    const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
-    setPastTrips(parsedTrips);
-    setLoading(false);
+    const user = firebase.auth().currentUser;
+    const userRef = db.collection("users");
+    const userDocRef = userRef.doc(user.uid);
+    var tripsFromUserDatabase;
+    userDocRef.get().then((doc) => {
+      if (doc.exists) {
+        tripsFromUserDatabase = doc.data().trips;
+        const parsedUserTrips = parseTripsFromDatabase(tripsFromUserDatabase);
+        console.log(parsedUserTrips);
+        setPastTrips(parsedUserTrips);
+        console.log(setPastTrips);
+        setLoading(false);
+      }
+    }).catch((error) => {
+      console.log("Error getting document:", error);
+    });
   };
 
   useEffect(() => {
