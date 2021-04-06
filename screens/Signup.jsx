@@ -10,7 +10,7 @@ import db from "../firebase";
 import * as firebase from "firebase"
 
 /**
- * This component takes the user to the Signup page. The user inputs their 
+ * This component takes the user to the Signup page. The user inputs their
  * full name, email, and passowrd to create a new account.
  */
 export default function Signup() {
@@ -25,7 +25,8 @@ export default function Signup() {
         const user = {
           uid: response.user.uid,
           email: email,
-          name: name
+          name: name,
+          trips: {}
         }
         db.collection("users")
           .doc(response.user.uid)
