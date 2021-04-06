@@ -12,6 +12,7 @@ import MapView, { Marker, Polyline } from "react-native-maps";
 import React, { useEffect, useState } from "react";
 import PinPopup from "./PinPopup";
 import { v4 as uuidv4 } from "uuid";
+import { useFocusEffect } from '@react-navigation/native';
 
 /**
  * This component shows the user's current location and route. By doing a long
@@ -32,31 +33,35 @@ export default function TripMap({ navigation }) {
   const [isTripPaused, setIsTripPaused] = useState(false);
   const [isStartPinCreated, setIsStartPinCreated] = useState(false);
 
-  useEffect(() => {
+  useFocusEffect(
+    React.useCallback(() => {
     (async () => {
       const {
         status,
       } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    })();
-  }, []);
+      })();
+    }, [])
+  );
 
-  useEffect(() => {
-    if (!isStartPinCreated && location && pins.length == 0) {
-      const marker = {
-        key: uuidv4(),
-        coordinate: {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        },
-        title: "Started Trip",
-        description: "",
-      };
-      setPins([marker]);
-      setCurrentPin(marker);
-      setIsPinPopupVisible(true);
-      setIsStartPinCreated(true);
-    }
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!isStartPinCreated && location && pins.length == 0) {
+        const marker = {
+          key: uuidv4(),
+          coordinate: {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          },
+          title: "Started Trip",
+          description: "",
+        };
+        setPins([marker]);
+        setCurrentPin(marker);
+        setIsPinPopupVisible(true);
+        setIsStartPinCreated(true);
+      }
+    }, [])
+  );
 
   useEffect(() => {
     updateUsersLocation();
