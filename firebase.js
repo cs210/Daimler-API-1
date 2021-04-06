@@ -15,7 +15,7 @@ var firebaseConfig = {
 
 // Initialize Firebase
 if (!firebase.apps.length) {
-  firebase.initializeApp(config);
+  firebase.initializeApp(firebaseConfig);
 }
 // firebase.initializeApp(firebaseConfig);
 var firestore = firebase.firestore();

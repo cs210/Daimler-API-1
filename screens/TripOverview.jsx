@@ -91,7 +91,7 @@ export default function TripOverview({ navigation, route }) {
 
         db.collection("trips")
           //   .doc(newId)
-          .add(post)
+          .set(post)
           .then(() => {
             console.log("Posts successfully written!");
           })
