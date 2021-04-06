@@ -4,6 +4,9 @@ import * as React from "react";
 
 import { Home } from "./screens/Home";
 import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import PastTrips from "./screens/PastTrips";
 import TripMap from "./screens/TripMap";
 import TripOverview from "./screens/TripOverview";
@@ -11,7 +14,7 @@ import TripViewer from "./screens/TripViewer";
 import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 
-import { createStackNavigator } from "@react-navigation/stack";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 // const useMount = func => useEffect(() => func(), []);
 
@@ -37,14 +40,81 @@ import { createStackNavigator } from "@react-navigation/stack";
 //   return { url, processing };
 // };
 
-const App = () => {
-  const Stack = createStackNavigator();
-  // const { url: initialUrl, processing } = useInitialURL();
+const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
+function getHeaderTitle(route) {
+  // If the focused route is not found, we need to assume it's the initial screen
+  // This can happen during if there hasn't been any navigation inside the screen
+  // In our case, it's "Feed" as that's the first screen inside the navigator
+  const routeName = getFocusedRouteNameFromRoute(route) ?? "Road Trip Buddy";
+
+  switch (routeName) {
+    case "Home":
+      return "Home";
+    case "Record Trip":
+      return "Record Trip";
+    case "Profile":
+      return "Profile";
+  }
+}
+
+function Tabs() {
+  return (
+    <Tab.Navigator
+      tabBarOptions={{
+        activeTintColor: "#00A398",
+      }}
+    >
+      <Tab.Screen
+        name="Home"
+        component={Home}
+        options={{
+          tabBarLabel: "Home",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="home" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Record Trip"
+        component={TripMap}
+        options={{
+          tabBarLabel: "Record Trip",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons
+              name="circle-slice-8"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={PastTrips}
+        options={{
+          tabBarLabel: "Profile",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account" color={color} size={size} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen
+          name="Road Trip Buddy"
+          component={Tabs}
+          options={({ route }) => ({
+            headerTitle: getHeaderTitle(route),
+          })}
+        />
         <Stack.Screen name="Trip Map" component={TripMap} />
         <Stack.Screen name="Past Trips" component={PastTrips} />
         <Stack.Screen name="Trip Overview" component={TripOverview} />
@@ -55,7 +125,6 @@ const App = () => {
     </NavigationContainer>
   );
 };
-
 export default App;
 
 // color scheme:

@@ -6,7 +6,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useFocusEffect } from '@react-navigation/native';
+
 
 import db from "../firebase";
 import * as firebase from "firebase"
@@ -32,6 +34,7 @@ export default function PastTrips({ navigation }) {
   };
 
   const loadPastTrips = async () => {
+    console.log("loadPastTrips called");
     setLoading(true);
     setPastTrips([]);
     const user = firebase.auth().currentUser;
@@ -52,9 +55,11 @@ export default function PastTrips({ navigation }) {
     });
   };
 
-  useEffect(() => {
-    loadPastTrips();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      loadPastTrips();
+    }, [])
+  );
 
   const pastTripComponent = ({ item }) => {
     return (

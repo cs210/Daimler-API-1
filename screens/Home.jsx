@@ -61,14 +61,7 @@ const getAccessToken = async () => {
 
 export const Home = ({ navigation }) => {
   const { url: initialUrl } = useInitialURL();
-
-  const onPressStart = () => {
-    console.log("inital url: ", initialUrl);
-    navigation.navigate("Trip Map");
-  };
-  const onPressView = () => {
-    navigation.navigate("Past Trips");
-  };
+  
   const onPressLogin = () => {
     navigation.navigate("Login");
   }
@@ -93,15 +86,6 @@ export const Home = ({ navigation }) => {
         style={styles.loginButtonContainer}
       >
         <Text style={styles.loginButtonText}>Log In with Mercedes-Benz</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={onPressStart}
-        style={styles.appButtonContainer}
-      >
-        <Text style={styles.appButtonText}>Start Trip</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onPressView} style={styles.appButtonContainer}>
-        <Text style={styles.appButtonText}>View Past Trips</Text>
       </TouchableOpacity>
     </View>
   );
