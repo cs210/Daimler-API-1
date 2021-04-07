@@ -1,3 +1,5 @@
+import * as firebase from "firebase";
+
 import {
   FlatList,
   Image,
@@ -8,6 +10,7 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
+
 import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
 import * as firebase from "firebase"
@@ -18,6 +21,8 @@ import * as firebase from "firebase"
  */
 export default function TripOverview({ navigation, route }) {
   const [tripTitle, setTripTitle] = useState("");
+
+  const storage = firebase.storage();
 
   const pastTripComponent = ({ item }) => {
     return (
@@ -45,37 +50,66 @@ export default function TripOverview({ navigation, route }) {
     );
   };
 
-  const onSaveTrip = async () => {
-    const pins = route.params["pins"];
+  const getImageUrl = (uri) => {
+    const splitURI = uri.split("/");
+    const filename = splitURI[splitURI.length - 1];
+    const path = "/trip_assets/";
+    var storageRef = firebase.storage().ref(path);
+    const ref = storageRef.child(`${filename}`);
+    const url = "gs://cs-210-project.appspot.com/trip_assets/" + filename;
+    return fetch(uri)
+      .then((response) => response.blob())
+      .then((blob) => {
+        return ref.put(blob).then((snapshot) => {
+          return storage
+            .refFromURL(url)
+            .getDownloadURL()
+            .then(function (imageUrl) {
+              return imageUrl;
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        });
+      })
+      .catch((error) => {
+        console.log("Error My Guy!", error);
+      });
+  };
+  const onSaveTrip = () => {
     var tripTitleText = tripTitle["text"];
     if (tripTitleText == null) {
       // Currently using a default name of road trip if user doesn't enter name
       tripTitleText = "Road Trip";
     }
-    const tripData = { tripTitleText, pins };
-    const collRef = db.collection("trips");
-    const newTripRef = await collRef.add(tripData);
-    const user = firebase.auth().currentUser;
-    console.log(user);
-    const userRef = db.collection("users");
-    const userDocRef = userRef.doc(user.uid);
-    var userTrips;
-    userDocRef.get().then((doc) => {
-      if (doc.exists) {
-        userTrips = doc.data().trips;
-        userTrips[newTripRef.id] = tripData;
-        console.log("pushed userTrip");
-        console.log(userTrips);
+    const promises = [];
+    const pins = route.params["pins"];
+    for (let pin of pins) {
+      for (let photo of pin.photos) {
+        promises.push(getImageUrl(photo.uri));
       }
-      userDocRef.update({
-        trips: userTrips
-      });
-    }).catch((error) => {
-      console.log("Error getting document:", error);
+    }
+    Promise.all(promises).then((urls) => {
+      for (var i = 0; i < pins.length; i++) {
+        for (var photo of pins[i].photos) {
+          photo.uri = urls[i];
+        }
+      }
+      const post = {
+        tripTitleText: tripTitleText,
+        pins: pins,
+        time: new Date(),
+      };
+      db.collection("trips")
+        .add(post)
+        .then(() => {
+          console.log("Posts successfully written!", post);
+        })
+        .catch((error) => {
+          console.error("Error writing document: ", error);
+        });
+      navigation.navigate("Home");
     });
-
-    console.log(`Added trip to Firebase reference: ${newTripRef.id}`);
-    navigation.navigate("Home");
   };
 
   const onViewOnMap = () => {
