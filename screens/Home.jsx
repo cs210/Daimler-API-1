@@ -35,7 +35,11 @@ const useInitialURL = () => {
 const base64 = require("base-64");
 
 const getAccessToken = async () => {
+  await Linking.openURL(
+    "https://id.mercedes-benz.com/as/authorization.oauth2?response_type=code&client_id=142a054e-e379-4af0-92ee-4c896c8b4573&redirect_uri=https://localhost&scope=mb:vehicle:status:general mb:user:pool:reader offline_access&state=xyzABC123"
+  );
   try {
+    console.log("Got here");
     let response = await fetch("https://id.mercedes-benz.com/as/token.oauth2", {
       method: "POST",
       headers: {
@@ -49,10 +53,13 @@ const getAccessToken = async () => {
       body: JSON.stringify({
         grant_type: "authorization_code",
         code: "RP0jKBpywPRdB8ivTt6gK4l6qfzwsC_dZ_VLWIW3",
-        redirect_uri: "exp://10.0.0.7:19000",
+        // redirect_uri: "exp://10.0.0.7:19000",
+        redirect_uri: "https://localhost",
       }),
     });
+    console.log("Got here2");
     let json = await response.json();
+    console.log(json);
     return json.access_token;
   } catch (error) {
     console.error(error);
@@ -61,7 +68,7 @@ const getAccessToken = async () => {
 
 export const Home = ({ navigation }) => {
   const { url: initialUrl } = useInitialURL();
-  
+
   const onPressLogin = () => {
     navigation.navigate("Login");
   }
@@ -79,9 +86,7 @@ export const Home = ({ navigation }) => {
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() =>
-          Linking.openURL(
-            "https://id.mercedes-benz.com/as/authorization.oauth2?response_type=code&client_id=142a054e-e379-4af0-92ee-4c896c8b4573&redirect_uri=https://localhost&scope=mb:vehicle:status:general mb:user:pool:reader offline_access&state=xyzABC123"
-          )
+          getAccessToken()
         }
         style={styles.loginButtonContainer}
       >
