@@ -75,35 +75,40 @@ export default function TripOverview({ navigation, route }) {
         console.log("Error My Guy!", error);
       });
   };
-
   const onSaveTrip = () => {
-    const pins = route.params["pins"];
-    for (let pin of pins) {
-      for (let photo of pin.photos) {
-        getImageUrl(photo.uri).then((url) => {
-          photo.uri = url;
-        });
-      }
-    }
     var tripTitleText = tripTitle["text"];
     if (tripTitleText == null) {
       // Currently using a default name of road trip if user doesn't enter name
       tripTitleText = "Road Trip";
     }
-    const post = {
-      title: tripTitleText,
-      pins: pins,
-      time: new Date(),
-    };
-    db.collection("trips")
-      .add(post)
-      .then(() => {
-        console.log("Posts successfully written!");
-      })
-      .catch((error) => {
-        console.error("Error writing document: ", error);
-      });
-    navigation.navigate("Home");
+    const promises = [];
+    const pins = route.params["pins"];
+    for (let pin of pins) {
+      for (let photo of pin.photos) {
+        promises.push(getImageUrl(photo.uri));
+      }
+    }
+    Promise.all(promises).then((urls) => {
+      for (var i = 0; i < pins.length; i++) {
+        for (var photo of pins[i].photos) {
+          photo.uri = urls[i];
+        }
+      }
+      const post = {
+        tripTitleText: tripTitleText,
+        pins: pins,
+        time: new Date(),
+      };
+      db.collection("trips")
+        .add(post)
+        .then(() => {
+          console.log("Posts successfully written!", post);
+        })
+        .catch((error) => {
+          console.error("Error writing document: ", error);
+        });
+      navigation.navigate("Home");
+    });
   };
 
   const onViewOnMap = () => {
