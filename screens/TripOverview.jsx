@@ -13,6 +13,7 @@ import React, { useState } from "react";
 
 import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
+import * as firebase from "firebase"
 
 /**
  * This component shows an overview of the trip such as a list of pins and a map

@@ -12,6 +12,7 @@ import MapView, { Marker, Polyline } from "react-native-maps";
 import React, { useEffect, useState } from "react";
 import PinPopup from "./PinPopup";
 import { v4 as uuidv4 } from "uuid";
+import { useFocusEffect } from '@react-navigation/native';
 
 /**
  * This component shows the user's current location and route. By doing a long
@@ -32,64 +33,70 @@ export default function TripMap({ navigation }) {
   const [isTripPaused, setIsTripPaused] = useState(false);
   const [isStartPinCreated, setIsStartPinCreated] = useState(false);
 
-  useEffect(() => {
+  useFocusEffect(
+    React.useCallback(() => {
     (async () => {
       const {
         status,
       } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    })();
-  }, []);
+      })();
+    }, [])
+  );
 
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        return;
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!isStartPinCreated && location && pins.length == 0) {
+        const marker = {
+          key: uuidv4(),
+          coordinate: {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          },
+          title: "Started Trip",
+          description: "",
+        };
+        setPins([marker]);
+        setCurrentPin(marker);
+        setIsPinPopupVisible(true);
+        setIsStartPinCreated(true);
       }
-
-      let watchLocation = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.High,
-          timeInterval: 60000,
-          distanceInterval: 10, // meters
-        },
-        (location) => {
-          setLocation(location);
-          setRegion({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            latitudeDelta: 0.5,
-            longitudeDelta: 0.5,
-          });
-          let keys = {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          };
-          const newcoordinates = [...coordinates, keys];
-          setCoordinates(newcoordinates);
-        }
-      );
-    })();
-  }, []);
+    }, [])
+  );
 
   useEffect(() => {
-    if (!isStartPinCreated && location && pins.length == 0) {
-      const marker = {
-        key: uuidv4(),
-        coordinate: {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        },
-        title: "Started Trip",
-        description: "",
-      };
-      setPins([marker]);
-      setCurrentPin(marker);
-      setIsPinPopupVisible(true);
-      setIsStartPinCreated(true);
+    updateUsersLocation();
+    let timer = setInterval(updateUsersLocation, 5000);
+    // clean-up interval timer on un-mount
+    return () => {
+      clearInterval(timer);
     }
   }, []);
+
+  const updateUsersLocation = async () => {
+    let { status } = await Location.requestPermissionsAsync();
+    if (status !== "granted") {
+      setErrorMsg("Permission to access location was denied");
+      return;
+    }
+    let locationAccuracy = { accuracy: Location.Accuracy.Balanced }
+    let location = await Location.getCurrentPositionAsync(locationAccuracy);
+    updateLocationInfo(location);
+  };
+
+  const updateLocationInfo = (location) => {
+    setLocation(location);
+    setRegion({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      latitudeDelta: 0.5,
+      longitudeDelta: 0.5,
+    });
+    let keys = {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    };
+    setCoordinates(coords => [...coords, keys]);
+  }
 
   const onMapPress = (e) => {
     const newPins = [
@@ -166,9 +173,9 @@ export default function TripMap({ navigation }) {
         <Polyline
           strokeColor="#FF0000"
           strokeWidth={2}
-          coordinates={pins.map((pin) => ({
-            latitude: pin.coordinate.latitude,
-            longitude: pin.coordinate.longitude,
+          coordinates={coordinates.map((coord) => ({
+            latitude: coord.latitude,
+            longitude: coord.longitude,
           }))}
         />
       </MapView>
