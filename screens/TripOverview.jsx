@@ -21,6 +21,8 @@ import db from "../firebase";
 export default function TripOverview({ navigation, route }) {
   const [tripTitle, setTripTitle] = useState("");
 
+  const storage = firebase.storage();
+
   const pastTripComponent = ({ item }) => {
     return (
       <View style={styles.itemContainer}>
@@ -47,82 +49,61 @@ export default function TripOverview({ navigation, route }) {
     );
   };
 
-  const onSaveTrip = async () => {
-    const pins = route.params["pins"];
-    pins.map((pin) => {
-      pin.photos.map((photo) => {
-        onPress(photo.uri);
-      });
-    });
-    var tripTitleText = tripTitle["text"];
-    if (tripTitleText == null) {
-      // Currently using a default name of road trip if user doesn't enter name
-      tripTitleText = "Road Trip";
-    }
-    const tripData = { tripTitleText, pins };
-    const collRef = db.collection("trips");
-    const newTripRef = await collRef.add(tripData);
-    console.log(`Added trip to Firebase reference: ${newTripRef.id}`);
-    navigation.navigate("Home");
-  };
-
-  const getImageUrl = (url) => {
-    storage
-      .refFromURL(url)
-      .getDownloadURL()
-      .then((imageUrl) => {
-        // const newlength = allPosts.length + 1;
-        // const newId = "post" + newlength;
-
-        const post = {
-          //   campaign:
-          //     campaignOwner.first_name + "'s " + campaign.name + " Campaign",
-          //   campaign_picture: campaign.picture,
-          //   comment_count: 0,
-          //   comments: [],
-          content_picture: imageUrl,
-          //   current_status: campaign.progress + 1,
-          //   goal: campaign.goal,
-          //   likes: 0,
-          //   post_id: newId,
-          time: new Date(),
-          //   user: db.collection("users").doc(contributor.user_id),
-        };
-
-        db.collection("trips")
-          //   .doc(newId)
-          .set(post)
-          .then(() => {
-            console.log("Posts successfully written!");
-          })
-          .catch((error) => {
-            console.error("Error writing document: ", error);
-          });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-  const storage = firebase.storage();
-
-  let onPress = (uri) => {
+  const getImageUrl = (uri) => {
     const splitURI = uri.split("/");
-    const filename = splitURI[8];
+    const filename = splitURI[splitURI.length - 1];
     const path = "/trip_assets/";
     var storageRef = firebase.storage().ref(path);
     const ref = storageRef.child(`${filename}`);
     const url = "gs://cs-210-project.appspot.com/trip_assets/" + filename;
-
-    fetch(uri)
+    return fetch(uri)
       .then((response) => response.blob())
       .then((blob) => {
-        ref.put(blob).then((snapshot) => {
-          getImageUrl(url);
+        return ref.put(blob).then((snapshot) => {
+          return storage
+            .refFromURL(url)
+            .getDownloadURL()
+            .then(function (imageUrl) {
+              return imageUrl;
+            })
+            .catch((error) => {
+              console.log(error);
+            });
         });
       })
       .catch((error) => {
         console.log("Error My Guy!", error);
       });
+  };
+
+  const onSaveTrip = () => {
+    const pins = route.params["pins"];
+    for (let pin of pins) {
+      for (let photo of pin.photos) {
+        getImageUrl(photo.uri).then((url) => {
+          photo.uri = url;
+        });
+      }
+    }
+    var tripTitleText = tripTitle["text"];
+    if (tripTitleText == null) {
+      // Currently using a default name of road trip if user doesn't enter name
+      tripTitleText = "Road Trip";
+    }
+    const post = {
+      title: tripTitleText,
+      pins: pins,
+      time: new Date(),
+    };
+    db.collection("trips")
+      .add(post)
+      .then(() => {
+        console.log("Posts successfully written!");
+      })
+      .catch((error) => {
+        console.error("Error writing document: ", error);
+      });
+    navigation.navigate("Home");
   };
 
   const onViewOnMap = () => {
