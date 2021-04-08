@@ -29,3 +29,8 @@ Alex | Deep learning, Java, Python, React | Listening skills, time management | 
 1. Email us at [2buckchuck210@gmail.com](2buckchuck210@gmail.com)
 
 2. Slack: [twobuckchuck.slack.com](https://twobuckchuck.slack.com) (sign up [here](https://twobuckchuck.slack.com/signup)).
+
+Steps to run the app:
+1. Clone the repo.
+2. Run npm install.
+3. Run expo start.
