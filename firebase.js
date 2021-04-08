@@ -1,5 +1,6 @@
-import * as firebase from 'firebase';
-import 'firebase/firestore';
+import "firebase/firestore";
+
+import * as firebase from "firebase";
 
 // Your web app's Firebase configuration
 var firebaseConfig = {
@@ -9,14 +10,15 @@ var firebaseConfig = {
   storageBucket: "cs-210-project.appspot.com",
   messagingSenderId: "263845644775",
   appId: "1:263845644775:web:608290748a570d669d1542",
-  measurementId: "G-FSFDGW8XDY"
+  measurementId: "G-FSFDGW8XDY",
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+// firebase.initializeApp(firebaseConfig);
 var firestore = firebase.firestore();
 
 // export const auth = firebase.auth();
-
-
 export default firestore; 
