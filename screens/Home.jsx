@@ -40,22 +40,30 @@ const getAccessToken = async () => {
   );
   try {
     console.log("Got here");
+    let formData = new FormData();
+formData.append('grant_type', 'authorization_code');
+// formData.append('code', 'RP0jKBpywPRdB8ivTt6gK4l6qfzwsC_dZ_VLWIW3');
+formData.append('redirect_uri', 'https://localhost');
+formData.append('client_id', '142a054e-e379-4af0-92ee-4c896c8b4573');
+formData.append('client_secret', 'anbNBGSlPTwudIsghgRBuukgodehAZUhynrcqZOdyDkkqxjuhEPHmbLiAudAQgAr');
+
     let response = await fetch("https://id.mercedes-benz.com/as/token.oauth2", {
       method: "POST",
       headers: {
-        Authorization:
+        "Authorization":
           "Basic " +
           base64.encode(
             "<insert_your_base64_encoded_client_id_and_client_secret_here>"
           ),
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: JSON.stringify({
-        grant_type: "authorization_code",
-        code: "RP0jKBpywPRdB8ivTt6gK4l6qfzwsC_dZ_VLWIW3",
-        // redirect_uri: "exp://10.0.0.7:19000",
-        redirect_uri: "https://localhost",
-      }),
+      body: formData,
+      // body: JSON.stringify({
+      //   grant_type: "authorization_code",
+      //   code: "RP0jKBpywPRdB8ivTt6gK4l6qfzwsC_dZ_VLWIW3",
+      //   // redirect_uri: "exp://10.0.0.7:19000",
+      //   redirect_uri: "https://localhost",
+      // }),
     });
     console.log("Got here2");
     let json = await response.json();
