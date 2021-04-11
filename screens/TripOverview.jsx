@@ -75,6 +75,7 @@ export default function TripOverview({ navigation, route }) {
       });
   };
   const onSaveTrip = () => {
+    console.log("start of onSAve");
     var tripTitleText = tripTitle["text"];
     if (tripTitleText == null) {
       // Currently using a default name of road trip if user doesn't enter name
@@ -98,6 +99,7 @@ export default function TripOverview({ navigation, route }) {
         pins: pins,
         time: new Date(),
       };
+      console.log("pre db collection");
       db.collection("trips")
         .add(post)
         .then(() => {

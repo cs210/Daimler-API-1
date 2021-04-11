@@ -50,9 +50,6 @@ export default function TripMap({ navigation }) {
         setPins([]);
         setCoordinates([[]]);
       }
-      if (!isStartPinCreated && location && pins.length == 0) {
-        setCurrentPin(marker);
-      }
     }, [isTripRecording])
   );
 
@@ -115,11 +112,7 @@ export default function TripMap({ navigation }) {
     markers[marker.key].hideCallout();
   };
 
-  const onFinishTripPress = async () => {
-    if (pins.length == 0) {
-      navigation.navigate("Home");
-      return;
-    }
+  const onFinishTripPress = async () => { 
     const data = { tripTitleText: "", pins: pins };
     setIsTripRecording(false);
     setIsTripStarted(false);
