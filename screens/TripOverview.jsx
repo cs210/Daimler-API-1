@@ -1,3 +1,5 @@
+import * as firebase from "firebase";
+
 import {
   FlatList,
   Image,
@@ -11,7 +13,6 @@ import React, { useState } from "react";
 
 import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
-import * as firebase from "firebase"
 
 /**
  * This component shows an overview of the trip such as a list of pins and a map
@@ -75,7 +76,6 @@ export default function TripOverview({ navigation, route }) {
       });
   };
   const onSaveTrip = () => {
-    console.log("start of onSAve");
     var tripTitleText = tripTitle["text"];
     if (tripTitleText == null) {
       // Currently using a default name of road trip if user doesn't enter name
@@ -84,22 +84,27 @@ export default function TripOverview({ navigation, route }) {
     const promises = [];
     const pins = route.params["pins"];
     for (let pin of pins) {
-      for (let photo of pin.photos) {
-        promises.push(getImageUrl(photo.uri));
+      if (pin.photos) {
+        for (let photo of pin.photos) {
+          promises.push(getImageUrl(photo.uri));
+        }
       }
     }
     Promise.all(promises).then((urls) => {
       for (var i = 0; i < pins.length; i++) {
-        for (var photo of pins[i].photos) {
-          photo.uri = urls[i];
+        if (pins[i].photos) {
+          for (var photo of pins[i].photos) {
+            photo.uri = urls[i];
+          }
         }
       }
+      const user = firebase.auth().currentUser;
       const post = {
         tripTitleText: tripTitleText,
         pins: pins,
         time: new Date(),
+        uid: user.uid,
       };
-      console.log("pre db collection");
       db.collection("trips")
         .add(post)
         .then(() => {

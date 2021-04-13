@@ -1,3 +1,5 @@
+import * as firebase from "firebase";
+
 import {
   ActivityIndicator,
   FlatList,
@@ -7,11 +9,9 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
-import { useFocusEffect } from '@react-navigation/native';
-
 
 import db from "../firebase";
-import * as firebase from "firebase"
+import { useFocusEffect } from "@react-navigation/native";
 
 /**
  * This component shows a list of all past trips when user presses the "Past Trip"
@@ -24,35 +24,28 @@ export default function PastTrips({ navigation }) {
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
     const parsedTrips = [];
-    for (var trip in tripsFromDatabase) {
-      const tripData = tripsFromDatabase[trip];
-      tripData["id"] = trip;
-      tripData["tripTitle"] = tripData.tripTitleText;
-      parsedTrips.push(tripData);
-    }
+    const user = firebase.auth().currentUser;
+
+    tripsFromDatabase.forEach((trip) => {
+      const tripData = trip.data();
+      if (tripData.uid == user.uid) {
+        tripData["id"] = trip.id;
+        tripData["tripTitle"] = tripData.tripTitleText;
+        parsedTrips.push(tripData);
+      }
+    });
     return parsedTrips;
   };
 
   const loadPastTrips = async () => {
-    console.log("loadPastTrips called");
     setLoading(true);
     setPastTrips([]);
-    const user = firebase.auth().currentUser;
-    const userRef = db.collection("users");
-    const userDocRef = userRef.doc(user.uid);
-    var tripsFromUserDatabase;
-    userDocRef.get().then((doc) => {
-      if (doc.exists) {
-        tripsFromUserDatabase = doc.data().trips;
-        const parsedUserTrips = parseTripsFromDatabase(tripsFromUserDatabase);
-        console.log(parsedUserTrips);
-        setPastTrips(parsedUserTrips);
-        console.log(setPastTrips);
-        setLoading(false);
-      }
-    }).catch((error) => {
-      console.log("Error getting document:", error);
-    });
+    const collRef = db.collection("trips");
+    const tripsFromDatabase = await collRef.get();
+    const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
+
+    setPastTrips(parsedTrips);
+    setLoading(false);
   };
 
   useFocusEffect(
