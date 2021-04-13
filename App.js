@@ -44,12 +44,12 @@ const Tab = createBottomTabNavigator();
 
 function Tabs() {
   return (
-    <Tab.Navigator 
+    <Tab.Navigator
     tabBarOptions={{
       activeTintColor: '#00A398',
     }}>
-      <Tab.Screen 
-        name="Home" 
+      <Tab.Screen
+        name="Home"
         component={Home}
         options={{
           tabBarLabel: 'Home',
@@ -58,8 +58,8 @@ function Tabs() {
           ),
         }}
       />
-      <Tab.Screen   
-        name="Record Trip" 
+      <Tab.Screen
+        name="Record Trip"
         component={TripMap}
         options={{
           tabBarLabel: 'Record Trip',
@@ -85,13 +85,14 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="Signup" component={Signup} />
         <Stack.Screen name="Tabs" component={Tabs} />
         <Stack.Screen name="Trip Map" component={TripMap} />
         <Stack.Screen name="Past Trips" component={PastTrips} />
         <Stack.Screen name="Trip Overview" component={TripOverview} />
         <Stack.Screen name="Trip Viewer" component={TripViewer} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Signup" component={Signup} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import * as firebase from "firebase";
 
 /**
- * This component takes the user to the Login page. The user inputs their 
+ * This component takes the user to the Login page. The user inputs their
  * email and passowrd to login.
  */
 export default function Login({ navigation }) {
@@ -19,7 +19,7 @@ export default function Login({ navigation }) {
   const handleLogin = () => {
     firebase.auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => navigation.navigate("Home"))
+      .then(() => navigation.navigate("Tabs", { screen: "Home" }))
       .catch(error => alert(error))
   }
 
@@ -47,11 +47,11 @@ export default function Login({ navigation }) {
         onPress={handleLogin}>
           <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.signupButton} 
+      <TouchableOpacity style={styles.signupButton}
         onPress={() => navigation.navigate("Signup")}>
         <Text style={styles.signupButtonText}>Don't have an account yet? Sign up</Text>
       </TouchableOpacity>
-    </KeyboardAvoidingView>  
+    </KeyboardAvoidingView>
   );
 }
 
