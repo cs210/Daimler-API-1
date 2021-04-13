@@ -12,12 +12,12 @@ import MapView, { Marker, Polyline } from "react-native-maps";
 import React, { useEffect, useState } from "react";
 import PinPopup from "./PinPopup";
 import { v4 as uuidv4 } from "uuid";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from "@react-navigation/native";
 
 /**
  * This component shows the user's current location and route. By doing a long
  * press on the screen, the user can add a pin. When the user taps on the pin,
- * a pin marker is shown. When they press on the marker, they are shown the 
+ * a pin marker is shown. When they press on the marker, they are shown the
  * pin popup, allowing them to edit information about the pin.
  */
 export default function TripMap({ navigation }) {
@@ -28,49 +28,39 @@ export default function TripMap({ navigation }) {
   const [isPinPopupVisible, setIsPinPopupVisible] = useState(false);
   //Pin currently being editted
   const [currentPin, setCurrentPin] = useState(null);
-  const [coordinates, setCoordinates] = useState([]);
+  const [coordinates, setCoordinates] = useState([[]]);
   const [markers, setMarkers] = useState([]);
-  const [isTripPaused, setIsTripPaused] = useState(false);
-  const [isStartPinCreated, setIsStartPinCreated] = useState(false);
+  const [isTripPaused, setIsTripPaused] = useState(true);
+  const [isTripRecording, setIsTripRecording] = useState(false);
+  const [isTripStarted, setIsTripStarted] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
-    (async () => {
-      const {
-        status,
-      } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      (async () => {
+        const {
+          status,
+        } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       })();
     }, [])
   );
 
   useFocusEffect(
     React.useCallback(() => {
-      if (!isStartPinCreated && location && pins.length == 0) {
-        const marker = {
-          key: uuidv4(),
-          coordinate: {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          },
-          title: "Started Trip",
-          description: "",
-        };
-        setPins([marker]);
-        setCurrentPin(marker);
-        setIsPinPopupVisible(true);
-        setIsStartPinCreated(true);
+      if (!isTripStarted) {
+        setPins([]);
+        setCoordinates([[]]);
       }
-    }, [])
+    }, [isTripRecording])
   );
 
   useEffect(() => {
     updateUsersLocation();
-    let timer = setInterval(updateUsersLocation, 5000);
+    let timer = setInterval(updateUsersLocation, 3000);
     // clean-up interval timer on un-mount
     return () => {
       clearInterval(timer);
-    }
-  }, []);
+    };
+  }, [isTripRecording]);
 
   const updateUsersLocation = async () => {
     let { status } = await Location.requestPermissionsAsync();
@@ -78,7 +68,7 @@ export default function TripMap({ navigation }) {
       setErrorMsg("Permission to access location was denied");
       return;
     }
-    let locationAccuracy = { accuracy: Location.Accuracy.Balanced }
+    let locationAccuracy = { accuracy: Location.Accuracy.Balanced };
     let location = await Location.getCurrentPositionAsync(locationAccuracy);
     updateLocationInfo(location);
   };
@@ -95,8 +85,13 @@ export default function TripMap({ navigation }) {
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
     };
-    setCoordinates(coords => [...coords, keys]);
-  }
+    if (isTripRecording) {
+      const newCoords = [...coordinates];
+      const lastListCoords = newCoords[newCoords.length - 1];
+      lastListCoords.push(keys);
+      setCoordinates(newCoords);
+    }
+  };
 
   const onMapPress = (e) => {
     const newPins = [
@@ -117,17 +112,26 @@ export default function TripMap({ navigation }) {
     markers[marker.key].hideCallout();
   };
 
-  const onFinishTripPress = async () => {
-    if (pins.length == 0) {
-      navigation.navigate("Home");
-      return;
-    }
+  const onFinishTripPress = async () => { 
     const data = { tripTitleText: "", pins: pins };
+    setIsTripRecording(false);
+    setIsTripStarted(false);
     navigation.navigate("Trip Overview", data);
   };
 
-  const onPauseTripPress = async () => {
-    setIsTripPaused(!isTripPaused);
+  const onPauseTripPress = () => {
+    if (!isTripStarted) {
+      setIsTripStarted(true);
+      setIsTripRecording(true);
+      setIsTripPaused(false);
+    } else {
+      if (isTripPaused) {
+        // about to resume trip - create a new list for coordinates
+        setCoordinates([...coordinates, []]);
+      }
+      setIsTripPaused(!isTripPaused);
+      setIsTripRecording(!isTripRecording);
+    }
   };
 
   const getUpdatedPin = (newPin) => {
@@ -145,6 +149,16 @@ export default function TripMap({ navigation }) {
     const newPins = pins.filter((pin) => pin.key != pinToDelete.key);
     setPins(newPins);
     setIsPinPopupVisible(false);
+  };
+
+  const tripButtonText = () => {
+    if (!isTripStarted) {
+      return "Start trip";
+    } else if (!isTripPaused) {
+      return "Pause trip";
+    } else {
+      return "Resume trip";
+    }
   };
 
   return (
@@ -170,14 +184,17 @@ export default function TripMap({ navigation }) {
             onCalloutPress={() => onMarkerPress(marker)}
           />
         ))}
-        <Polyline
-          strokeColor="#FF0000"
-          strokeWidth={2}
-          coordinates={coordinates.map((coord) => ({
-            latitude: coord.latitude,
-            longitude: coord.longitude,
-          }))}
-        />
+        {coordinates.map((coordList, index) => (
+          <Polyline
+            key={index}
+            strokeColor="#FF0000"
+            strokeWidth={2}
+            coordinates={coordList.map((coord) => ({
+              latitude: coord.latitude,
+              longitude: coord.longitude,
+            }))}
+          />
+        ))}
       </MapView>
       {isPinPopupVisible && (
         <PinPopup
@@ -191,9 +208,7 @@ export default function TripMap({ navigation }) {
           onPress={onPauseTripPress}
           style={styles.appButtonContainer}
         >
-          <Text style={styles.appButtonText}>
-            {isTripPaused ? "Resume Trip" : "Pause Trip"}{" "}
-          </Text>
+          <Text style={styles.appButtonText}>{tripButtonText()}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={onFinishTripPress}
