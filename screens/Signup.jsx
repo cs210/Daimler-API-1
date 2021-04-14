@@ -39,7 +39,7 @@ export default function Signup({ navigation }) {
 
   const onPressSignUp = () => {
     handleSignUp();
-    navigation.navigate("Tabs", { screen: "Home" });
+    navigation.navigate("Road Trip Buddy", { screen: "Home" });
   }
 
   return (
