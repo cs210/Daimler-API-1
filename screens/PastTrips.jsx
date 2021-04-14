@@ -2,15 +2,19 @@ import * as firebase from "firebase";
 
 import {
   ActivityIndicator,
+  Dimensions,
   FlatList,
+  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import React, { useState } from "react";
+import { findRegion, tripViewComponent } from "./TripViewer";
 
 import db from "../firebase";
+import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
 
 /**
@@ -21,11 +25,9 @@ import { useFocusEffect } from "@react-navigation/native";
 export default function PastTrips({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [pastTrips, setPastTrips] = useState([]);
-
   const parseTripsFromDatabase = (tripsFromDatabase) => {
     const parsedTrips = [];
     const user = firebase.auth().currentUser;
-
     tripsFromDatabase.forEach((trip) => {
       const tripData = trip.data();
       if (tripData.uid == user.uid) {
@@ -41,7 +43,7 @@ export default function PastTrips({ navigation }) {
     setLoading(true);
     setPastTrips([]);
     const collRef = db.collection("trips");
-    const tripsFromDatabase = await collRef.get();
+    const tripsFromDatabase = await collRef.orderBy("time", "desc").get();
     const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
 
     setPastTrips(parsedTrips);
@@ -60,20 +62,28 @@ export default function PastTrips({ navigation }) {
         onPress={() => navigation.navigate("Trip Overview", item)}
         style={styles.itemContainer}
       >
-        <Text>Trip Name: {item.tripTitle}</Text>
+        <View style={styles.cardHeader}>
+          <Text style={styles.tripName}>{item.tripTitle}</Text>
+          <Text>{moment(item.time).format("LLL")}</Text>
+        </View>
+        <View style={styles.tripCard}>
+          {tripViewComponent(item.pins, findRegion(item.pins))}
+        </View>
       </TouchableOpacity>
     );
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Past Trips</Text>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.header}>
+        {firebase.auth().currentUser.displayName ?? "My"} Past Trips
+      </Text>
       {loading ? (
         <ActivityIndicator />
       ) : (
         <FlatList data={pastTrips} renderItem={pastTripComponent} />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -81,20 +91,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "space-around",
     margin: 15,
+    padding: 10,
   },
   header: {
     fontSize: 30,
     color: "#8275BD",
     fontWeight: "bold",
+    margin: 10,
   },
   itemContainer: {
     elevation: 8,
-    backgroundColor: "#00A398",
+    borderColor: "#00A398",
+    borderWidth: 3,
+    borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    marginVertical: 4,
+    marginVertical: 10,
+  },
+  tripName: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  tripCard: {
+    width: Dimensions.get("window").width * 0.9,
+    height: Dimensions.get("window").height * 0.4,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+    margin: 5,
   },
 });
