@@ -25,6 +25,8 @@ Andrea | Python, JavaScript, React, machine learning | Flexibility | Efficient, 
 Christina | Python, Java, machine learning | Flexibility, listening | Planner, group-oriented, mediator | Product management, mobile development, UI/UX | Presentation, ideas require peer approval
 Alex | Deep learning, Java, Python, React | Listening skills, time management | Detail-oriented, organized | Mobile development, UI/UX, design thinking | Interpersonal communication, presentation skills, lacks patience
 
+Our Contract of Deliverables: [here](https://docs.google.com/document/d/1wt_eiX-ZcSk0otArZINyT9hvRohzCPNvkd1nKmaJGGk/edit?usp=sharing)
+
 # Team Communication:
 1. Email us at [2buckchuck210@gmail.com](2buckchuck210@gmail.com)
 
