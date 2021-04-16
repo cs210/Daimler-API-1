@@ -87,18 +87,17 @@ export default function SearchScreen({ navigation }) {
                     }}
                     data={users}
                     renderItem={({ item }) => {
-                      if(searchQuery != "" && item.name.includes(searchQuery)) {
+                      if(searchQuery != "" && (item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                               item.email.toLowerCase().includes(searchQuery.toLowerCase()))) {
                         return (
-                          <View style={styles.fishbowlCard}>
-                            <View style={styles.fishbowlCardInfo}>
-                              <View style={styles.fishbowlCardRow}>
-                                <TouchableOpacity
-                                  onPress={() => onPressUser(item)}
-                                >
-                                  <Text style={styles.fishbowlTitle}>{item.email}</Text>
+                          <View style={styles.userCard}>
+                            <View style={styles.userCardInfo}>
+                              <View style={styles.userCardRow}>
+                                <TouchableOpacity onPress={() => onPressUser(item)} >
+                                  <Text style={styles.userTitle}>{item.email}</Text>
                                 </TouchableOpacity>
                               </View>
-                              <Text style={styles.fishbowlText}>{item.name}</Text>
+                              <Text style={styles.userText}>{item.name}</Text>
                             </View>
                           </View>
                         )
@@ -139,29 +138,29 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold'
   },
-  fishbowlCard: {
+  userCard: {
     width: '90%',
     marginTop: 10,
     // marginLeft: 10,
     // marginRight: 10,
     // backgroundColor: '#e7e2e2',
-    backgroundColor: 'rgba(216,213,214,0.35)',
+    backgroundColor: '#AEB8C1',
     padding: 5,
     borderRadius: 10,
     flexDirection: 'row'
   },
-  fishbowlTitle: {
+  userTitle: {
     fontSize: 14,
     fontWeight: 'bold',
   },
-  fishbowlText: {
+  userText: {
     fontSize: 12,
   },
-  fishbowlCardInfo: {
+  userCardInfo: {
     flex: 1,
     paddingLeft: 10,
   },
-  fishbowlCardRow: {
+  userCardRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

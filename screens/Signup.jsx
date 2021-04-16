@@ -52,7 +52,7 @@ export default function Signup() {
       <TextInput
       	style={styles.inputBox}
         onChangeText={(text) => setEmail(text)}
-        placeholder="Email"
+        placeholder="Username"
         autoCapitalize="none"
         autoCorrect={false}
         defaultValue={email}
