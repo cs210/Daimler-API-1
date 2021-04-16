@@ -13,6 +13,7 @@ import TripOverview from "./screens/TripOverview";
 import TripViewer from "./screens/TripViewer";
 import Login from "./screens/Login";
 import Signup from "./screens/Signup";
+import Search from "./screens/Search";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
@@ -52,6 +53,8 @@ function getHeaderTitle(route) {
   switch (routeName) {
     case "Home":
       return "Home";
+    case "Search":
+      return "Search";
     case "Record Trip":
       return "Record Trip";
     case "Profile":
@@ -73,6 +76,20 @@ function Tabs() {
           tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="home" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Search"
+        component={Search}
+        options={{
+          tabBarLabel: "Search",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons
+              name="card-search-search"
+              color={color}
+              size={size}
+            />
           ),
         }}
       />
