@@ -31,7 +31,7 @@ export default function SearchScreen({ navigation }) {
             snapshot.forEach(doc => {
                 if (doc.exists) {
                     let user = doc.data();
-                    users.push(user['name']);
+                    users.push(user);
                 }
                 if (mounted) {
                   setUsers(users);
@@ -87,14 +87,19 @@ export default function SearchScreen({ navigation }) {
                     }}
                     data={users}
                     renderItem={({ item }) => {
-                      if(searchQuery != "" && item.includes(searchQuery)) {
+                      if(searchQuery != "" && item.name.includes(searchQuery)) {
                         return (
-                          <View>
-                            <TouchableOpacity
-                              onPress={() => onPressUser(item)}
-                            >
-                              <Text>{item}</Text>
-                            </TouchableOpacity>
+                          <View style={styles.fishbowlCard}>
+                            <View style={styles.fishbowlCardInfo}>
+                              <View style={styles.fishbowlCardRow}>
+                                <TouchableOpacity
+                                  onPress={() => onPressUser(item)}
+                                >
+                                  <Text style={styles.fishbowlTitle}>{item.email}</Text>
+                                </TouchableOpacity>
+                              </View>
+                              <Text style={styles.fishbowlText}>{item.name}</Text>
+                            </View>
                           </View>
                         )
                       }
@@ -108,31 +113,57 @@ export default function SearchScreen({ navigation }) {
 }
 
 
-
 const styles = StyleSheet.create({
   container: {
-        flex: 1,
-    },
-    searchBarStyle:{
-        backgroundColor:'transparent',
-        borderBottomColor:'transparent',
-        borderTopColor: 'transparent',
-        flex:5
-    },
-    viewSearch: {
-        alignSelf: 'stretch',
-        flex:3
-    },
-    filter:{
-        flex:5
-    },
-    peopleView:{
-        // backgroundColor:'#E3EC97',
-        flex:10
-    },
-    titleText:{
-        padding: 15,
-        fontSize: 20,
-        fontWeight: 'bold'
-    }
+    flex: 1,
+  },
+  searchBarStyle:{
+    backgroundColor:'transparent',
+    borderBottomColor:'transparent',
+    borderTopColor: 'transparent',
+    flex:5
+  },
+  viewSearch: {
+    alignSelf: 'stretch',
+    flex:3
+  },
+  filter:{
+    flex:5
+  },
+  peopleView:{
+    // backgroundColor:'#E3EC97',
+    flex:10
+  },
+  titleText:{
+    padding: 15,
+    fontSize: 20,
+    fontWeight: 'bold'
+  },
+  fishbowlCard: {
+    width: '90%',
+    marginTop: 10,
+    // marginLeft: 10,
+    // marginRight: 10,
+    // backgroundColor: '#e7e2e2',
+    backgroundColor: 'rgba(216,213,214,0.35)',
+    padding: 5,
+    borderRadius: 10,
+    flexDirection: 'row'
+  },
+  fishbowlTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  fishbowlText: {
+    fontSize: 12,
+  },
+  fishbowlCardInfo: {
+    flex: 1,
+    paddingLeft: 10,
+  },
+  fishbowlCardRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
 });
