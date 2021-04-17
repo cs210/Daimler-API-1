@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useLayoutEffect } from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
 
 import db from "../firebase";
@@ -56,6 +56,15 @@ export default function PastTrips({ navigation }) {
     }, [])
   );
 
+  // useLayoutEffect(() => {
+  //   console.log("use layout effect called");
+  //   navigation.setOptions({
+  //     headerRight: () => (
+  //       <Button title="Update count" />
+  //     ),
+  //   });
+  // }, [navigation]);
+
   const pastTripComponent = ({ item }) => {
     return (
       <TouchableOpacity
@@ -72,11 +81,13 @@ export default function PastTrips({ navigation }) {
       </TouchableOpacity>
     );
   };
-
   return (
     <SafeAreaView style={styles.container}>
+      <Text style={styles.name}>
+        {firebase.auth().currentUser.displayName}
+      </Text>
       <Text style={styles.header}>
-        {firebase.auth().currentUser.displayName ?? "My"} Past Trips
+        My Past Trips
       </Text>
       {loading ? (
         <ActivityIndicator />
@@ -94,10 +105,15 @@ const styles = StyleSheet.create({
     margin: 15,
     padding: 10,
   },
-  header: {
+  name: {
     fontSize: 30,
     color: "#8275BD",
     fontWeight: "bold",
+    margin: 10,
+  },
+  header: {
+    fontSize: 20,
+    color: "#8275BD",
     margin: 10,
   },
   itemContainer: {
