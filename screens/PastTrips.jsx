@@ -112,7 +112,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    margin: 15,
     padding: 10,
   },
   row: {
@@ -139,7 +138,6 @@ const styles = StyleSheet.create({
     borderColor: "#00A398",
     borderWidth: 3,
     borderRadius: 10,
-    paddingVertical: 10,
     paddingHorizontal: 12,
     marginVertical: 10,
   },
@@ -148,8 +146,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   tripCard: {
-    width: Dimensions.get("window").width * 0.9,
+    width: Dimensions.get("window").width,
     height: Dimensions.get("window").height * 0.4,
+    paddingLeft: 10,
+    paddingTop: 20
   },
   cardHeader: {
     flexDirection: "row",

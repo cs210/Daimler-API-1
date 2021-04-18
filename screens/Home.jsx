@@ -102,7 +102,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff", //"#aeb8c1"
     alignItems: "center",
     justifyContent: "space-around",
-    margin: 15,
   },
   logo: {
     width: Dimensions.get("window").width * 0.7,

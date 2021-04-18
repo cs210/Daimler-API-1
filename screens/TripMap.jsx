@@ -227,16 +227,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "space-around",
-    margin: 15,
+    padding:10
   },
   header: {
     fontSize: 30,
     color: "#8275BD",
     fontWeight: "bold",
+    margin: 15
   },
   map: {
-    width: Dimensions.get("window").width * 0.9,
-    height: Dimensions.get("window").height * 0.7,
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height * 0.68,
+    margin: 35,
   },
   appButtonContainer: {
     elevation: 8,
@@ -245,6 +247,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     margin: 5,
+    marginBottom: 20,
+    marginTop: 15
   },
   appButtonText: {
     fontSize: 18,
