@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import React, { useState, useLayoutEffect } from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 import db from "../firebase";
 import moment from "moment";
@@ -83,9 +84,18 @@ export default function PastTrips({ navigation }) {
   };
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.name}>
-        {firebase.auth().currentUser.displayName}
-      </Text>
+      <View style={styles.row}>
+        <Text style={styles.name}>
+          {firebase.auth().currentUser.displayName}
+        </Text>
+        <MaterialCommunityIcons 
+          style={styles.icon} 
+          name="account-cog" 
+          color={"#808080"} 
+          size={34}
+          onPress={() => navigation.navigate("Signup")}
+        />
+      </View>
       <Text style={styles.header}>
         My Past Trips
       </Text>
@@ -105,16 +115,24 @@ const styles = StyleSheet.create({
     margin: 15,
     padding: 10,
   },
+  row: {
+    flexDirection: 'row'
+  },
+  icon: {
+    marginLeft: 20, 
+    marginTop: 15,
+  },
   name: {
     fontSize: 30,
     color: "#8275BD",
     fontWeight: "bold",
-    margin: 10,
-  },
+    margin: 15,
+    width: 300,
+    },
   header: {
     fontSize: 20,
     color: "#8275BD",
-    margin: 10,
+    margin: 15,
   },
   itemContainer: {
     elevation: 8,
