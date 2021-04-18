@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState, useLayoutEffect } from "react";
+import React, { useState } from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
@@ -57,15 +57,6 @@ export default function PastTrips({ navigation }) {
     }, [])
   );
 
-  // useLayoutEffect(() => {
-  //   console.log("use layout effect called");
-  //   navigation.setOptions({
-  //     headerRight: () => (
-  //       <Button title="Update count" />
-  //     ),
-  //   });
-  // }, [navigation]);
-
   const pastTripComponent = ({ item }) => {
     return (
       <TouchableOpacity
@@ -82,23 +73,22 @@ export default function PastTrips({ navigation }) {
       </TouchableOpacity>
     );
   };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.row}>
         <Text style={styles.name}>
           {firebase.auth().currentUser.displayName}
         </Text>
-        <MaterialCommunityIcons 
-          style={styles.icon} 
-          name="account-cog" 
-          color={"#808080"} 
+        <MaterialCommunityIcons
+          style={styles.icon}
+          name="account-cog"
+          color={"#808080"}
           size={34}
-          onPress={() => navigation.navigate("Signup")}
+          onPress={() => navigation.navigate("Settings")}
         />
       </View>
-      <Text style={styles.header}>
-        My Past Trips
-      </Text>
+      <Text style={styles.header}>My Past Trips</Text>
       {loading ? (
         <ActivityIndicator />
       ) : (
@@ -115,10 +105,10 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   row: {
-    flexDirection: 'row'
+    flexDirection: "row",
   },
   icon: {
-    marginLeft: 20, 
+    marginLeft: 20,
     marginTop: 15,
   },
   name: {
@@ -127,7 +117,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     margin: 15,
     width: 300,
-    },
+  },
   header: {
     fontSize: 20,
     color: "#8275BD",
@@ -149,7 +139,7 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height * 0.4,
     paddingLeft: 10,
-    paddingTop: 20
+    paddingTop: 20,
   },
   cardHeader: {
     flexDirection: "row",
