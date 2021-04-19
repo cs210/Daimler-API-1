@@ -17,24 +17,30 @@ export default function Signup({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
 
   const handleSignUp = async () => {
-    try {
-      const response = await firebase.auth().createUserWithEmailAndPassword(email, password)
-      if (response.user.uid) {
+    firebase.auth().createUserWithEmailAndPassword(email, password)
+      .then(function(userCred) {  
+        console.log(userCred);
+        userCred.user.updateProfile({
+          displayName: name
+        });
         const user = {
-          uid: response.user.uid,
+          uid: userCred.user.uid,
           email: email,
-          name: name,
-          trips: {}
+          displayName: name,
+          trips: {},
+          followers: {},
+          following: {}
         }
         db.collection("users")
-          .doc(response.user.uid)
+          .doc(userCred.user.uid)
           .set(user);
-      }
-    } catch (e) {
-        alert(e)
-    }
+        navigation.navigate("Home")
+      }).catch((error) => {
+        alert(error);
+      });
   }
 
   const onPressSignUp = () => {
@@ -56,8 +62,16 @@ export default function Signup({ navigation }) {
       />
       <TextInput
       	style={styles.inputBox}
-        onChangeText={(text) => setEmail(text)}
+        onChangeText={(text) => setUsername(text)}
         placeholder="Username"
+        autoCapitalize="none"
+        autoCorrect={false}
+        defaultValue={username}
+      />
+      <TextInput
+      	style={styles.inputBox}
+        onChangeText={(text) => setEmail(text)}
+        placeholder="Email"
         autoCapitalize="none"
         autoCorrect={false}
         defaultValue={email}

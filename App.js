@@ -16,6 +16,7 @@ import TripViewer from "./screens/TripViewer";
 import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 import Search from "./screens/Search";
+import Settings from "./screens/Settings";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
@@ -64,6 +65,14 @@ function getHeaderTitle(route) {
   }
 }
 
+// React.useLayoutEffect(() => {
+//   navigation.setOptions({
+//     headerRight: () => (
+//       <Button onPress={() => setCount(c => c + 1)} title="Update count" />
+//     ),
+//   });
+// }, [navigation]);
+
 function Tabs() {
   return (
     <Tab.Navigator
@@ -88,7 +97,7 @@ function Tabs() {
           tabBarLabel: "Search",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
-              name="card-search-search"
+              name="magnify"
               color={color}
               size={size}
             />

@@ -30,7 +30,7 @@ export default function Login({ navigation }) {
       <TextInput
         style={styles.inputBox}
         onChangeText={(text) => setEmail(text)}
-        placeholder="Username"
+        placeholder="Email"
         autoCapitalize="none"
         autoCorrect={false}
         defaultValue={email}

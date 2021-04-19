@@ -12,19 +12,24 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 import db from "../firebase";
 import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
 
 /**
- * This component shows a list of all past trips when user presses the "Past Trip"
- * button from the home screen. Clicking on a past trip will take you to the trip
- * overview.
+ * This component shows a profile which includes the number of followers
+ * and people you are following. It also contains a list of all past trips
+ * when user presses the "Profile" button from the tab bar. Clicking on
+ * a past trip will take you to the trip overview.
  */
 export default function PastTrips({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [pastTrips, setPastTrips] = useState([]);
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+
   const parseTripsFromDatabase = (tripsFromDatabase) => {
     const parsedTrips = [];
     const user = firebase.auth().currentUser;
@@ -56,6 +61,17 @@ export default function PastTrips({ navigation }) {
     }, [])
   );
 
+  const getCurrentUser = () => {
+    // db.collection("users").find({"uid": })
+    console.log("get current user called");
+    let uid = firebase.auth().currentUser.uid;
+    const usersRef = firebase.firestore().collection("users");
+    usersRef.doc(uid).onSnapshot((userDoc) => {
+      setFollowers(userDoc.data()["followers"]);
+      setFollowing(userDoc.data()["following"]);
+    });
+  };
+
   const pastTripComponent = ({ item }) => {
     return (
       <TouchableOpacity
@@ -75,9 +91,23 @@ export default function PastTrips({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>
-        {firebase.auth().currentUser.displayName ?? "My"} Past Trips
-      </Text>
+      <View style={styles.row}>
+        <Text style={styles.name}>
+          {firebase.auth().currentUser.displayName}
+        </Text>
+        <MaterialCommunityIcons
+          style={styles.icon}
+          name="account-cog"
+          color={"#808080"}
+          size={34}
+          onPress={() => navigation.navigate("Settings")}
+        />
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.follow}>{followers.length} Followers</Text>
+        <Text style={styles.follow}>{following.length} Following</Text>
+      </View>
+      <Text style={styles.header}>My Past Trips</Text>
       {loading ? (
         <ActivityIndicator />
       ) : (
@@ -93,11 +123,29 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 10,
   },
-  header: {
-    fontSize: 30,
+  row: {
+    flexDirection: "row",
+  },
+  icon: {
+    marginLeft: 20,
+    marginTop: 15,
+  },
+  name: {
+    fontSize: 35,
     color: "#8275BD",
     fontWeight: "bold",
-    margin: 10,
+    margin: 15,
+    width: 300,
+  },
+  follow: {
+    fontSize: 15,
+    fontWeight: "bold",
+    margin: 15,
+  },
+  header: {
+    fontSize: 24,
+    margin: 15,
+    fontWeight: "bold",
   },
   itemContainer: {
     elevation: 8,
@@ -115,7 +163,7 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height * 0.4,
     paddingLeft: 10,
-    paddingTop: 20
+    paddingTop: 20,
   },
   cardHeader: {
     flexDirection: "row",
