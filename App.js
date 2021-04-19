@@ -1,6 +1,8 @@
 import "react-native-gesture-handler";
 
 import * as React from "react";
+import { useEffect, useState } from "react";
+import * as firebase from "firebase";
 
 import { Home } from "./screens/Home";
 import { NavigationContainer } from "@react-navigation/native";
@@ -122,23 +124,57 @@ function Tabs() {
 }
 
 const App = () => {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+        firebase.auth().onAuthStateChanged(user => {
+            if (user == null) {
+                setLoggedIn(false);
+                setUser(null);
+            } else {
+                const usersRef = firebase.firestore().collection('users')
+                usersRef
+                    .doc(user.uid)
+                    .get()
+                    .then(firestoreDocument => {
+                        if (!firestoreDocument.exists) {
+                            alert("User does not exist anymore.")
+                            return;
+                        }
+                        const user = firestoreDocument.data()
+                        setUser(user);
+                        setLoggedIn(true);
+                    })
+                    .catch(error => {
+                        alert(error)
+                    });
+            }
+        });
+    }, []);
+
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Road Trip Buddy"
-          component={Tabs}
-          options={({ route }) => ({
-            headerTitle: getHeaderTitle(route),
-          })}
-        />
-        <Stack.Screen name="Trip Map" component={TripMap} />
-        <Stack.Screen name="Past Trips" component={PastTrips} />
-        <Stack.Screen name="Trip Overview" component={TripOverview} />
-        <Stack.Screen name="Trip Viewer" component={TripViewer} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Signup" component={Signup} />
-      </Stack.Navigator>
+      { loggedIn ? (
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Road Trip Buddy"
+            component={Tabs}
+            options={({ route }) => ({
+              headerTitle: getHeaderTitle(route),
+            })}
+          />
+          <Stack.Screen name="Trip Map" component={TripMap} />
+          <Stack.Screen name="Past Trips" component={PastTrips} />
+          <Stack.Screen name="Trip Overview" component={TripOverview} />
+          <Stack.Screen name="Trip Viewer" component={TripViewer} />
+        </Stack.Navigator>
+      ) : (
+        <Stack.Navigator>
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="Signup" component={Signup} />
+        </Stack.Navigator>
+      )}
     </NavigationContainer>
   );
 };
