@@ -65,14 +65,6 @@ function getHeaderTitle(route) {
   }
 }
 
-// React.useLayoutEffect(() => {
-//   navigation.setOptions({
-//     headerRight: () => (
-//       <Button onPress={() => setCount(c => c + 1)} title="Update count" />
-//     ),
-//   });
-// }, [navigation]);
-
 function Tabs() {
   return (
     <Tab.Navigator
@@ -96,11 +88,7 @@ function Tabs() {
         options={{
           tabBarLabel: "Search",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="magnify"
-              color={color}
-              size={size}
-            />
+            <MaterialCommunityIcons name="magnify" color={color} size={size} />
           ),
         }}
       />
@@ -137,34 +125,34 @@ const App = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-        firebase.auth().onAuthStateChanged(user => {
-            if (user == null) {
-                setLoggedIn(false);
-                setUser(null);
-            } else {
-                const usersRef = firebase.firestore().collection('users')
-                usersRef
-                    .doc(user.uid)
-                    .get()
-                    .then(firestoreDocument => {
-                        if (!firestoreDocument.exists) {
-                            alert("User does not exist anymore.")
-                            return;
-                        }
-                        const user = firestoreDocument.data()
-                        setUser(user);
-                        setLoggedIn(true);
-                    })
-                    .catch(error => {
-                        alert(error)
-                    });
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user == null) {
+        setLoggedIn(false);
+        setUser(null);
+      } else {
+        const usersRef = firebase.firestore().collection("users");
+        usersRef
+          .doc(user.uid)
+          .get()
+          .then((firestoreDocument) => {
+            if (!firestoreDocument.exists) {
+              alert("User does not exist anymore.");
+              return;
             }
-        });
-    }, []);
+            const user = firestoreDocument.data();
+            setUser(user);
+            setLoggedIn(true);
+          })
+          .catch((error) => {
+            alert(error);
+          });
+      }
+    });
+  }, []);
 
   return (
     <NavigationContainer>
-      { loggedIn ? (
+      {loggedIn ? (
         <Stack.Navigator>
           <Stack.Screen
             name="Road Trip Buddy"
