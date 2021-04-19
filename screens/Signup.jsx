@@ -30,7 +30,9 @@ export default function Signup({navigation}) {
           uid: userCred.user.uid,
           email: email,
           displayName: name,
-          trips: {}
+          trips: {},
+          followers: {},
+          following: {}
         }
         db.collection("users")
           .doc(userCred.user.uid)
