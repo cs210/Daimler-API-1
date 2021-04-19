@@ -9,7 +9,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
-import PastTrips from "./screens/PastTrips";
+import Profile from "./screens/Profile";
 import TripMap from "./screens/TripMap";
 import TripOverview from "./screens/TripOverview";
 import TripViewer from "./screens/TripViewer";
@@ -108,7 +108,7 @@ function Tabs() {
       />
       <Tab.Screen
         name="Profile"
-        component={PastTrips}
+        component={Profile}
         options={{
           tabBarLabel: "Profile",
           tabBarIcon: ({ color, size }) => (
@@ -162,7 +162,7 @@ const App = () => {
             })}
           />
           <Stack.Screen name="Trip Map" component={TripMap} />
-          <Stack.Screen name="Past Trips" component={PastTrips} />
+          <Stack.Screen name="Profile" component={Profile} />
           <Stack.Screen name="Trip Overview" component={TripOverview} />
           <Stack.Screen name="Trip Viewer" component={TripViewer} />
           <Stack.Screen name="Settings" component={Settings} />

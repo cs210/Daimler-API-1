@@ -24,7 +24,7 @@ import { useFocusEffect } from "@react-navigation/native";
  * when user presses the "Profile" button from the tab bar. Clicking on
  * a past trip will take you to the trip overview.
  */
-export default function PastTrips({ navigation }) {
+export default function Profile({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [pastTrips, setPastTrips] = useState([]);
   const [followers, setFollowers] = useState([]);
@@ -58,12 +58,11 @@ export default function PastTrips({ navigation }) {
   useFocusEffect(
     React.useCallback(() => {
       loadPastTrips();
+      getCurrentUser();
     }, [])
   );
 
   const getCurrentUser = () => {
-    // db.collection("users").find({"uid": })
-    console.log("get current user called");
     let uid = firebase.auth().currentUser.uid;
     const usersRef = firebase.firestore().collection("users");
     usersRef.doc(uid).onSnapshot((userDoc) => {
