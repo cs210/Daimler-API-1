@@ -177,6 +177,7 @@ const App = () => {
           <Stack.Screen name="Past Trips" component={PastTrips} />
           <Stack.Screen name="Trip Overview" component={TripOverview} />
           <Stack.Screen name="Trip Viewer" component={TripViewer} />
+          <Stack.Screen name="Settings" component={Settings} />
         </Stack.Navigator>
       ) : (
         <Stack.Navigator>
