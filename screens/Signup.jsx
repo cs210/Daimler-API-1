@@ -13,7 +13,7 @@ import * as firebase from "firebase"
  * This component takes the user to the Signup page. The user inputs their
  * full name, email, and passowrd to create a new account.
  */
-export default function Signup({navigation}) {
+export default function Signup({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -41,6 +41,11 @@ export default function Signup({navigation}) {
       }).catch((error) => {
         alert(error);
       });
+  }
+
+  const onPressSignUp = () => {
+    handleSignUp();
+    navigation.navigate("Road Trip Buddy", { screen: "Home" });
   }
 
   return (
@@ -80,7 +85,7 @@ export default function Signup({navigation}) {
         defaultValue={password}
       />
       <TouchableOpacity style={styles.button}
-        onPress={handleSignUp}>
+        onPress={onPressSignUp}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
