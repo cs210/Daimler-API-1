@@ -13,7 +13,7 @@ import {
   MenuOptions,
   MenuOption,
   MenuTrigger,
-} from 'react-native-popup-menu';
+} from "react-native-popup-menu";
 
 import { ScrollView } from "react-native-gesture-handler";
 import { findRegion, tripViewComponent } from "./TripViewer";
@@ -22,18 +22,22 @@ import db from "../firebase";
 
 /**
  * This component shows an overview of the trip such as a list of pins and a map
- * of the trip. 
+ * of the trip. It allows you to delete the trip.
  */
 export default function PastTripOverview({ navigation, route }) {
   const { pins, tripTitle, time } = route.params;
 
   const onDeleteTrip = () => {
     console.log("route.params", route.params);
-    db.collection("trips").doc(route.params['id']).delete().then(() => {
-      navigation.navigate("Profile");
-  }).catch((error) => {
-      console.error("Error removing document: ", error);
-  });
+    db.collection("trips")
+      .doc(route.params["id"])
+      .delete()
+      .then(() => {
+        navigation.navigate("Profile");
+      })
+      .catch((error) => {
+        console.error("Error removing document: ", error);
+      });
   };
 
   const pinImages = ({ item }) => {
@@ -70,19 +74,25 @@ export default function PastTripOverview({ navigation, route }) {
           <View style={styles.row}>
             <Text style={styles.header}> {route.params["tripTitleText"]} </Text>
             <Menu>
-              <MenuTrigger text={
-                <MaterialCommunityIcons
-                  style={styles.icon}
-                  name="dots-horizontal"
-                  color={"#808080"}
-                  size={26}
-                />} />
-                <MenuOptions>
-                  <MenuOption onSelect={onDeleteTrip} text='Delete trip' />
-                </MenuOptions>
+              <MenuTrigger>
+                <Text>
+                  <MaterialCommunityIcons
+                    style={styles.icon}
+                    name="dots-horizontal"
+                    color={"#808080"}
+                    size={26}
+                  />
+                </Text>
+              </MenuTrigger>
+              <MenuOptions>
+                <MenuOption onSelect={onDeleteTrip} text="Delete trip" />
+              </MenuOptions>
             </Menu>
           </View>
-          <Text style={styles.date}> {moment(time).format("LLL")}</Text>
+          <Text style={styles.date}>
+            {" "}
+            {moment(time, moment.ISO_8601).format("LLL")}
+          </Text>
         </>
       }
       data={route.params["pins"]}
