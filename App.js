@@ -18,7 +18,7 @@ import Signup from "./screens/Signup";
 import Search from "./screens/Search";
 import Settings from "./screens/Settings";
 import PastTripOverview from "./screens/PastTripOverview";
-
+import { MenuProvider } from "react-native-popup-menu";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
@@ -153,31 +153,32 @@ const App = () => {
   }, []);
 
   return (
-    <NavigationContainer>
-      {loggedIn ? (
-        <Stack.Navigator>
-          <Stack.Screen
-            name="Road Trip Buddy"
-            component={Tabs}
-            options={({ route }) => ({
-              headerTitle: getHeaderTitle(route),
-            })}
-          />
-          <Stack.Screen name="Trip Map" component={TripMap} />
-          <Stack.Screen name="Profile" component={Profile} />
-          <Stack.Screen name="Trip Overview" component={TripOverview} />
-          <Stack.Screen name="Trip Viewer" component={TripViewer} />
-          <Stack.Screen name="Settings" component={Settings} />
-          <Stack.Screen name="Past Trip" component={PastTripOverview} />
-
-        </Stack.Navigator>
-      ) : (
-        <Stack.Navigator>
-          <Stack.Screen name="Login" component={Login} />
-          <Stack.Screen name="Signup" component={Signup} />
-        </Stack.Navigator>
-      )}
-    </NavigationContainer>
+    <MenuProvider>
+      <NavigationContainer>
+        {loggedIn ? (
+          <Stack.Navigator>
+            <Stack.Screen
+              name="Road Trip Buddy"
+              component={Tabs}
+              options={({ route }) => ({
+                headerTitle: getHeaderTitle(route),
+              })}
+            />
+            <Stack.Screen name="Trip Map" component={TripMap} />
+            <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="Trip Overview" component={TripOverview} />
+            <Stack.Screen name="Trip Viewer" component={TripViewer} />
+            <Stack.Screen name="Settings" component={Settings} />
+            <Stack.Screen name="Past Trip" component={PastTripOverview} />
+          </Stack.Navigator>
+        ) : (
+          <Stack.Navigator>
+            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="Signup" component={Signup} />
+          </Stack.Navigator>
+        )}
+      </NavigationContainer>
+    </MenuProvider>
   );
 };
 export default App;
