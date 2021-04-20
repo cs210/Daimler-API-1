@@ -8,9 +8,17 @@ import {
 } from "react-native";
 import React from "react";
 import moment from "moment";
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from 'react-native-popup-menu';
 
 import { ScrollView } from "react-native-gesture-handler";
 import { findRegion, tripViewComponent } from "./TripViewer";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import db from "../firebase";
 
 /**
  * This component shows an overview of the trip such as a list of pins and a map
@@ -18,6 +26,15 @@ import { findRegion, tripViewComponent } from "./TripViewer";
  */
 export default function PastTripOverview({ navigation, route }) {
   const { pins, tripTitle, time } = route.params;
+
+  const onDeleteTrip = () => {
+    console.log("route.params", route.params);
+    db.collection("trips").doc(route.params['id']).delete().then(() => {
+      navigation.navigate("Profile");
+  }).catch((error) => {
+      console.error("Error removing document: ", error);
+  });
+  };
 
   const pinImages = ({ item }) => {
     return (
@@ -50,7 +67,21 @@ export default function PastTripOverview({ navigation, route }) {
       style={styles.container}
       ListHeaderComponent={
         <>
-          <Text style={styles.header}> {route.params["tripTitleText"]} </Text>
+          <View style={styles.row}>
+            <Text style={styles.header}> {route.params["tripTitleText"]} </Text>
+            <Menu>
+              <MenuTrigger text={
+                <MaterialCommunityIcons
+                  style={styles.icon}
+                  name="dots-horizontal"
+                  color={"#808080"}
+                  size={26}
+                />} />
+                <MenuOptions>
+                  <MenuOption onSelect={onDeleteTrip} text='Delete trip' />
+                </MenuOptions>
+            </Menu>
+          </View>
           <Text style={styles.date}> {moment(time).format("LLL")}</Text>
         </>
       }
@@ -78,6 +109,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     padding: 10,
     paddingBottom: 0,
+    width: 370,
+  },
+  icon: {
+    marginLeft: 50,
+    marginTop: 15,
+  },
+  row: {
+    flexDirection: "row",
   },
   date: {
     fontSize: 10,
