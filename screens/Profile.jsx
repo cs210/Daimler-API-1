@@ -74,7 +74,7 @@ export default function Profile({ navigation }) {
   const pastTripComponent = ({ item }) => {
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate("Trip Overview", item)}
+        onPress={() => navigation.navigate("Past Trip", item)}
         style={styles.itemContainer}
       >
         <View style={styles.cardHeader}>
@@ -147,10 +147,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   itemContainer: {
-    elevation: 8,
-    borderColor: "#00A398",
-    borderWidth: 3,
-    borderRadius: 10,
+    borderRadius: 6,
+    elevation: 3,
+    backgroundColor: '#fff',
+    shadowOffset: {width: 1, height: 1},
+    shadowColor: '#333', 
+    shadowOpacity: 0.3,
     paddingHorizontal: 12,
     marginVertical: 10,
   },
