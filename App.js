@@ -17,6 +17,7 @@ import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 import Search from "./screens/Search";
 import Settings from "./screens/Settings";
+import FriendProfile from "./screens/FriendProfile";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
@@ -177,6 +178,7 @@ const App = () => {
           <Stack.Screen name="Past Trips" component={PastTrips} />
           <Stack.Screen name="Trip Overview" component={TripOverview} />
           <Stack.Screen name="Trip Viewer" component={TripViewer} />
+          <Stack.Screen name="Friend Profile" component={FriendProfile} />
           <Stack.Screen name="Settings" component={Settings} />
         </Stack.Navigator>
       ) : (
