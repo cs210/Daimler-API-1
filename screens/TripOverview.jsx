@@ -102,7 +102,7 @@ export default function TripOverview({ navigation, route }) {
       const post = {
         tripTitleText: tripTitleText,
         pins: pins,
-        time: new Date().toLocaleString(),
+        time: new Date().toISOString(),
         uid: user.uid,
       };
       db.collection("trips")

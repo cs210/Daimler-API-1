@@ -12,8 +12,8 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import db from "../firebase";
 import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
@@ -79,7 +79,7 @@ export default function Profile({ navigation }) {
       >
         <View style={styles.cardHeader}>
           <Text style={styles.tripName}>{item.tripTitle}</Text>
-          <Text>{moment(item.time).format("LLL")}</Text>
+          <Text>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
         </View>
         <View style={styles.tripCard}>
           {tripViewComponent(item.pins, findRegion(item.pins))}
@@ -149,9 +149,9 @@ const styles = StyleSheet.create({
   itemContainer: {
     borderRadius: 6,
     elevation: 3,
-    backgroundColor: '#fff',
-    shadowOffset: {width: 1, height: 1},
-    shadowColor: '#333', 
+    backgroundColor: "#fff",
+    shadowOffset: { width: 1, height: 1 },
+    shadowColor: "#333",
     shadowOpacity: 0.3,
     paddingHorizontal: 12,
     marginVertical: 10,
