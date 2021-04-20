@@ -154,32 +154,6 @@ const App = () => {
   }, []);
 
   return (
-<<<<<<< HEAD
-    <NavigationContainer>
-      { loggedIn ? (
-        <Stack.Navigator>
-          <Stack.Screen
-            name="Road Trip Buddy"
-            component={Tabs}
-            options={({ route }) => ({
-              headerTitle: getHeaderTitle(route),
-            })}
-          />
-          <Stack.Screen name="Trip Map" component={TripMap} />
-          <Stack.Screen name="Past Trips" component={PastTrips} />
-          <Stack.Screen name="Trip Overview" component={TripOverview} />
-          <Stack.Screen name="Trip Viewer" component={TripViewer} />
-          <Stack.Screen name="Friend Profile" component={FriendProfile} />
-          <Stack.Screen name="Settings" component={Settings} />
-        </Stack.Navigator>
-      ) : (
-        <Stack.Navigator>
-          <Stack.Screen name="Login" component={Login} />
-          <Stack.Screen name="Signup" component={Signup} />
-        </Stack.Navigator>
-      )}
-    </NavigationContainer>
-=======
     <MenuProvider>
       <NavigationContainer>
         {loggedIn ? (
@@ -197,6 +171,7 @@ const App = () => {
             <Stack.Screen name="Trip Viewer" component={TripViewer} />
             <Stack.Screen name="Settings" component={Settings} />
             <Stack.Screen name="Past Trip" component={PastTripOverview} />
+            <Stack.Screen name="Friend Profile" component={FriendProfile} />
           </Stack.Navigator>
         ) : (
           <Stack.Navigator>
@@ -206,7 +181,6 @@ const App = () => {
         )}
       </NavigationContainer>
     </MenuProvider>
->>>>>>> main
   );
 };
 export default App;

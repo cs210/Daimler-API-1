@@ -118,11 +118,11 @@ export default function PastTrips({ navigation, route }) {
       {loading ? (
         <ActivityIndicator />
       ) : (
-        {notFollowing ? (
+        notFollowing ? (
           <Text>Locked</Text>
         ) : (
           <FlatList data={pastTrips} renderItem={pastTripComponent} />
-        )}
+        )
       )}
     </SafeAreaView>
   );
