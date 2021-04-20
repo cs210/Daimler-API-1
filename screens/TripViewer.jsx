@@ -1,4 +1,4 @@
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
 
 import React from "react";
@@ -24,10 +24,39 @@ export const findRegion = (pins) => {
 };
 
 export const tripViewComponent = (pins, region) => {
+  const onMarkerPress = (marker) => {
+    pins[marker.key].hideCallout();
+  };
   return (
     <MapView style={styles.map} initialRegion={region}>
-      {pins.map((pin, idx) => (
-        <Marker key={idx} coordinate={pin.coordinate} />
+      {pins.map((marker, idx) => (
+        <Marker
+          key={idx}
+          coordinate={marker.coordinate}
+          draggable
+          ref={(ref) => {
+            pins[marker.key] = ref;
+          }}
+          stopPropagation={true}
+          onCalloutPress={() => onMarkerPress(marker)}
+        >
+          <MapView.Callout>
+            <View>
+              <Text>{marker.title}</Text>
+              <Text>{marker.description}</Text>
+              <ScrollView horizontal={true}>
+                {marker.photos &&
+                  marker.photos.map((photo) => (
+                    <Image
+                      key={photo.key}
+                      source={{ uri: photo.uri }}
+                      style={{ width: 200, height: 200, margin: 5 }}
+                    />
+                  ))}
+              </ScrollView>
+            </View>
+          </MapView.Callout>
+        </Marker>
       ))}
       <Polyline
         strokeColor="#FF0000"
@@ -48,7 +77,7 @@ export default function TripView({ navigation, route }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Viewing trip: {tripTitle}</Text>
-      {tripViewComponent(pins, region)}
+      {tripViewComponent(pins, region, currentPin, isPinPopupVisible)}
     </View>
   );
 }
