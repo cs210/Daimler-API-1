@@ -9,7 +9,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
-import PastTrips from "./screens/PastTrips";
+import Profile from "./screens/Profile";
 import TripMap from "./screens/TripMap";
 import TripOverview from "./screens/TripOverview";
 import TripViewer from "./screens/TripViewer";
@@ -17,6 +17,8 @@ import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 import Search from "./screens/Search";
 import Settings from "./screens/Settings";
+import PastTripOverview from "./screens/PastTripOverview";
+import { MenuProvider } from "react-native-popup-menu";
 import FriendProfile from "./screens/FriendProfile";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -66,14 +68,6 @@ function getHeaderTitle(route) {
   }
 }
 
-// React.useLayoutEffect(() => {
-//   navigation.setOptions({
-//     headerRight: () => (
-//       <Button onPress={() => setCount(c => c + 1)} title="Update count" />
-//     ),
-//   });
-// }, [navigation]);
-
 function Tabs() {
   return (
     <Tab.Navigator
@@ -97,11 +91,7 @@ function Tabs() {
         options={{
           tabBarLabel: "Search",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="magnify"
-              color={color}
-              size={size}
-            />
+            <MaterialCommunityIcons name="magnify" color={color} size={size} />
           ),
         }}
       />
@@ -121,7 +111,7 @@ function Tabs() {
       />
       <Tab.Screen
         name="Profile"
-        component={PastTrips}
+        component={Profile}
         options={{
           tabBarLabel: "Profile",
           tabBarIcon: ({ color, size }) => (
@@ -138,32 +128,33 @@ const App = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-        firebase.auth().onAuthStateChanged(user => {
-            if (user == null) {
-                setLoggedIn(false);
-                setUser(null);
-            } else {
-                const usersRef = firebase.firestore().collection('users')
-                usersRef
-                    .doc(user.uid)
-                    .get()
-                    .then(firestoreDocument => {
-                        if (!firestoreDocument.exists) {
-                            alert("User does not exist anymore.")
-                            return;
-                        }
-                        const user = firestoreDocument.data()
-                        setUser(user);
-                        setLoggedIn(true);
-                    })
-                    .catch(error => {
-                        alert(error)
-                    });
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user == null) {
+        setLoggedIn(false);
+        setUser(null);
+      } else {
+        const usersRef = firebase.firestore().collection("users");
+        usersRef
+          .doc(user.uid)
+          .get()
+          .then((firestoreDocument) => {
+            if (!firestoreDocument.exists) {
+              alert("User does not exist anymore.");
+              return;
             }
-        });
-    }, []);
+            const user = firestoreDocument.data();
+            setUser(user);
+            setLoggedIn(true);
+          })
+          .catch((error) => {
+            alert(error);
+          });
+      }
+    });
+  }, []);
 
   return (
+<<<<<<< HEAD
     <NavigationContainer>
       { loggedIn ? (
         <Stack.Navigator>
@@ -188,6 +179,34 @@ const App = () => {
         </Stack.Navigator>
       )}
     </NavigationContainer>
+=======
+    <MenuProvider>
+      <NavigationContainer>
+        {loggedIn ? (
+          <Stack.Navigator>
+            <Stack.Screen
+              name="Road Trip Buddy"
+              component={Tabs}
+              options={({ route }) => ({
+                headerTitle: getHeaderTitle(route),
+              })}
+            />
+            <Stack.Screen name="Trip Map" component={TripMap} />
+            <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="Trip Overview" component={TripOverview} />
+            <Stack.Screen name="Trip Viewer" component={TripViewer} />
+            <Stack.Screen name="Settings" component={Settings} />
+            <Stack.Screen name="Past Trip" component={PastTripOverview} />
+          </Stack.Navigator>
+        ) : (
+          <Stack.Navigator>
+            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="Signup" component={Signup} />
+          </Stack.Navigator>
+        )}
+      </NavigationContainer>
+    </MenuProvider>
+>>>>>>> main
   );
 };
 export default App;

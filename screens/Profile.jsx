@@ -12,8 +12,8 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import db from "../firebase";
 import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
@@ -24,7 +24,7 @@ import { useFocusEffect } from "@react-navigation/native";
  * when user presses the "Profile" button from the tab bar. Clicking on
  * a past trip will take you to the trip overview.
  */
-export default function PastTrips({ navigation }) {
+export default function Profile({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [pastTrips, setPastTrips] = useState([]);
   const [followers, setFollowers] = useState([]);
@@ -58,12 +58,11 @@ export default function PastTrips({ navigation }) {
   useFocusEffect(
     React.useCallback(() => {
       loadPastTrips();
+      getCurrentUser();
     }, [])
   );
 
   const getCurrentUser = () => {
-    // db.collection("users").find({"uid": })
-    console.log("get current user called");
     let uid = firebase.auth().currentUser.uid;
     const usersRef = firebase.firestore().collection("users");
     usersRef.doc(uid).onSnapshot((userDoc) => {
@@ -75,12 +74,12 @@ export default function PastTrips({ navigation }) {
   const pastTripComponent = ({ item }) => {
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate("Trip Overview", item)}
+        onPress={() => navigation.navigate("Past Trip", item)}
         style={styles.itemContainer}
       >
         <View style={styles.cardHeader}>
           <Text style={styles.tripName}>{item.tripTitle}</Text>
-          <Text>{moment(item.time).format("LLL")}</Text>
+          <Text>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
         </View>
         <View style={styles.tripCard}>
           {tripViewComponent(item.pins, findRegion(item.pins))}
@@ -148,10 +147,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   itemContainer: {
-    elevation: 8,
-    borderColor: "#00A398",
-    borderWidth: 3,
-    borderRadius: 10,
+    borderRadius: 6,
+    elevation: 3,
+    backgroundColor: "#fff",
+    shadowOffset: { width: 1, height: 1 },
+    shadowColor: "#333",
+    shadowOpacity: 0.3,
     paddingHorizontal: 12,
     marginVertical: 10,
   },

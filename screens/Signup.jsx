@@ -31,8 +31,8 @@ export default function Signup({ navigation }) {
           email: email,
           displayName: name,
           trips: {},
-          followers: {},
-          following: {}
+          followers: [],
+          following: []
         }
         db.collection("users")
           .doc(userCred.user.uid)

@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
+
 import { ScrollView } from "react-native-gesture-handler";
 
 /**
@@ -18,8 +19,8 @@ import { ScrollView } from "react-native-gesture-handler";
  */
 export default function PinPopup(props) {
   const [pinTitle, setPinTitle] = useState(props.pin.title);
-  const [pinDescrip, setPinDescrip] = useState("");
-  const [pinPhotos, setPinPhotos] = useState([]);
+  const [pinDescrip, setPinDescrip] = useState(props.pin.description ?? "");
+  const [pinPhotos, setPinPhotos] = useState(props.pin.photos ?? []);
   // TODO: Add feature to allow user to set new location
 
   const pickImage = async () => {
@@ -36,12 +37,17 @@ export default function PinPopup(props) {
       setPinPhotos(updatedPhotos);
     }
   };
-
   return (
     <View style={styles.centeredView}>
       <Modal animationType="slide" transparent={true}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
+            <TouchableOpacity onPress={props.exitEditPin}>
+              <Image
+                source={require("../assets/close-button.png")}
+                style={styles.exit}
+              />
+            </TouchableOpacity>
             <View style={styles.flexView}>
               <Text style={styles.text}> Pin title </Text>
               <TextInput
@@ -172,5 +178,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     alignSelf: "center",
     textTransform: "uppercase",
+  },
+  exit: {
+    width: 30,
+    height: 30,
+    marginLeft: 250,
+    marginBottom: 20,
   },
 });
