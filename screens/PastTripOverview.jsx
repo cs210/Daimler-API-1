@@ -14,7 +14,7 @@ import { findRegion, tripViewComponent } from "./TripViewer";
 
 /**
  * This component shows an overview of the trip such as a list of pins and a map
- * of the trip. The user can also enter a trip title and save the trip.
+ * of the trip. 
  */
 export default function PastTripOverview({ navigation, route }) {
   const { pins, tripTitle, time } = route.params;
