@@ -3,6 +3,8 @@ import * as Location from "expo-location";
 
 import {
   Dimensions,
+  Image,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,9 +12,10 @@ import {
 } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import React, { useEffect, useState } from "react";
+
 import PinPopup from "./PinPopup";
-import { v4 as uuidv4 } from "uuid";
 import { useFocusEffect } from "@react-navigation/native";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * This component shows the user's current location and route. By doing a long
@@ -112,7 +115,7 @@ export default function TripMap({ navigation }) {
     markers[marker.key].hideCallout();
   };
 
-  const onFinishTripPress = async () => { 
+  const onFinishTripPress = async () => {
     const data = { tripTitleText: "", pins: pins };
     setIsTripRecording(false);
     setIsTripStarted(false);
@@ -132,6 +135,10 @@ export default function TripMap({ navigation }) {
       setIsTripPaused(!isTripPaused);
       setIsTripRecording(!isTripRecording);
     }
+  };
+
+  const exitEditPin = () => {
+    setIsPinPopupVisible(false);
   };
 
   const getUpdatedPin = (newPin) => {
@@ -174,15 +181,30 @@ export default function TripMap({ navigation }) {
           <Marker
             key={marker.key}
             coordinate={marker.coordinate}
-            title={marker.title}
-            description={marker.description}
             draggable
             ref={(ref) => {
               markers[marker.key] = ref;
             }}
             stopPropagation={true}
             onCalloutPress={() => onMarkerPress(marker)}
-          />
+          >
+            <MapView.Callout>
+              <View>
+                <Text>{marker.title}</Text>
+                <Text>{marker.description}</Text>
+                <ScrollView horizontal={true}>
+                  {marker.photos &&
+                    marker.photos.map((photo) => (
+                      <Image
+                        key={photo.key}
+                        source={{ uri: photo.uri }}
+                        style={{ width: 200, height: 200, margin: 5 }}
+                      />
+                    ))}
+                </ScrollView>
+              </View>
+            </MapView.Callout>
+          </Marker>
         ))}
         {coordinates.map((coordList, index) => (
           <Polyline
@@ -201,6 +223,7 @@ export default function TripMap({ navigation }) {
           pin={currentPin}
           getUpdatedPin={getUpdatedPin}
           deletePin={deletePin}
+          exitEditPin={exitEditPin}
         />
       )}
       <View style={{ flexDirection: "row" }}>
@@ -227,13 +250,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "space-around",
-    padding:10
+    padding: 10,
   },
   header: {
     fontSize: 30,
     color: "#8275BD",
     fontWeight: "bold",
-    margin: 15
+    margin: 15,
   },
   map: {
     width: Dimensions.get("window").width,
@@ -248,7 +271,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     margin: 5,
     marginBottom: 20,
-    marginTop: 15
+    marginTop: 15,
   },
   appButtonText: {
     fontSize: 18,
