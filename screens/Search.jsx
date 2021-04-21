@@ -58,7 +58,11 @@ export default function SearchScreen({ navigation }) {
 
   const onPressUser = (item) => {
     console.log(item);
-    navigation.navigate("Friend Profile", { item: item });
+    if (item.uid == firebase.auth().currentUser.uid) {
+      navigation.navigate("Profile");
+    } else {
+      navigation.navigate("Friend Profile", { item: item });
+    }
   };
 
   return (
