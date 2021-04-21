@@ -64,6 +64,8 @@ export default function Profile({ navigation }) {
 
   const getCurrentUser = () => {
     let uid = firebase.auth().currentUser.uid;
+    console.log(firebase.auth().currentUser.email)
+    console.log(firebase.auth().currentUser.displayName)
     const usersRef = firebase.firestore().collection("users");
     usersRef.doc(uid).onSnapshot((userDoc) => {
       setFollowers(userDoc.data()["followers"]);

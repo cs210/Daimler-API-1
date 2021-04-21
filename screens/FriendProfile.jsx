@@ -27,24 +27,29 @@ import { useFocusEffect } from "@react-navigation/native";
 export default function PastTrips({ navigation, route }) {
   const { item } = route.params;
   const [loading, setLoading] = useState(false);
-  const [notFollowing, setNotFollowing] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
   const [pastTrips, setPastTrips] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
     const parsedTrips = [];
-    const user = firebase.auth().currentUser;
-    if (currentUser.data().following.includes(item.uid)) {
-      tripsFromDatabase.forEach((trip) => {
-        const tripData = trip.data();
-        if (tripData.uid == item.uid) {
-          tripData["id"] = trip.id;
-          tripData["tripTitle"] = tripData.tripTitleText;
-          parsedTrips.push(tripData);
-        }
-      });
-    }
+    const uid = firebase.auth().currentUser.uid;
+    const usersRef = firebase.firestore().collection("users");
+    usersRef.doc(uid).onSnapshot((userDoc) => {
+      if (userDoc.data()["following"].includes(item.uid)) {
+        setIsFollowing(true);
+        tripsFromDatabase.forEach((trip) => {
+          const tripData = trip.data();
+          if (tripData.uid == item.uid) {
+            tripData["id"] = trip.id;
+            tripData["tripTitle"] = tripData.tripTitleText;
+            parsedTrips.push(tripData);
+          }
+        });
+      }
+    });
+    console.log(parsedTrips)
     return parsedTrips;
   };
 
@@ -54,26 +59,22 @@ export default function PastTrips({ navigation, route }) {
     const collRef = db.collection("trips");
     const tripsFromDatabase = await collRef.orderBy("time", "desc").get();
     const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
-    if (parsedTrips.length == 0) {
-      setNotFollowing(true);
-    } else {
-      setPastTrips(parsedTrips);
-    }
+    setPastTrips(parsedTrips);
     setLoading(false);
   };
 
   useFocusEffect(
     React.useCallback(() => {
       loadPastTrips();
+      getFriendUser();
     }, [])
   );
 
-  const getCurrentUser = () => {
+  const getFriendUser = () => {
     // db.collection("users").find({"uid": })
-    console.log("get current user called");
-    let uid = firebase.auth().currentUser.uid;
+    console.log("get friend user called");
     const usersRef = firebase.firestore().collection("users");
-    usersRef.doc(uid).onSnapshot((userDoc) => {
+    usersRef.doc(item.uid).onSnapshot((userDoc) => {
       setFollowers(userDoc.data()["followers"]);
       setFollowing(userDoc.data()["following"]);
     });
@@ -100,7 +101,7 @@ export default function PastTrips({ navigation, route }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.row}>
         <Text style={styles.name}>
-          {firebase.auth().currentUser.displayName}
+          {item.displayName}
         </Text>
         <MaterialCommunityIcons
           style={styles.icon}
@@ -114,14 +115,17 @@ export default function PastTrips({ navigation, route }) {
         <Text style={styles.follow}>{followers.length} Followers</Text>
         <Text style={styles.follow}>{following.length} Following</Text>
       </View>
-      <Text style={styles.header}>My Past Trips</Text>
+      <Text style={styles.header}>Past Trips</Text>
       {loading ? (
         <ActivityIndicator />
       ) : (
-        notFollowing ? (
-          <Text>Locked</Text>
-        ) : (
+        isFollowing ? (
           <FlatList data={pastTrips} renderItem={pastTripComponent} />
+        ) : (
+          <View style={styles.private}>
+            <Text style={styles.privateLargeText}>This Account is Private</Text>
+            <Text style={styles.privateText}>Follow this account to see their trips.</Text>
+          </View>
         )
       )}
     </SafeAreaView>
@@ -136,6 +140,9 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
+  },
+  private: {
+    alignItems: "center",
   },
   icon: {
     marginLeft: 20,
@@ -152,6 +159,15 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "bold",
     margin: 15,
+  },
+  privateText: {
+    fontSize: 15,
+    margin: 15,
+  },
+  privateLargeText: {
+    fontSize: 15,
+    margin: 15,
+    fontWeight: "bold",
   },
   header: {
     fontSize: 24,
