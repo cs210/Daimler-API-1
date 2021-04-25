@@ -166,11 +166,11 @@ export default function TripOverview({ navigation, route }) {
 
   return (
     <FlatList
-      style={styles.container}
+    contentContainerStyle={styles.container}
       ListHeaderComponent={
         <>
           <View style={styles.tripTitleView}>
-            <Text style={styles.tripTitleText}> Trip title </Text>
+            <Text style={styles.tripTitleText}> Name </Text>
             <TextInput
               style={styles.titleInput}
               placeholder="Enter trip title"
@@ -202,52 +202,12 @@ export default function TripOverview({ navigation, route }) {
       }
     ></FlatList>
   );
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.tripTitleView}>
-        <Text style={styles.tripTitleText}> Trip title </Text>
-        <TextInput
-          style={styles.titleInput}
-          placeholder="Enter trip title"
-          onChangeText={(text) => setTripTitle({ text })}
-          defaultValue={route.params["tripTitleText"]}
-        />
-      </View>
-      <Text style={styles.title}>Stops along the way:</Text>
-      {route.params["pins"].length > 0 && (
-        <FlatList
-          data={route.params["pins"]}
-          renderItem={pastTripComponent}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      )}
-      <View style={styles.rowContainer}>
-        <TouchableOpacity
-          onPress={onSaveTrip}
-          style={styles.appButtonContainer}
-        >
-          <Text style={styles.appButtonText}>Save Trip</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-  },
-  header: {
-    fontSize: 30,
-    color: "#8275BD",
-    fontWeight: "bold",
-  },
-  title: {
-    fontSize: 20,
-    color: "#8275BD",
-    margin: 10,
   },
   pinTitle: {
     fontSize: 15,
@@ -296,8 +256,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    marginVertical: 15,
-    marginHorizontal: 4,
+    marginBottom: 15,
+    marginHorizontal: 15,
   },
   appButtonText: {
     fontSize: 18,
@@ -313,7 +273,7 @@ const styles = StyleSheet.create({
   },
   map: {
     width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height * 0.6,
+    height: Dimensions.get("window").height * 0.55,
     marginLeft: 22,
     paddingTop: 20,
   },
