@@ -3,13 +3,20 @@ import MapView, { Marker, Polyline } from "react-native-maps";
 
 import React from "react";
 
-export const findRegion = (pins) => {
+export const findRegion = (pins, coords) => {
   let minLatitude = 90;
   let maxLatitude = -90;
   let minLongitude = 180;
   let maxLongitude = -180;
   for (let pin of pins) {
     let { latitude, longitude } = pin.coordinate;
+    minLatitude = Math.min(minLatitude, latitude);
+    maxLatitude = Math.max(maxLatitude, latitude);
+    minLongitude = Math.min(minLongitude, longitude);
+    maxLongitude = Math.max(maxLongitude, longitude);
+  }
+  for (let coord of coords) {
+    let { latitude, longitude } = coord;
     minLatitude = Math.min(minLatitude, latitude);
     maxLatitude = Math.max(maxLatitude, latitude);
     minLongitude = Math.min(minLongitude, longitude);
@@ -23,7 +30,7 @@ export const findRegion = (pins) => {
   };
 };
 
-export const tripViewComponent = (pins, region) => {
+export const tripViewComponent = (pins, region, coords) => {
   const onMarkerPress = (marker) => {
     pins[marker.key].hideCallout();
   };
@@ -61,9 +68,9 @@ export const tripViewComponent = (pins, region) => {
       <Polyline
         strokeColor="#FF0000"
         strokeWidth={2}
-        coordinates={pins.map((pin) => ({
-          latitude: pin.coordinate.latitude,
-          longitude: pin.coordinate.longitude,
+        coordinates={coords.map((coord) => ({
+          latitude: coord.latitude,
+          longitude: coord.longitude,
         }))}
       />
     </MapView>

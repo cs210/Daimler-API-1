@@ -84,7 +84,7 @@ export default function Profile({ navigation }) {
           <Text>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
         </View>
         <View style={styles.tripCard}>
-          {tripViewComponent(item.pins, findRegion(item.pins))}
+          {tripViewComponent(item.pins, findRegion(item.pins, item.coordinates), item.coordinates)}
         </View>
       </TouchableOpacity>
     );

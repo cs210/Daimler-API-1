@@ -8,46 +8,22 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Dimensions,
 } from "react-native";
 import React, { useState } from "react";
+import { findRegion, tripViewComponent } from "./TripViewer";
 
 import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
 
 /**
  * This component shows an overview of the trip such as a list of pins and a map
- * of the trip. The user can also enter a trip title and save the trip.
+ * of the trip. The user can also enter a trip title and save/edit the trip.
  */
 export default function TripOverview({ navigation, route }) {
   const [tripTitle, setTripTitle] = useState("");
 
   const storage = firebase.storage();
-
-  const pastTripComponent = ({ item }) => {
-    return (
-      <View style={styles.itemContainer}>
-        {item.title ? (
-          <Text style={styles.pinTitle}>{item.title}</Text>
-        ) : (
-          <Text style={styles.pinTitle}>Pinned Stop</Text>
-        )}
-        {item.description != "" && item.description && (
-          <Text style={styles.pinDescrip}>{item.description}</Text>
-        )}
-        {item.photos && (
-          <ScrollView horizontal={true}>
-            {item.photos.map((photo, i) => (
-              <Image
-                key={photo.key}
-                source={{ uri: photo.uri }}
-                style={{ width: 200, height: 200, margin: 5, padding: 5 }}
-              />
-            ))}
-          </ScrollView>
-        )}
-      </View>
-    );
-  };
 
   const getImageUrl = (uri) => {
     const splitURI = uri.split("/");
@@ -83,6 +59,8 @@ export default function TripOverview({ navigation, route }) {
     }
     const promises = [];
     const pins = route.params["pins"];
+    const coordinates = route.params["coordinates"];
+    const time = route.params["time"];
     for (let pin of pins) {
       if (pin.photos) {
         for (let photo of pin.photos) {
@@ -102,9 +80,22 @@ export default function TripOverview({ navigation, route }) {
       const post = {
         tripTitleText: tripTitleText,
         pins: pins,
-        time: new Date().toISOString(),
+        coordinates: coordinates,
+        time: time,
         uid: user.uid,
       };
+      if (!route.params["isNewTrip"]) {
+        console.log("not new trip");
+        db.collection("trips")
+          .doc(route.params["id"])
+          .delete()
+          .catch((error) => {
+            console.error("Error removing document: ", error);
+          });
+        navigation.navigate("Profile");
+      } else {
+        navigation.navigate("Home");
+      }
       db.collection("trips")
         .add(post)
         .then(() => {
@@ -113,50 +104,72 @@ export default function TripOverview({ navigation, route }) {
         .catch((error) => {
           console.error("Error writing document: ", error);
         });
-      navigation.navigate("Home");
     });
   };
 
-  const onViewOnMap = () => {
-    const { pins, tripTitle } = route.params;
-    navigation.navigate("Trip Viewer", { pins: pins, tripTitle: tripTitle });
+  const pinImages = ({ item }) => {
+    return (
+      <View style={styles.itemContainer}>
+        {item.title ? (
+          <Text style={styles.pinTitle}>{item.title}</Text>
+        ) : (
+          <Text style={styles.pinTitle}>Pinned Stop</Text>
+        )}
+        {item.description != "" && item.description && (
+          <Text style={styles.pinDescrip}>{item.description}</Text>
+        )}
+        {item.photos && (
+          <ScrollView horizontal={true}>
+            {item.photos.map((photo, i) => (
+              <Image
+                key={photo.key}
+                source={{ uri: photo.uri }}
+                style={{ width: 200, height: 200, margin: 5, padding: 5 }}
+              />
+            ))}
+          </ScrollView>
+        )}
+      </View>
+    );
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Trip Overview</Text>
-      <View style={styles.tripTitleView}>
-        <Text style={styles.tripTitleText}> Trip title </Text>
-        <TextInput
-          style={styles.titleInput}
-          placeholder="Enter trip title"
-          onChangeText={(text) => setTripTitle({ text })}
-          defaultValue={route.params["tripTitleText"]}
-        />
-      </View>
-      <Text style={styles.title}>Stops along the way:</Text>
-      {route.params["pins"].length > 0 && (
-        <FlatList
-          data={route.params["pins"]}
-          renderItem={pastTripComponent}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      )}
-      <View style={styles.rowContainer}>
-        <TouchableOpacity
-          onPress={onSaveTrip}
-          style={styles.appButtonContainer}
-        >
-          <Text style={styles.appButtonText}>Save Trip</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onViewOnMap}
-          style={styles.appButtonContainer}
-        >
-          <Text style={styles.appButtonText}>View on Map</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    <FlatList
+      contentContainerStyle={styles.container}
+      ListHeaderComponent={
+        <>
+          <View style={styles.tripTitleView}>
+            <Text style={styles.tripTitleText}> Name </Text>
+            <TextInput
+              style={styles.titleInput}
+              placeholder="Enter trip title"
+              onChangeText={(text) => setTripTitle({ text })}
+              defaultValue={route.params["tripTitleText"]}
+            />
+          </View>
+        </>
+      }
+      data={route.params["pins"]}
+      renderItem={pinImages}
+      keyExtractor={(item, index) => index.toString()}
+      ListFooterComponent={
+        <>
+          <View style={styles.map}>
+            {tripViewComponent(
+              route.params["pins"],
+              findRegion(route.params["pins"], route.params["coordinates"]),
+              route.params["coordinates"]
+            )}
+          </View>
+          <TouchableOpacity
+            onPress={onSaveTrip}
+            style={styles.appButtonContainer}
+          >
+            <Text style={styles.appButtonText}>Save Trip</Text>
+          </TouchableOpacity>
+        </>
+      }
+    ></FlatList>
   );
 }
 
@@ -164,18 +177,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "space-around",
-  },
-  header: {
-    fontSize: 30,
-    color: "#8275BD",
-    fontWeight: "bold",
-  },
-  title: {
-    fontSize: 20,
-    color: "#8275BD",
-    margin: 10,
   },
   pinTitle: {
     fontSize: 15,
@@ -192,9 +193,14 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     marginVertical: 4,
-    borderRadius: 10,
-    borderColor: "#00A398",
-    borderWidth: 5,
+    borderRadius: 6,
+    elevation: 3,
+    backgroundColor: "#fff",
+    shadowOffset: { width: 1, height: 1 },
+    shadowColor: "#333",
+    shadowOpacity: 0.3,
+    alignItems: "center",
+    justifyContent: "space-around",
   },
   tripTitleView: {
     margin: 10,
@@ -219,8 +225,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    marginVertical: 15,
-    marginHorizontal: 4,
+    marginBottom: 15,
+    marginHorizontal: 15,
   },
   appButtonText: {
     fontSize: 18,
@@ -233,5 +239,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+  },
+  map: {
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height * 0.55,
+    marginLeft: 22,
+    paddingTop: 20,
   },
 });
