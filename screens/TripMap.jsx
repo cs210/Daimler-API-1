@@ -31,11 +31,12 @@ export default function TripMap({ navigation }) {
   const [isPinPopupVisible, setIsPinPopupVisible] = useState(false);
   //Pin currently being editted
   const [currentPin, setCurrentPin] = useState(null);
-  const [coordinates, setCoordinates] = useState([[]]);
+  const [coordinates, setCoordinates] = useState([]);
   const [markers, setMarkers] = useState([]);
   const [isTripPaused, setIsTripPaused] = useState(true);
   const [isTripRecording, setIsTripRecording] = useState(false);
   const [isTripStarted, setIsTripStarted] = useState(false);
+  const [time, setTime] = useState("");
 
   useFocusEffect(
     React.useCallback(() => {
@@ -51,7 +52,7 @@ export default function TripMap({ navigation }) {
     React.useCallback(() => {
       if (!isTripStarted) {
         setPins([]);
-        setCoordinates([[]]);
+        setCoordinates([]);
       }
     }, [isTripRecording])
   );
@@ -63,7 +64,7 @@ export default function TripMap({ navigation }) {
     return () => {
       clearInterval(timer);
     };
-  }, [isTripRecording]);
+  }, [isTripRecording, coordinates]);
 
   const updateUsersLocation = async () => {
     let { status } = await Location.requestPermissionsAsync();
@@ -89,10 +90,8 @@ export default function TripMap({ navigation }) {
       longitude: location.coords.longitude,
     };
     if (isTripRecording) {
-      const newCoords = [...coordinates];
-      const lastListCoords = newCoords[newCoords.length - 1];
-      lastListCoords.push(keys);
-      setCoordinates(newCoords);
+      const newcoordinates = [...coordinates, keys];
+      setCoordinates(newcoordinates);
     }
   };
 
@@ -116,7 +115,11 @@ export default function TripMap({ navigation }) {
   };
 
   const onFinishTripPress = async () => {
-    const data = { tripTitleText: "", pins: pins };
+    if (pins.length == 0 && coordinates.length == 0 || !isTripStarted) {
+      navigation.navigate("Home");
+      return;
+    }
+    const data = { tripTitleText: "", pins: pins, coordinates: coordinates, time: time, isNewTrip: true };
     setIsTripRecording(false);
     setIsTripStarted(false);
     navigation.navigate("Trip Overview", data);
@@ -127,11 +130,8 @@ export default function TripMap({ navigation }) {
       setIsTripStarted(true);
       setIsTripRecording(true);
       setIsTripPaused(false);
+      setTime(new Date().toISOString());
     } else {
-      if (isTripPaused) {
-        // about to resume trip - create a new list for coordinates
-        setCoordinates([...coordinates, []]);
-      }
       setIsTripPaused(!isTripPaused);
       setIsTripRecording(!isTripRecording);
     }
@@ -206,17 +206,16 @@ export default function TripMap({ navigation }) {
             </MapView.Callout>
           </Marker>
         ))}
-        {coordinates.map((coordList, index) => (
+        {coordinates.length > 0 && (
           <Polyline
-            key={index}
             strokeColor="#FF0000"
             strokeWidth={2}
-            coordinates={coordList.map((coord) => ({
+            coordinates={coordinates.map((coord) => ({
               latitude: coord.latitude,
               longitude: coord.longitude,
             }))}
           />
-        ))}
+        )}
       </MapView>
       {isPinPopupVisible && (
         <PinPopup

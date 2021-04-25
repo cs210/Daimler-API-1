@@ -8,8 +8,10 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Dimensions,
 } from "react-native";
 import React, { useState } from "react";
+import { findRegion, tripViewComponent } from "./TripViewer";
 
 import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
@@ -83,6 +85,8 @@ export default function TripOverview({ navigation, route }) {
     }
     const promises = [];
     const pins = route.params["pins"];
+    const coordinates = route.params["coordinates"];
+    const time = route.params["time"];
     for (let pin of pins) {
       if (pin.photos) {
         for (let photo of pin.photos) {
@@ -102,9 +106,22 @@ export default function TripOverview({ navigation, route }) {
       const post = {
         tripTitleText: tripTitleText,
         pins: pins,
-        time: new Date().toISOString(),
+        coordinates: coordinates,
+        time: time,
         uid: user.uid,
       };
+      if (!route.params["isNewTrip"]) {
+        console.log("not new trip");
+        db.collection("trips")
+        .doc(route.params["id"])
+        .delete()
+        .catch((error) => {
+          console.error("Error removing document: ", error);
+        });
+        navigation.navigate("Profile"); 
+      } else {
+        navigation.navigate("Home"); 
+      }
       db.collection("trips")
         .add(post)
         .then(() => {
@@ -113,8 +130,33 @@ export default function TripOverview({ navigation, route }) {
         .catch((error) => {
           console.error("Error writing document: ", error);
         });
-      navigation.navigate("Home");
     });
+  };
+
+  const pinImages = ({ item }) => {
+    return (
+      <View style={styles.itemContainer}>
+        {item.title ? (
+          <Text style={styles.pinTitle}>{item.title}</Text>
+        ) : (
+          <Text style={styles.pinTitle}>Pinned Stop</Text>
+        )}
+        {item.description != "" && item.description && (
+          <Text style={styles.pinDescrip}>{item.description}</Text>
+        )}
+        {item.photos && (
+          <ScrollView horizontal={true}>
+            {item.photos.map((photo, i) => (
+              <Image
+                key={photo.key}
+                source={{ uri: photo.uri }}
+                style={{ width: 200, height: 200, margin: 5, padding: 5 }}
+              />
+            ))}
+          </ScrollView>
+        )}
+      </View>
+    );
   };
 
   const onViewOnMap = () => {
@@ -123,8 +165,46 @@ export default function TripOverview({ navigation, route }) {
   };
 
   return (
+    <FlatList
+      style={styles.container}
+      ListHeaderComponent={
+        <>
+          <View style={styles.tripTitleView}>
+            <Text style={styles.tripTitleText}> Trip title </Text>
+            <TextInput
+              style={styles.titleInput}
+              placeholder="Enter trip title"
+              onChangeText={(text) => setTripTitle({ text })}
+              defaultValue={route.params["tripTitleText"]}
+            />
+          </View>
+        </>
+      }
+      data={route.params["pins"]}
+      renderItem={pinImages}
+      keyExtractor={(item, index) => index.toString()}
+      ListFooterComponent={
+        <>
+          <View style={styles.map}>
+            {tripViewComponent(
+              route.params["pins"],
+              findRegion(route.params["pins"], route.params["coordinates"]),
+              route.params["coordinates"]
+            )}
+          </View>
+          <TouchableOpacity
+            onPress={onSaveTrip}
+            style={styles.appButtonContainer}
+          >
+            <Text style={styles.appButtonText}>Save Trip</Text>
+          </TouchableOpacity>
+        </>
+      }
+    ></FlatList>
+  );
+
+  return (
     <View style={styles.container}>
-      <Text style={styles.header}>Trip Overview</Text>
       <View style={styles.tripTitleView}>
         <Text style={styles.tripTitleText}> Trip title </Text>
         <TextInput
@@ -149,12 +229,6 @@ export default function TripOverview({ navigation, route }) {
         >
           <Text style={styles.appButtonText}>Save Trip</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onViewOnMap}
-          style={styles.appButtonContainer}
-        >
-          <Text style={styles.appButtonText}>View on Map</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -164,8 +238,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "space-around",
   },
   header: {
     fontSize: 30,
@@ -192,9 +264,14 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     marginVertical: 4,
-    borderRadius: 10,
-    borderColor: "#00A398",
-    borderWidth: 5,
+    borderRadius: 6,
+    elevation: 3,
+    backgroundColor: "#fff",
+    shadowOffset: { width: 1, height: 1 },
+    shadowColor: "#333",
+    shadowOpacity: 0.3,
+    alignItems: "center",
+    justifyContent: "space-around",
   },
   tripTitleView: {
     margin: 10,
@@ -233,5 +310,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+  },
+  map: {
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height * 0.6,
+    marginLeft: 22,
+    paddingTop: 20,
   },
 });

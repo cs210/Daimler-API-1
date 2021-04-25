@@ -25,10 +25,9 @@ import db from "../firebase";
  * of the trip. It allows you to delete the trip.
  */
 export default function PastTripOverview({ navigation, route }) {
-  const { pins, tripTitle, time } = route.params;
+  const { pins, tripTitle, time, coordinates, id } = route.params;
 
   const onDeleteTrip = () => {
-    console.log("route.params", route.params);
     db.collection("trips")
       .doc(route.params["id"])
       .delete()
@@ -39,6 +38,11 @@ export default function PastTripOverview({ navigation, route }) {
         console.error("Error removing document: ", error);
       });
   };
+
+  const onEditTrip = () => {
+    const data = { tripTitleText: tripTitle, pins: pins, coordinates: coordinates, time: time, id: id, isNewTrip: false };
+    navigation.navigate("Trip Overview", data);
+  }
 
   const pinImages = ({ item }) => {
     return (
@@ -72,7 +76,7 @@ export default function PastTripOverview({ navigation, route }) {
       ListHeaderComponent={
         <>
           <View style={styles.row}>
-            <Text style={styles.header}> {route.params["tripTitleText"]} </Text>
+            <Text style={styles.header}> {tripTitle} </Text>
             <Menu>
               <MenuTrigger>
                 <Text>
@@ -86,6 +90,7 @@ export default function PastTripOverview({ navigation, route }) {
               </MenuTrigger>
               <MenuOptions>
                 <MenuOption onSelect={onDeleteTrip} text="Delete trip" />
+                <MenuOption onSelect={onEditTrip} text="Edit trip" />
               </MenuOptions>
             </Menu>
           </View>
@@ -101,7 +106,7 @@ export default function PastTripOverview({ navigation, route }) {
       ListFooterComponent={
         <>
           <View style={styles.map}>
-            {tripViewComponent(pins, findRegion(pins))}
+            {tripViewComponent(pins, findRegion(pins, coordinates), coordinates)}
           </View>
         </>
       }
