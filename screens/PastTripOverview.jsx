@@ -40,9 +40,16 @@ export default function PastTripOverview({ navigation, route }) {
   };
 
   const onEditTrip = () => {
-    const data = { tripTitleText: tripTitle, pins: pins, coordinates: coordinates, time: time, id: id, isNewTrip: false };
+    const data = {
+      tripTitleText: tripTitle,
+      pins: pins,
+      coordinates: coordinates,
+      time: time,
+      id: id,
+      isNewTrip: false,
+    };
     navigation.navigate("Trip Overview", data);
-  }
+  };
 
   const pinImages = ({ item }) => {
     return (
@@ -106,7 +113,11 @@ export default function PastTripOverview({ navigation, route }) {
       ListFooterComponent={
         <>
           <View style={styles.map}>
-            {tripViewComponent(pins, findRegion(pins, coordinates), coordinates)}
+            {tripViewComponent(
+              pins,
+              findRegion(pins, coordinates),
+              coordinates
+            )}
           </View>
         </>
       }

@@ -18,38 +18,12 @@ import db from "../firebase";
 
 /**
  * This component shows an overview of the trip such as a list of pins and a map
- * of the trip. The user can also enter a trip title and save the trip.
+ * of the trip. The user can also enter a trip title and save/edit the trip.
  */
 export default function TripOverview({ navigation, route }) {
   const [tripTitle, setTripTitle] = useState("");
 
   const storage = firebase.storage();
-
-  const pastTripComponent = ({ item }) => {
-    return (
-      <View style={styles.itemContainer}>
-        {item.title ? (
-          <Text style={styles.pinTitle}>{item.title}</Text>
-        ) : (
-          <Text style={styles.pinTitle}>Pinned Stop</Text>
-        )}
-        {item.description != "" && item.description && (
-          <Text style={styles.pinDescrip}>{item.description}</Text>
-        )}
-        {item.photos && (
-          <ScrollView horizontal={true}>
-            {item.photos.map((photo, i) => (
-              <Image
-                key={photo.key}
-                source={{ uri: photo.uri }}
-                style={{ width: 200, height: 200, margin: 5, padding: 5 }}
-              />
-            ))}
-          </ScrollView>
-        )}
-      </View>
-    );
-  };
 
   const getImageUrl = (uri) => {
     const splitURI = uri.split("/");
@@ -113,14 +87,14 @@ export default function TripOverview({ navigation, route }) {
       if (!route.params["isNewTrip"]) {
         console.log("not new trip");
         db.collection("trips")
-        .doc(route.params["id"])
-        .delete()
-        .catch((error) => {
-          console.error("Error removing document: ", error);
-        });
-        navigation.navigate("Profile"); 
+          .doc(route.params["id"])
+          .delete()
+          .catch((error) => {
+            console.error("Error removing document: ", error);
+          });
+        navigation.navigate("Profile");
       } else {
-        navigation.navigate("Home"); 
+        navigation.navigate("Home");
       }
       db.collection("trips")
         .add(post)
@@ -159,14 +133,9 @@ export default function TripOverview({ navigation, route }) {
     );
   };
 
-  const onViewOnMap = () => {
-    const { pins, tripTitle } = route.params;
-    navigation.navigate("Trip Viewer", { pins: pins, tripTitle: tripTitle });
-  };
-
   return (
     <FlatList
-    contentContainerStyle={styles.container}
+      contentContainerStyle={styles.container}
       ListHeaderComponent={
         <>
           <View style={styles.tripTitleView}>
