@@ -12,8 +12,8 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
-
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+
 import db from "../firebase";
 import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
@@ -24,23 +24,32 @@ import { useFocusEffect } from "@react-navigation/native";
  * when user presses the "Profile" button from the tab bar. Clicking on
  * a past trip will take you to the trip overview.
  */
-export default function Profile({ navigation }) {
+export default function PastTrips({ navigation, route }) {
+  const { item } = route.params;
   const [loading, setLoading] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
   const [pastTrips, setPastTrips] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
     const parsedTrips = [];
-    const user = firebase.auth().currentUser;
-    tripsFromDatabase.forEach((trip) => {
-      const tripData = trip.data();
-      if (tripData.uid == user.uid) {
-        tripData["id"] = trip.id;
-        tripData["tripTitle"] = tripData.tripTitleText;
-        parsedTrips.push(tripData);
+    const uid = firebase.auth().currentUser.uid;
+    const usersRef = firebase.firestore().collection("users");
+    usersRef.doc(uid).onSnapshot((userDoc) => {
+      if (userDoc.data()["following"].includes(item.uid)) {
+        setIsFollowing(true);
+        tripsFromDatabase.forEach((trip) => {
+          const tripData = trip.data();
+          if (tripData.uid == item.uid) {
+            tripData["id"] = trip.id;
+            tripData["tripTitle"] = tripData.tripTitleText;
+            parsedTrips.push(tripData);
+          }
+        });
       }
     });
+    console.log(parsedTrips)
     return parsedTrips;
   };
 
@@ -50,7 +59,6 @@ export default function Profile({ navigation }) {
     const collRef = db.collection("trips");
     const tripsFromDatabase = await collRef.orderBy("time", "desc").get();
     const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
-
     setPastTrips(parsedTrips);
     setLoading(false);
   };
@@ -58,16 +66,15 @@ export default function Profile({ navigation }) {
   useFocusEffect(
     React.useCallback(() => {
       loadPastTrips();
-      getCurrentUser();
+      getFriendUser();
     }, [])
   );
 
-  const getCurrentUser = () => {
-    let uid = firebase.auth().currentUser.uid;
-    console.log(firebase.auth().currentUser.email)
-    console.log(firebase.auth().currentUser.displayName)
+  const getFriendUser = () => {
+    // db.collection("users").find({"uid": })
+    console.log("get friend user called");
     const usersRef = firebase.firestore().collection("users");
-    usersRef.doc(uid).onSnapshot((userDoc) => {
+    usersRef.doc(item.uid).onSnapshot((userDoc) => {
       setFollowers(userDoc.data()["followers"]);
       setFollowing(userDoc.data()["following"]);
     });
@@ -76,12 +83,12 @@ export default function Profile({ navigation }) {
   const pastTripComponent = ({ item }) => {
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate("Past Trip", item)}
+        onPress={() => navigation.navigate("Trip Overview", item)}
         style={styles.itemContainer}
       >
         <View style={styles.cardHeader}>
           <Text style={styles.tripName}>{item.tripTitle}</Text>
-          <Text>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
+          <Text>{moment(item.time).format("LLL")}</Text>
         </View>
         <View style={styles.tripCard}>
           {tripViewComponent(item.pins, findRegion(item.pins))}
@@ -94,7 +101,7 @@ export default function Profile({ navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.row}>
         <Text style={styles.name}>
-          {firebase.auth().currentUser.displayName}
+          {item.displayName}
         </Text>
         <MaterialCommunityIcons
           style={styles.icon}
@@ -108,11 +115,18 @@ export default function Profile({ navigation }) {
         <Text style={styles.follow}>{followers.length} Followers</Text>
         <Text style={styles.follow}>{following.length} Following</Text>
       </View>
-      <Text style={styles.header}>My Past Trips</Text>
+      <Text style={styles.header}>Past Trips</Text>
       {loading ? (
         <ActivityIndicator />
       ) : (
-        <FlatList data={pastTrips} renderItem={pastTripComponent} />
+        isFollowing ? (
+          <FlatList data={pastTrips} renderItem={pastTripComponent} />
+        ) : (
+          <View style={styles.private}>
+            <Text style={styles.privateLargeText}>This Account is Private</Text>
+            <Text style={styles.privateText}>Follow this account to see their trips.</Text>
+          </View>
+        )
       )}
     </SafeAreaView>
   );
@@ -126,6 +140,9 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
+  },
+  private: {
+    alignItems: "center",
   },
   icon: {
     marginLeft: 20,
@@ -143,18 +160,25 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     margin: 15,
   },
+  privateText: {
+    fontSize: 15,
+    margin: 15,
+  },
+  privateLargeText: {
+    fontSize: 15,
+    margin: 15,
+    fontWeight: "bold",
+  },
   header: {
     fontSize: 24,
     margin: 15,
     fontWeight: "bold",
   },
   itemContainer: {
-    borderRadius: 6,
-    elevation: 3,
-    backgroundColor: "#fff",
-    shadowOffset: { width: 1, height: 1 },
-    shadowColor: "#333",
-    shadowOpacity: 0.3,
+    elevation: 8,
+    borderColor: "#00A398",
+    borderWidth: 3,
+    borderRadius: 10,
     paddingHorizontal: 12,
     marginVertical: 10,
   },

@@ -19,6 +19,7 @@ import Search from "./screens/Search";
 import Settings from "./screens/Settings";
 import PastTripOverview from "./screens/PastTripOverview";
 import { MenuProvider } from "react-native-popup-menu";
+import FriendProfile from "./screens/FriendProfile";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
@@ -170,6 +171,7 @@ const App = () => {
             <Stack.Screen name="Trip Viewer" component={TripViewer} />
             <Stack.Screen name="Settings" component={Settings} />
             <Stack.Screen name="Past Trip" component={PastTripOverview} />
+            <Stack.Screen name="Friend Profile" component={FriendProfile} />
           </Stack.Navigator>
         ) : (
           <Stack.Navigator>
