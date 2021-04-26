@@ -57,7 +57,6 @@ export default function SearchScreen({ navigation }) {
   }, []);
 
   const onPressUser = (item) => {
-    console.log(item);
     if (item.uid == firebase.auth().currentUser.uid) {
       navigation.navigate("Profile");
     } else {

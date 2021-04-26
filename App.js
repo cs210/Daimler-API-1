@@ -4,11 +4,11 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import * as firebase from "firebase";
 
-import { Home } from "./screens/Home";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
+import Home from "./screens/Home";
 import Profile from "./screens/Profile";
 import TripMap from "./screens/TripMap";
 import TripOverview from "./screens/TripOverview";
@@ -22,30 +22,6 @@ import { MenuProvider } from "react-native-popup-menu";
 import FriendProfile from "./screens/FriendProfile";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-
-// const useMount = func => useEffect(() => func(), []);
-
-// const useInitialURL = () => {
-//   const [url, setUrl] = useState(null);
-//   const [processing, setProcessing] = useState(true);
-
-//   useMount(() => {
-//     const getUrlAsync = async () => {
-//       // Get the deep link used to open the app
-//       const initialUrl = await Linking.getInitialURL();
-
-//       // The setTimeout is just for testing purpose
-//       setTimeout(() => {
-//         setUrl(initialUrl);
-//         setProcessing(false);
-//       }, 1000);
-//     };
-
-//     getUrlAsync();
-//   });
-
-//   return { url, processing };
-// };
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
