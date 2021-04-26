@@ -100,16 +100,14 @@ export default function SearchScreen({ navigation }) {
                       .includes(searchQuery.toLowerCase()))
                 ) {
                   return (
-                    <View style={styles.userCard}>
+                    <TouchableOpacity style={styles.userCard} onPress={() => onPressUser(item)}>
                       <View style={styles.userCardInfo}>
                         <View style={styles.userCardRow}>
-                          <TouchableOpacity onPress={() => onPressUser(item)}>
-                            <Text style={styles.userTitle}>{item.email}</Text>
-                          </TouchableOpacity>
+                          <Text style={styles.userTitle}>{item.email}</Text> 
                         </View>
                         <Text style={styles.userText}>{item.displayName}</Text>
                       </View>
-                    </View>
+                    </TouchableOpacity>
                   );
                 }
               }

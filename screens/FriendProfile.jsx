@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 import db from "../firebase";
 import moment from "moment";
@@ -49,13 +48,11 @@ export default function PastTrips({ navigation, route }) {
         });
       }
     });
-    console.log(parsedTrips)
     return parsedTrips;
   };
 
   const loadPastTrips = async () => {
     setLoading(true);
-    setPastTrips([]);
     const collRef = db.collection("trips");
     const tripsFromDatabase = await collRef.orderBy("time", "desc").get();
     const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
@@ -71,14 +68,42 @@ export default function PastTrips({ navigation, route }) {
   );
 
   const getFriendUser = () => {
-    // db.collection("users").find({"uid": })
-    console.log("get friend user called");
     const usersRef = firebase.firestore().collection("users");
     usersRef.doc(item.uid).onSnapshot((userDoc) => {
       setFollowers(userDoc.data()["followers"]);
       setFollowing(userDoc.data()["following"]);
     });
   };
+
+  const onFollowUser = async () => {
+    const myUid = firebase.auth().currentUser.uid;
+    const myRef = firebase.firestore().collection("users").doc(myUid);
+    const theirRef = firebase.firestore().collection("users").doc(item.uid);
+    const myRes = myRef.update({
+      following: firebase.firestore.FieldValue.arrayUnion(item.uid)
+    });
+    const theirRes = theirRef.update({
+      followers: firebase.firestore.FieldValue.arrayUnion(myUid)
+    });
+    Promise.all([myRes, theirRes])
+      .then(() => setIsFollowing(true))
+      .catch(error => alert(error));
+  }
+
+  const onUnfollowUser = async () => {
+    const myUid = firebase.auth().currentUser.uid;
+    const myRef = firebase.firestore().collection("users").doc(myUid);
+    const theirRef = firebase.firestore().collection("users").doc(item.uid);
+    const myRes = myRef.update({
+      following: firebase.firestore.FieldValue.arrayRemove(item.uid)
+    });
+    const theirRes = theirRef.update({
+      followers: firebase.firestore.FieldValue.arrayRemove(myUid)
+    });
+    Promise.all([myRes, theirRes])
+      .then(() => setIsFollowing(false))
+      .catch(error => alert(error));
+  }
 
   const pastTripComponent = ({ item }) => {
     return (
@@ -91,7 +116,8 @@ export default function PastTrips({ navigation, route }) {
           <Text>{moment(item.time).format("LLL")}</Text>
         </View>
         <View style={styles.tripCard}>
-          {tripViewComponent(item.pins, findRegion(item.pins))}
+          {/*{tripViewComponent(item.pins, findRegion(item.pins))}*/}
+          {/* TODO: deal with this issue with rendering each item ^^ */}
         </View>
       </TouchableOpacity>
     );
@@ -99,28 +125,40 @@ export default function PastTrips({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.row}>
-        <Text style={styles.name}>
-          {item.displayName}
-        </Text>
-        <MaterialCommunityIcons
-          style={styles.icon}
-          name="account-cog"
-          color={"#808080"}
-          size={34}
-          onPress={() => navigation.navigate("Settings")}
-        />
-      </View>
+      <Text style={styles.name}>
+        {item.displayName}
+      </Text>
       <View style={styles.row}>
         <Text style={styles.follow}>{followers.length} Followers</Text>
         <Text style={styles.follow}>{following.length} Following</Text>
+        {isFollowing ? (
+          <TouchableOpacity 
+            onPress={onUnfollowUser}
+            style={[styles.button, {backgroundColor: "#AEB8C1"}]}>
+            <Text style={styles.buttonText}>
+              Following
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={onFollowUser}
+            style={[styles.button, {backgroundColor: "#00A398"}]}>
+            <Text style={styles.buttonText}>
+              Follow
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
       <Text style={styles.header}>Past Trips</Text>
       {loading ? (
         <ActivityIndicator />
       ) : (
         isFollowing ? (
-          <FlatList data={pastTrips} renderItem={pastTripComponent} />
+          <FlatList 
+            data={pastTrips} 
+            renderItem={pastTripComponent}
+            ListEmptyComponent={() => (<Text>fuck</Text>)}
+           />
         ) : (
           <View style={styles.private}>
             <Text style={styles.privateLargeText}>This Account is Private</Text>
@@ -140,12 +178,14 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
   },
   private: {
     alignItems: "center",
   },
   icon: {
-    marginLeft: 20,
+    marginRight: 8,
     marginTop: 15,
   },
   name: {
@@ -153,7 +193,6 @@ const styles = StyleSheet.create({
     color: "#8275BD",
     fontWeight: "bold",
     margin: 15,
-    width: 300,
   },
   follow: {
     fontSize: 15,
@@ -198,4 +237,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     margin: 5,
   },
+  button: {
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 8,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 24,
+  },
+  buttonText: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "white",
+  }
 });
