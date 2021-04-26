@@ -154,19 +154,21 @@ export default function TripOverview({ navigation, route }) {
       keyExtractor={(item, index) => index.toString()}
       ListFooterComponent={
         <>
-          <View style={styles.map}>
-            {tripViewComponent(
-              route.params["pins"],
-              findRegion(route.params["pins"], route.params["coordinates"]),
-              route.params["coordinates"]
-            )}
+          <View style={styles.bottom}>
+            <View style={styles.map}>
+              {tripViewComponent(
+                route.params["pins"],
+                findRegion(route.params["pins"], route.params["coordinates"]),
+                route.params["coordinates"]
+              )}
+            </View>
+            <TouchableOpacity
+              onPress={onSaveTrip}
+              style={styles.appButtonContainer}
+            >
+              <Text style={styles.appButtonText}>Save Trip</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            onPress={onSaveTrip}
-            style={styles.appButtonContainer}
-          >
-            <Text style={styles.appButtonText}>Save Trip</Text>
-          </TouchableOpacity>
         </>
       }
     ></FlatList>
@@ -175,7 +177,7 @@ export default function TripOverview({ navigation, route }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: "#fff",
   },
   pinTitle: {
@@ -225,7 +227,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    marginBottom: 15,
+    marginBottom: 20,
     marginHorizontal: 15,
   },
   appButtonText: {
@@ -245,5 +247,8 @@ const styles = StyleSheet.create({
     height: Dimensions.get("window").height * 0.55,
     marginLeft: 22,
     paddingTop: 20,
+  },
+  bottom: {
+    paddingBottom: 20,
   },
 });
