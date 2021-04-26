@@ -95,7 +95,7 @@ export default function SearchScreen({ navigation }) {
                   (item.displayName
                     .toLowerCase()
                     .includes(searchQuery.toLowerCase()) ||
-                    item.email
+                    item.username
                       .toLowerCase()
                       .includes(searchQuery.toLowerCase()))
                 ) {
@@ -103,7 +103,7 @@ export default function SearchScreen({ navigation }) {
                     <TouchableOpacity style={styles.userCard} onPress={() => onPressUser(item)}>
                       <View style={styles.userCardInfo}>
                         <View style={styles.userCardRow}>
-                          <Text style={styles.userTitle}>{item.email}</Text> 
+                          <Text style={styles.userTitle}>{item.username}</Text> 
                         </View>
                         <Text style={styles.userText}>{item.displayName}</Text>
                       </View>
