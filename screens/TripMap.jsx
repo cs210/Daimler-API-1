@@ -82,8 +82,8 @@ export default function TripMap({ navigation }) {
     setRegion({
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
-      latitudeDelta: 0.5,
-      longitudeDelta: 0.5,
+      latitudeDelta: 0.125,
+      longitudeDelta: 0.125,
     });
     let keys = {
       latitude: location.coords.latitude,
