@@ -92,7 +92,7 @@ export default function Profile({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.row}>
+      <View style={styles.spaceBetweenRow}>
         <Text style={styles.name}>
           {firebase.auth().currentUser.displayName}
         </Text>
@@ -124,11 +124,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 10,
   },
+  spaceBetweenRow: {
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
   row: {
     flexDirection: "row",
   },
   icon: {
-    marginLeft: 20,
+    marginRight: 8,
     marginTop: 15,
   },
   name: {
