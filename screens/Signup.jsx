@@ -31,6 +31,7 @@ export default function Signup({ navigation }) {
           email: email,
           displayName: name,
           trips: {},
+          username: username,
           followers: [],
           following: []
         }
