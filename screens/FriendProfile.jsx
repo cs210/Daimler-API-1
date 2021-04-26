@@ -109,7 +109,7 @@ export default function PastTrips({ navigation, route }) {
   const pastTripComponent = ({ item }) => {
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate("Trip Overview", item)}
+        onPress={() => navigation.navigate("Past Trip", item)}
         style={styles.itemContainer}
       >
         <View style={styles.cardHeader}>
@@ -117,9 +117,15 @@ export default function PastTrips({ navigation, route }) {
           <Text>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
         </View>
         <View style={styles.tripCard}>
-          {/*{tripViewComponent(item.pins, findRegion(item.pins, item.coordinates), item.coordinates)}*/}
+          {tripViewComponent(item.pins, findRegion(item.pins, item.coordinates), item.coordinates)}
         </View>
       </TouchableOpacity>
+    );
+  };
+
+  const noTripsComponent = () => {
+    return (
+      <Text style={styles.noTripText}>No trips to display!</Text>
     );
   };
 
@@ -157,8 +163,8 @@ export default function PastTrips({ navigation, route }) {
           <FlatList 
             data={pastTrips} 
             renderItem={pastTripComponent}
-            ListEmptyComponent={() => (<ActivityIndicator />)}
-           />
+            ListEmptyComponent={noTripsComponent}
+          />
         ) : (
           <View style={styles.private}>
             <Text style={styles.privateLargeText}>This Account is Private</Text>
@@ -214,10 +220,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   itemContainer: {
-    elevation: 8,
-    borderColor: "#00A398",
-    borderWidth: 3,
-    borderRadius: 10,
+    borderRadius: 6,
+    elevation: 3,
+    backgroundColor: "#fff",
+    shadowOffset: { width: 1, height: 1 },
+    shadowColor: "#333",
+    shadowOpacity: 0.3,
     paddingHorizontal: 12,
     marginVertical: 10,
   },
@@ -249,5 +257,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "bold",
     color: "white",
-  }
+  },
+  noTripText: {
+    fontSize: 15,
+    alignSelf: "center",
+  },
 });

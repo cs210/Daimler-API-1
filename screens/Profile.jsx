@@ -50,7 +50,6 @@ export default function Profile({ navigation }) {
     const collRef = db.collection("trips");
     const tripsFromDatabase = await collRef.orderBy("time", "desc").get();
     const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
-
     setPastTrips(parsedTrips);
     setLoading(false);
   };
@@ -64,8 +63,6 @@ export default function Profile({ navigation }) {
 
   const getCurrentUser = () => {
     let uid = firebase.auth().currentUser.uid;
-    console.log(firebase.auth().currentUser.email)
-    console.log(firebase.auth().currentUser.displayName)
     const usersRef = firebase.firestore().collection("users");
     usersRef.doc(uid).onSnapshot((userDoc) => {
       setFollowers(userDoc.data()["followers"]);
@@ -87,6 +84,12 @@ export default function Profile({ navigation }) {
           {tripViewComponent(item.pins, findRegion(item.pins, item.coordinates), item.coordinates)}
         </View>
       </TouchableOpacity>
+    );
+  };
+
+  const noTripsComponent = () => {
+    return (
+      <Text style={styles.noTripText}>No trips to display!</Text>
     );
   };
 
@@ -112,7 +115,11 @@ export default function Profile({ navigation }) {
       {loading ? (
         <ActivityIndicator />
       ) : (
-        <FlatList data={pastTrips} renderItem={pastTripComponent} />
+        <FlatList 
+          data={pastTrips} 
+          renderItem={pastTripComponent}
+          ListEmptyComponent={noTripsComponent}
+        />
       )}
     </SafeAreaView>
   );
@@ -177,5 +184,9 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     justifyContent: "space-between",
     margin: 5,
+  },
+  noTripText: {
+    fontSize: 15,
+    alignSelf: "center",
   },
 });
