@@ -1,6 +1,7 @@
 import * as firebase from "firebase";
 
 import {
+  Dimensions,
   FlatList,
   Image,
   StyleSheet,
@@ -8,7 +9,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Dimensions,
 } from "react-native";
 import React, { useState } from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
@@ -69,10 +69,12 @@ export default function TripOverview({ navigation, route }) {
       }
     }
     Promise.all(promises).then((urls) => {
+      var count = 0;
       for (var i = 0; i < pins.length; i++) {
         if (pins[i].photos) {
-          for (var photo of pins[i].photos) {
-            photo.uri = urls[i];
+          for (photo of pins[i].photos) {
+            photo.uri = urls[count];
+            count++;
           }
         }
       }
@@ -99,7 +101,7 @@ export default function TripOverview({ navigation, route }) {
       db.collection("trips")
         .add(post)
         .then(() => {
-          console.log("Posts successfully written!", post);
+          console.log("Posts successfully written!");
         })
         .catch((error) => {
           console.error("Error writing document: ", error);
