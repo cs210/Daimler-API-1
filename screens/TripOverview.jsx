@@ -113,7 +113,7 @@ export default function TripOverview({ navigation, route }) {
         .catch((error) => {
           console.error("Error writing document: ", error);
         });
-      navigation.navigate("Home");
+      navigation.navigate("Tabs", {screen: "Home"})
     });
   };
 

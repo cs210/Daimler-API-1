@@ -19,7 +19,7 @@ export default function Login({ navigation }) {
   const handleLogin = () => {
     firebase.auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => navigation.navigate("Home"))
+      .then(() => navigation.navigate("Tabs", {screen: "Home"}))
       .catch(error => alert(error))
   }
 

@@ -37,7 +37,7 @@ export default function Signup({ navigation }) {
         db.collection("users")
           .doc(userCred.user.uid)
           .set(user);
-        navigation.navigate("Home")
+        navigation.navigate("Tabs", {screen: "Home"})
       }).catch((error) => {
         alert(error);
       });
