@@ -21,7 +21,7 @@ export default function Signup({ navigation }) {
 
   const handleSignUp = async () => {
     firebase.auth().createUserWithEmailAndPassword(email, password)
-      .then(function(userCred) {  
+      .then(function(userCred) {
         console.log(userCred);
         userCred.user.updateProfile({
           displayName: name
@@ -45,7 +45,6 @@ export default function Signup({ navigation }) {
 
   const onPressSignUp = () => {
     handleSignUp();
-    navigation.navigate("Road Trip Buddy", { screen: "Home" });
   }
 
   return (
