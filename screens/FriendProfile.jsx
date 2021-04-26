@@ -53,6 +53,7 @@ export default function PastTrips({ navigation, route }) {
 
   const loadPastTrips = async () => {
     setLoading(true);
+    setPastTrips([]);
     const collRef = db.collection("trips");
     const tripsFromDatabase = await collRef.orderBy("time", "desc").get();
     const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
@@ -113,11 +114,10 @@ export default function PastTrips({ navigation, route }) {
       >
         <View style={styles.cardHeader}>
           <Text style={styles.tripName}>{item.tripTitle}</Text>
-          <Text>{moment(item.time).format("LLL")}</Text>
+          <Text>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
         </View>
         <View style={styles.tripCard}>
-          {/*{tripViewComponent(item.pins, findRegion(item.pins))}*/}
-          {/* TODO: deal with this issue with rendering each item ^^ */}
+          {/*{tripViewComponent(item.pins, findRegion(item.pins, item.coordinates), item.coordinates)}*/}
         </View>
       </TouchableOpacity>
     );
@@ -157,7 +157,7 @@ export default function PastTrips({ navigation, route }) {
           <FlatList 
             data={pastTrips} 
             renderItem={pastTripComponent}
-            ListEmptyComponent={() => (<Text>fuck</Text>)}
+            ListEmptyComponent={() => (<ActivityIndicator />)}
            />
         ) : (
           <View style={styles.private}>
