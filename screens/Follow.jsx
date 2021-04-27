@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { useEffect } from "react";
+// import { useFocusEffect } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+
 import {
   FlatList,
   StyleSheet,
@@ -18,26 +20,32 @@ import * as firebase from "firebase";
  */
 export default function Followers({ navigation, route }) {
   const [users, setUsers] = useState([]);
+  const follow = route.params["follow"];
 
-  useEffect(() => {
-    async function fetchUsersNames() {
-      const dbUsers = await db
-        .collection("users")
-        .where("uid", "in", route.params["follow"])
-        .get();
-      userList = [];
-      dbUsers.forEach((user) => {
-        const userData = user.data();
-        userList.push(userData);
-      });
-      setUsers(userList);
-      console.log("userList", userList);
-    }
-    fetchUsersNames();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      if (follow.length == 0) {
+        setUsers([]);
+        return;
+      }
+      async function fetchUsersNames() {
+        const dbUsers = await db
+          .collection("users")
+          .where("uid", "in", route.params["follow"])
+          .get();
+        userList = [];
+        dbUsers.forEach((user) => {
+          const userData = user.data();
+          userList.push(userData);
+        });
+        setUsers(userList);
+        console.log("userList", userList);
+      }
+      fetchUsersNames();
+    }, [follow])
+  );
 
   const onPressUser = (item) => {
-    console.log("on press user called");
     if (item.uid == firebase.auth().currentUser.uid) {
       navigation.navigate("Profile");
     } else {

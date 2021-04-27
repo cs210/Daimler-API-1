@@ -71,14 +71,23 @@ export default function Profile({ navigation }) {
   };
 
   const onPressFollowers = () => {
-    const data = { follow:followers, isFollowers: true };
+    console.log("user.email", firebase.auth().currentUser.email);
+    const data = {
+      email: firebase.auth().currentUser.email,
+      follow: followers,
+      isFollowers: true,
+    };
     navigation.navigate("Follow", data);
-  }
+  };
 
   const onPressFollowing = () => {
-    const data = { follow:following, isFollowers: false };
+    const data = {
+      email: firebase.auth().currentUser.email,
+      follow: following,
+      isFollowers: false,
+    };
     navigation.navigate("Follow", data);
-  }
+  };
 
   const pastTripComponent = ({ item }) => {
     return (

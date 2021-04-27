@@ -81,30 +81,30 @@ export default function PastTrips({ navigation, route }) {
     const myRef = firebase.firestore().collection("users").doc(myUid);
     const theirRef = firebase.firestore().collection("users").doc(item.uid);
     const myRes = myRef.update({
-      following: firebase.firestore.FieldValue.arrayUnion(item.uid)
+      following: firebase.firestore.FieldValue.arrayUnion(item.uid),
     });
     const theirRes = theirRef.update({
-      followers: firebase.firestore.FieldValue.arrayUnion(myUid)
+      followers: firebase.firestore.FieldValue.arrayUnion(myUid),
     });
     Promise.all([myRes, theirRes])
       .then(() => setIsFollowing(true))
-      .catch(error => alert(error));
-  }
+      .catch((error) => alert(error));
+  };
 
   const onUnfollowUser = async () => {
     const myUid = firebase.auth().currentUser.uid;
     const myRef = firebase.firestore().collection("users").doc(myUid);
     const theirRef = firebase.firestore().collection("users").doc(item.uid);
     const myRes = myRef.update({
-      following: firebase.firestore.FieldValue.arrayRemove(item.uid)
+      following: firebase.firestore.FieldValue.arrayRemove(item.uid),
     });
     const theirRes = theirRef.update({
-      followers: firebase.firestore.FieldValue.arrayRemove(myUid)
+      followers: firebase.firestore.FieldValue.arrayRemove(myUid),
     });
     Promise.all([myRes, theirRes])
       .then(() => setIsFollowing(false))
-      .catch(error => alert(error));
-  }
+      .catch((error) => alert(error));
+  };
 
   const pastTripComponent = ({ item }) => {
     return (
@@ -117,76 +117,72 @@ export default function PastTrips({ navigation, route }) {
           <Text>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
         </View>
         <View style={styles.tripCard}>
-          {tripViewComponent(item.pins, findRegion(item.pins, item.coordinates), item.coordinates)}
+          {tripViewComponent(
+            item.pins,
+            findRegion(item.pins, item.coordinates),
+            item.coordinates
+          )}
         </View>
       </TouchableOpacity>
     );
   };
 
   const noTripsComponent = () => {
-    return (
-      <Text style={styles.noTripText}>No trips to display!</Text>
-    );
+    return <Text style={styles.noTripText}>No trips to display!</Text>;
   };
 
   const onPressFollowers = () => {
-    //ADD LOGIC TO GET USER'S FOLLOWERS
-    const data = { follow:followers, isFollowers: true };
-    console.log("data", data);
+    const data = { follow: followers, isFollowers: true };
     navigation.navigate("Follow", data);
-  }
+  };
 
   const onPressFollowing = () => {
-    const data = { follow:following, isFollowers: false };
+    const data = { follow: following, isFollowers: false };
     navigation.navigate("Follow", data);
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.name}>
-        {item.displayName}
-      </Text>
+      <Text style={styles.name}>{item.displayName}</Text>
       <View style={styles.row}>
-      <TouchableOpacity onPress={onPressFollowers}>
+        <TouchableOpacity onPress={onPressFollowers}>
           <Text style={styles.follow}>{followers.length} Followers</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={onPressFollowing}>
           <Text style={styles.follow}>{following.length} Following</Text>
         </TouchableOpacity>
         {isFollowing ? (
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={onUnfollowUser}
-            style={[styles.button, {backgroundColor: "#AEB8C1"}]}>
-            <Text style={styles.buttonText}>
-              Following
-            </Text>
+            style={[styles.button, { backgroundColor: "#AEB8C1" }]}
+          >
+            <Text style={styles.buttonText}>Following</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
             onPress={onFollowUser}
-            style={[styles.button, {backgroundColor: "#00A398"}]}>
-            <Text style={styles.buttonText}>
-              Follow
-            </Text>
+            style={[styles.button, { backgroundColor: "#00A398" }]}
+          >
+            <Text style={styles.buttonText}>Follow</Text>
           </TouchableOpacity>
         )}
       </View>
       <Text style={styles.header}>Past Trips</Text>
       {loading ? (
         <ActivityIndicator />
+      ) : isFollowing ? (
+        <FlatList
+          data={pastTrips}
+          renderItem={pastTripComponent}
+          ListEmptyComponent={noTripsComponent}
+        />
       ) : (
-        isFollowing ? (
-          <FlatList 
-            data={pastTrips} 
-            renderItem={pastTripComponent}
-            ListEmptyComponent={noTripsComponent}
-          />
-        ) : (
-          <View style={styles.private}>
-            <Text style={styles.privateLargeText}>This Account is Private</Text>
-            <Text style={styles.privateText}>Follow this account to see their trips.</Text>
-          </View>
-        )
+        <View style={styles.private}>
+          <Text style={styles.privateLargeText}>This Account is Private</Text>
+          <Text style={styles.privateText}>
+            Follow this account to see their trips.
+          </Text>
+        </View>
       )}
     </SafeAreaView>
   );
