@@ -71,7 +71,6 @@ export default function Profile({ navigation }) {
   };
 
   const onPressFollowers = () => {
-    console.log("user.email", firebase.auth().currentUser.email);
     const data = {
       email: firebase.auth().currentUser.email,
       follow: followers,
