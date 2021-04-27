@@ -17,6 +17,7 @@ import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 import Search from "./screens/Search";
 import Settings from "./screens/Settings";
+import Notifications from "./screens/Notifications";
 import PastTripOverview from "./screens/PastTripOverview";
 import { MenuProvider } from "react-native-popup-menu";
 import FriendProfile from "./screens/FriendProfile";
@@ -39,6 +40,8 @@ function getHeaderTitle(route) {
       return "Search";
     case "Record Trip":
       return "Record Trip";
+    case "Notifications":
+      return "Notifications";
     case "Profile":
       return "Profile";
   }
@@ -76,6 +79,20 @@ function Tabs() {
         component={TripMap}
         options={{
           tabBarLabel: "Record Trip",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons
+              name="circle-slice-8"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Notifications"
+        component={Notifications}
+        options={{
+          tabBarLabel: "Notifications",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
               name="circle-slice-8"
