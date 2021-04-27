@@ -115,11 +115,17 @@ export default function TripMap({ navigation }) {
   };
 
   const onFinishTripPress = async () => {
-    if (pins.length == 0 && coordinates.length == 0 || !isTripStarted) {
+    if ((pins.length == 0 && coordinates.length == 0) || !isTripStarted) {
       navigation.navigate("Home");
       return;
     }
-    const data = { tripTitleText: "", pins: pins, coordinates: coordinates, time: time, isNewTrip: true };
+    const data = {
+      tripTitleText: "",
+      pins: pins,
+      coordinates: coordinates,
+      time: time,
+      isNewTrip: true,
+    };
     setIsTripRecording(false);
     setIsTripStarted(false);
     navigation.navigate("Trip Overview", data);
@@ -232,12 +238,14 @@ export default function TripMap({ navigation }) {
         >
           <Text style={styles.appButtonText}>{tripButtonText()}</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onFinishTripPress}
-          style={styles.appButtonContainer}
-        >
-          <Text style={styles.appButtonText}>Finish Trip</Text>
-        </TouchableOpacity>
+        {isTripStarted && (
+          <TouchableOpacity
+            onPress={onFinishTripPress}
+            style={styles.appButtonContainer}
+          >
+            <Text style={styles.appButtonText}>Finish Trip</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
