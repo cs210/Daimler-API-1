@@ -70,6 +70,25 @@ export default function Profile({ navigation }) {
     });
   };
 
+  const onPressFollowers = () => {
+    console.log("user.email", firebase.auth().currentUser.email);
+    const data = {
+      email: firebase.auth().currentUser.email,
+      follow: followers,
+      isFollowers: true,
+    };
+    navigation.navigate("Follow", data);
+  };
+
+  const onPressFollowing = () => {
+    const data = {
+      email: firebase.auth().currentUser.email,
+      follow: following,
+      isFollowers: false,
+    };
+    navigation.navigate("Follow", data);
+  };
+
   const pastTripComponent = ({ item }) => {
     return (
       <TouchableOpacity
@@ -81,16 +100,18 @@ export default function Profile({ navigation }) {
           <Text>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
         </View>
         <View style={styles.tripCard}>
-          {tripViewComponent(item.pins, findRegion(item.pins, item.coordinates), item.coordinates)}
+          {tripViewComponent(
+            item.pins,
+            findRegion(item.pins, item.coordinates),
+            item.coordinates
+          )}
         </View>
       </TouchableOpacity>
     );
   };
 
   const noTripsComponent = () => {
-    return (
-      <Text style={styles.noTripText}>No trips to display!</Text>
-    );
+    return <Text style={styles.noTripText}>No trips to display!</Text>;
   };
 
   return (
@@ -108,15 +129,19 @@ export default function Profile({ navigation }) {
         />
       </View>
       <View style={styles.row}>
-        <Text style={styles.follow}>{followers.length} Followers</Text>
-        <Text style={styles.follow}>{following.length} Following</Text>
+        <TouchableOpacity onPress={onPressFollowers}>
+          <Text style={styles.follow}>{followers.length} Followers</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onPressFollowing}>
+          <Text style={styles.follow}>{following.length} Following</Text>
+        </TouchableOpacity>
       </View>
       <Text style={styles.header}>My Past Trips</Text>
       {loading ? (
         <ActivityIndicator />
       ) : (
-        <FlatList 
-          data={pastTrips} 
+        <FlatList
+          data={pastTrips}
           renderItem={pastTripComponent}
           ListEmptyComponent={noTripsComponent}
         />
@@ -133,7 +158,7 @@ const styles = StyleSheet.create({
   },
   spaceBetweenRow: {
     flexDirection: "row",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
   },
   row: {
     flexDirection: "row",
