@@ -146,11 +146,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   userCard: {
-    width: "90%",
+    width: "95%",
     marginTop: 10,
-    // marginLeft: 10,
-    // marginRight: 10,
-    // backgroundColor: '#e7e2e2',
     backgroundColor: "#AEB8C1",
     padding: 5,
     borderRadius: 10,

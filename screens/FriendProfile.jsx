@@ -129,14 +129,30 @@ export default function PastTrips({ navigation, route }) {
     );
   };
 
+  const onPressFollowers = () => {
+    //ADD LOGIC TO GET USER'S FOLLOWERS
+    const data = { follow:followers, isFollowers: true };
+    console.log("data", data);
+    navigation.navigate("Follow", data);
+  }
+
+  const onPressFollowing = () => {
+    const data = { follow:following, isFollowers: false };
+    navigation.navigate("Follow", data);
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.name}>
         {item.displayName}
       </Text>
       <View style={styles.row}>
-        <Text style={styles.follow}>{followers.length} Followers</Text>
-        <Text style={styles.follow}>{following.length} Following</Text>
+      <TouchableOpacity onPress={onPressFollowers}>
+          <Text style={styles.follow}>{followers.length} Followers</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onPressFollowing}>
+          <Text style={styles.follow}>{following.length} Following</Text>
+        </TouchableOpacity>
         {isFollowing ? (
           <TouchableOpacity 
             onPress={onUnfollowUser}
