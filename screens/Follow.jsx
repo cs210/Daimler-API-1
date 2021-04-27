@@ -62,7 +62,7 @@ export default function Followers({ navigation, route }) {
         {!route.params["isFollowers"] && (
           <Text style={styles.titleText}>Following</Text>
         )}
-        <FlatList
+        {users.length != 0 && <FlatList
           style={{
             marginLeft: 10,
             marginRight: 10,
@@ -90,7 +90,9 @@ export default function Followers({ navigation, route }) {
             );
           }}
           keyExtractor={() => uuidv4()}
-        ></FlatList>
+        ></FlatList> }
+        {route.params["isFollowers"] && users.length == 0 &&  <Text style={styles.noFollowText}> You have no followers. </Text>}
+        {!route.params["isFollowers"] && users.length == 0 &&  <Text style={styles.noFollowText}> You are not following anyone. </Text>}
       </View>
     </View>
   );
@@ -106,6 +108,11 @@ const styles = StyleSheet.create({
   titleText: {
     padding: 15,
     fontSize: 20,
+    fontWeight: "bold",
+  },
+  noFollowText: {
+    padding: 15,
+    fontSize: 14,
     fontWeight: "bold",
   },
   userCard: {
