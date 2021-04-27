@@ -1,6 +1,7 @@
 import * as firebase from "firebase";
 
 import {
+  ActivityIndicator,
   Dimensions,
   FlatList,
   Image,
@@ -22,6 +23,7 @@ import db from "../firebase";
  */
 export default function TripOverview({ navigation, route }) {
   const [tripTitle, setTripTitle] = useState("");
+  const [loadingSave, setLoadingSave] = useState(false);
 
   const storage = firebase.storage();
 
@@ -52,6 +54,7 @@ export default function TripOverview({ navigation, route }) {
       });
   };
   const onSaveTrip = () => {
+    setLoadingSave(true);
     var tripTitleText = tripTitle["text"];
     if (tripTitleText == null) {
       // Currently using a default name of road trip if user doesn't enter name
@@ -102,9 +105,11 @@ export default function TripOverview({ navigation, route }) {
         .add(post)
         .then(() => {
           console.log("Posts successfully written!");
+          setLoadingSave(false);
         })
         .catch((error) => {
           console.error("Error writing document: ", error);
+          setLoadingSave(false);
         });
     });
   };
@@ -136,44 +141,53 @@ export default function TripOverview({ navigation, route }) {
   };
 
   return (
-    <FlatList
-      contentContainerStyle={styles.container}
-      ListHeaderComponent={
-        <>
-          <View style={styles.tripTitleView}>
-            <Text style={styles.tripTitleText}> Name </Text>
-            <TextInput
-              style={styles.titleInput}
-              placeholder="Enter trip title"
-              onChangeText={(text) => setTripTitle({ text })}
-              defaultValue={route.params["tripTitleText"]}
-            />
-          </View>
-        </>
-      }
-      data={route.params["pins"]}
-      renderItem={pinImages}
-      keyExtractor={(item, index) => index.toString()}
-      ListFooterComponent={
-        <>
-          <View style={styles.bottom}>
-            <View style={styles.map}>
-              {tripViewComponent(
-                route.params["pins"],
-                findRegion(route.params["pins"], route.params["coordinates"]),
-                route.params["coordinates"]
-              )}
-            </View>
-            <TouchableOpacity
-              onPress={onSaveTrip}
-              style={styles.appButtonContainer}
-            >
-              <Text style={styles.appButtonText}>Save Trip</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      }
-    ></FlatList>
+    <View>
+      {loadingSave ? (
+        <ActivityIndicator />
+      ) : (
+        <FlatList
+          contentContainerStyle={styles.container}
+          ListHeaderComponent={
+            <>
+              <View style={styles.tripTitleView}>
+                <Text style={styles.tripTitleText}> Name </Text>
+                <TextInput
+                  style={styles.titleInput}
+                  placeholder="Enter trip title"
+                  onChangeText={(text) => setTripTitle({ text })}
+                  defaultValue={route.params["tripTitleText"]}
+                />
+              </View>
+            </>
+          }
+          data={route.params["pins"]}
+          renderItem={pinImages}
+          keyExtractor={(item, index) => index.toString()}
+          ListFooterComponent={
+            <>
+              <View style={styles.bottom}>
+                <View style={styles.map}>
+                  {tripViewComponent(
+                    route.params["pins"],
+                    findRegion(
+                      route.params["pins"],
+                      route.params["coordinates"]
+                    ),
+                    route.params["coordinates"]
+                  )}
+                </View>
+                <TouchableOpacity
+                  onPress={onSaveTrip}
+                  style={styles.appButtonContainer}
+                >
+                  <Text style={styles.appButtonText}>Save Trip</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          }
+        ></FlatList>
+      )}
+    </View>
   );
 }
 
