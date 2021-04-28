@@ -25,32 +25,34 @@ export default function Notifications({ navigation, route }) {
   useFocusEffect(
     React.useCallback(() => {
       let isMounted = true;
-      
+
       async function fetchUsersNames() {
         let uid = firebase.auth().currentUser.uid;
         const usersRef = firebase.firestore().collection("users");
         usersRef.doc(uid).onSnapshot((userDoc) => {
           setFollowerRequests(userDoc.data()["followerRequests"]);
         });
-
+        console.log(followerRequests);
         if (followerRequests.length == 0) {
           setUsers([]);
           return;
         }
-
         const dbUsers = await db
           .collection("users")
           .where("uid", "in", followerRequests)
           .get();
-        userList = [];
+
+        const userList = [];
         dbUsers.forEach((user) => {
           const userData = user.data();
           userList.push(userData);
         });
+        console.log("here")
         setUsers(userList);
         console.log("userList", userList);
       }
       fetchUsersNames();
+      return () => { isMounted = false }
     }, [])
   );
 
