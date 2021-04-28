@@ -53,6 +53,7 @@ export default function Home({ navigation }) {
     const myUid = firebase.auth().currentUser.uid;
     const userDoc = await db.collection("users").doc(myUid).get();
     const followedUserIds = userDoc.data()["following"];
+    followedUserIds.push(myUid);
     return followedUserIds;
   };
 
