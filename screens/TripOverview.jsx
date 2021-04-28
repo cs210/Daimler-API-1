@@ -88,9 +88,9 @@ export default function TripOverview({ navigation, route }) {
         coordinates: coordinates,
         time: time,
         uid: user.uid,
+        likes: [],
       };
       if (!route.params["isNewTrip"]) {
-        console.log("not new trip");
         db.collection("trips")
           .doc(route.params["id"])
           .delete()
