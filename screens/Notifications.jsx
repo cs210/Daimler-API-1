@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// import { useFocusEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 
 import {
@@ -20,42 +19,42 @@ import * as firebase from "firebase";
  */
 export default function Notifications({ navigation, route }) {
   const [users, setUsers] = useState([]);
-  const [followerRequests, setFollowerRequests] = useState([]);
 
   useFocusEffect(
     React.useCallback(() => {
-      // let isMounted = true;
+      let isMounted = true;
 
       async function fetchUsersNames() {
         let uid = firebase.auth().currentUser.uid;
         const usersRef = firebase.firestore().collection("users");
+        let isThereFollowers = false;
         usersRef.doc(uid).onSnapshot((userDoc) => {
-          setFollowerRequests(userDoc.data()["followerRequests"]);
+          isThereFollowers = true;
+          setUsersFunc(userDoc.data()["followerRequests"]);
         });
-        console.log(followerRequests);
-
-        if (followerRequests.length == 0) {
-          setUsers([]);
-          return;
-        }
-        const dbUsers = await db
-          .collection("users")
-          .where("uid", "in", followerRequests)
-          .get();
-
-        const userList = [];
-        dbUsers.forEach((user) => {
-          const userData = user.data();
-          userList.push(userData);
-        });
-        console.log("here")
-        setUsers(userList);
-        console.log("userList", userList);
       }
       fetchUsersNames();
-      // return () => { isMounted = false }
+      return () => { isMounted = false }
     }, [])
   );
+
+  const setUsersFunc = async (followersList) => {
+    if (followersList.length == 0) {
+      setUsers([]);
+      return;
+    }
+    const dbUsers = await db
+      .collection("users")
+      .where("uid", "in", followersList)
+      .get();
+
+    const userList = [];
+    dbUsers.forEach((user) => {
+      const userData = user.data();
+      userList.push(userData);
+    });
+    setUsers(userList);
+  }
 
   const onPressUser = (item) => {
     if (item.uid == firebase.auth().currentUser.uid) {
@@ -67,14 +66,13 @@ export default function Notifications({ navigation, route }) {
 
   const onPressAccept = (item) => {
     const myUid = firebase.auth().currentUser.uid;
-    const theirUid = item.uid;
     const myRef = firebase.firestore().collection("users").doc(myUid);
     const theirRef = firebase.firestore().collection("users").doc(item.uid);
-    const myRes = myRef.update({
+    myRef.update({
       followers: firebase.firestore.FieldValue.arrayUnion(item.uid),
       followerRequests: firebase.firestore.FieldValue.arrayRemove(item.uid),
     });
-    const theirRes = theirRef.update({
+    theirRef.update({
       following: firebase.firestore.FieldValue.arrayUnion(myUid),
       followingRequests: firebase.firestore.FieldValue.arrayRemove(myUid),
     });
@@ -82,13 +80,12 @@ export default function Notifications({ navigation, route }) {
 
   const onPressDecline = (item) => {
     const myUid = firebase.auth().currentUser.uid;
-    const theirUid = item.uid;
     const myRef = firebase.firestore().collection("users").doc(myUid);
     const theirRef = firebase.firestore().collection("users").doc(item.uid);
-    const myRes = myRef.update({
+    myRef.update({
       followerRequests: firebase.firestore.FieldValue.arrayRemove(item.uid),
     });
-    const theirRes = theirRef.update({
+    theirRef.update({
       followingRequests: firebase.firestore.FieldValue.arrayRemove(myUid),
     });
   };
