@@ -68,6 +68,14 @@ export default function PastTrips({ navigation, route }) {
   useFocusEffect(
     React.useCallback(() => {
       let isMounted = true;
+      const uid = firebase.auth().currentUser.uid;
+      const usersRef = firebase.firestore().collection("users");
+      usersRef.doc(uid).onSnapshot((userDoc) => {
+        if (userDoc.data()["followingRequests"].includes(item.uid)) {
+          setIsFollowingRequested(true);
+          setButtonText("Requested");
+        }
+      });
       loadPastTrips();
       getFriendUser();
     }, [])
