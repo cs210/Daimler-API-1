@@ -96,7 +96,7 @@ function Tabs() {
           tabBarLabel: "Notifications",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
-              name="notifications-none"
+              name="bell"
               color={color}
               size={size}
             />
