@@ -14,8 +14,8 @@ import uuidv4 from "uuid/v4";
 import * as firebase from "firebase";
 
 /**
- * This component displays a list of followers or those you are following
- * when a user clicks on followers or following from someone's profile.
+ * This component displays the notifications - currently the follow requests
+ * that someone has.
  */
 export default function Notifications({ navigation, route }) {
   const [users, setUsers] = useState([]);
