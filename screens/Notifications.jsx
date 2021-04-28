@@ -24,7 +24,7 @@ export default function Notifications({ navigation, route }) {
 
   useFocusEffect(
     React.useCallback(() => {
-      let isMounted = true;
+      // let isMounted = true;
 
       async function fetchUsersNames() {
         let uid = firebase.auth().currentUser.uid;
@@ -33,6 +33,7 @@ export default function Notifications({ navigation, route }) {
           setFollowerRequests(userDoc.data()["followerRequests"]);
         });
         console.log(followerRequests);
+
         if (followerRequests.length == 0) {
           setUsers([]);
           return;
@@ -52,7 +53,7 @@ export default function Notifications({ navigation, route }) {
         console.log("userList", userList);
       }
       fetchUsersNames();
-      return () => { isMounted = false }
+      // return () => { isMounted = false }
     }, [])
   );
 
