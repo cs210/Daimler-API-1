@@ -96,7 +96,7 @@ function Tabs() {
           tabBarLabel: "Notifications",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
-              name="circle-slice-8"
+              name="notifications-none"
               color={color}
               size={size}
             />

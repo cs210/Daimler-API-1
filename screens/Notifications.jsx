@@ -24,6 +24,8 @@ export default function Notifications({ navigation, route }) {
 
   useFocusEffect(
     React.useCallback(() => {
+      let isMounted = true;
+      
       async function fetchUsersNames() {
         let uid = firebase.auth().currentUser.uid;
         const usersRef = firebase.firestore().collection("users");
