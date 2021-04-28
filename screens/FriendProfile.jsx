@@ -27,9 +27,11 @@ export default function PastTrips({ navigation, route }) {
   const { item } = route.params;
   const [loading, setLoading] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowingRequested, setIsFollowingRequested] = useState(false);
   const [pastTrips, setPastTrips] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [buttonText, setButtonText] = useState("Follow");
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
     const parsedTrips = [];
@@ -46,6 +48,8 @@ export default function PastTrips({ navigation, route }) {
             parsedTrips.push(tripData);
           }
         });
+      } else if (userDoc.data()["followingRequests"].includes(item.uid)) {
+        setIsFollowingRequested(true);
       }
     });
     return parsedTrips;
@@ -63,6 +67,15 @@ export default function PastTrips({ navigation, route }) {
 
   useFocusEffect(
     React.useCallback(() => {
+      let isMounted = true;
+      const uid = firebase.auth().currentUser.uid;
+      const usersRef = firebase.firestore().collection("users");
+      usersRef.doc(uid).onSnapshot((userDoc) => {
+        if (userDoc.data()["followingRequests"].includes(item.uid)) {
+          setIsFollowingRequested(true);
+          setButtonText("Requested");
+        }
+      });
       loadPastTrips();
       getFriendUser();
     }, [])
@@ -74,21 +87,6 @@ export default function PastTrips({ navigation, route }) {
       setFollowers(userDoc.data()["followers"]);
       setFollowing(userDoc.data()["following"]);
     });
-  };
-
-  const onFollowUser = async () => {
-    const myUid = firebase.auth().currentUser.uid;
-    const myRef = firebase.firestore().collection("users").doc(myUid);
-    const theirRef = firebase.firestore().collection("users").doc(item.uid);
-    const myRes = myRef.update({
-      following: firebase.firestore.FieldValue.arrayUnion(item.uid),
-    });
-    const theirRes = theirRef.update({
-      followers: firebase.firestore.FieldValue.arrayUnion(myUid),
-    });
-    Promise.all([myRes, theirRes])
-      .then(() => setIsFollowing(true))
-      .catch((error) => alert(error));
   };
 
   const onUnfollowUser = async () => {
@@ -104,6 +102,35 @@ export default function PastTrips({ navigation, route }) {
     Promise.all([myRes, theirRes])
       .then(() => setIsFollowing(false))
       .catch((error) => alert(error));
+  };
+
+  const onRequestUser = async () => {
+    const myUid = firebase.auth().currentUser.uid;
+    const myRef = firebase.firestore().collection("users").doc(myUid);
+    const theirRef = firebase.firestore().collection("users").doc(item.uid);
+    if (buttonText == "Requested") {
+      const myRes = myRef.update({
+        followingRequests: firebase.firestore.FieldValue.arrayRemove(item.uid),
+      });
+      const theirRes = theirRef.update({
+        followerRequests: firebase.firestore.FieldValue.arrayRemove(myUid),
+      });
+      Promise.all([myRes, theirRes])
+        .then(() => setIsFollowingRequested(false))
+        .catch((error) => alert(error));
+      setButtonText("Follow");
+    } else {
+      const myRes = myRef.update({
+        followingRequests: firebase.firestore.FieldValue.arrayUnion(item.uid),
+      });
+      const theirRes = theirRef.update({
+        followerRequests: firebase.firestore.FieldValue.arrayUnion(myUid),
+      });
+      Promise.all([myRes, theirRes])
+        .then(() => setIsFollowingRequested(true))
+        .catch((error) => alert(error));
+      setButtonText("Requested");
+    }
   };
 
   const pastTripComponent = ({ item }) => {
@@ -160,10 +187,10 @@ export default function PastTrips({ navigation, route }) {
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
-            onPress={onFollowUser}
+            onPress={onRequestUser}
             style={[styles.button, { backgroundColor: "#00A398" }]}
           >
-            <Text style={styles.buttonText}>Follow</Text>
+            <Text style={styles.buttonText}>{buttonText}</Text>
           </TouchableOpacity>
         )}
       </View>

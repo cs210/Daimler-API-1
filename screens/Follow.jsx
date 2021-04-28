@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// import { useFocusEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 
 import {
@@ -39,7 +38,6 @@ export default function Followers({ navigation, route }) {
           userList.push(userData);
         });
         setUsers(userList);
-        console.log("userList", userList);
       }
       fetchUsersNames();
     }, [follow])
