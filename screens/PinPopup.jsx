@@ -2,10 +2,12 @@ import * as ImagePicker from "expo-image-picker";
 
 import {
   Image,
+  ImageBackground,
   Modal,
   StyleSheet,
   Text,
   TextInput,
+  TouchableHighlight,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -37,6 +39,13 @@ export default function PinPopup(props) {
       setPinPhotos(updatedPhotos);
     }
   };
+
+  const deletePhoto = (photoToDelete) => {
+    var newPins = pinPhotos;
+    newPins.splice(photoToDelete, 1);
+    setPinPhotos(newPins);
+  };
+
   return (
     <View style={styles.centeredView}>
       <Modal animationType="slide" transparent={true}>
@@ -75,11 +84,20 @@ export default function PinPopup(props) {
             >
               <ScrollView horizontal={true}>
                 {pinPhotos.map((photo, i) => (
-                  <Image
+                  <ImageBackground
                     key={photo.key}
                     source={{ uri: photo.uri }}
-                    style={{ width: 200, height: 200, margin: 5 }}
-                  />
+                    style={styles.photos}
+                  >
+                    <TouchableHighlight
+                      onPress={() => deletePhoto(props.pin, i)}
+                    >
+                      <Image
+                        source={require("../assets/close-button.png")}
+                        style={styles.deletePhoto}
+                      />
+                    </TouchableHighlight>
+                  </ImageBackground>
                 ))}
               </ScrollView>
               <TouchableOpacity
@@ -184,5 +202,15 @@ const styles = StyleSheet.create({
     height: 30,
     marginLeft: 250,
     marginBottom: 20,
+  },
+  deletePhoto: {
+    width: 30,
+    height: 30,
+  },
+  photos: {
+    width: 200,
+    height: 200,
+    margin: 5,
+    alignItems: "flex-end",
   },
 });

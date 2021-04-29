@@ -51,16 +51,16 @@ export const tripViewComponent = (pins, region, coords) => {
             <View>
               <Text>{marker.title}</Text>
               <Text>{marker.description}</Text>
-              <ScrollView horizontal={true}>
+              <View style={{ flexDirection: "row" }}>
                 {marker.photos &&
                   marker.photos.map((photo) => (
                     <Image
                       key={photo.key}
                       source={{ uri: photo.uri }}
-                      style={{ width: 200, height: 200, margin: 5 }}
+                      style={{ width: 150, height: 150, margin: 5 }}
                     />
                   ))}
-              </ScrollView>
+              </View>
             </View>
           </MapView.Callout>
         </Marker>
