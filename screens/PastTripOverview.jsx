@@ -33,9 +33,10 @@ export default function PastTripOverview({ navigation, route }) {
   useFocusEffect(
     React.useCallback(() => {
       const myUid = firebase.auth().currentUser.uid;
-      setIsFriendTrip(myUid !=  route.params.uid);
+      setIsFriendTrip(myUid != route.params.uid);
       // console.log("route.params", route.params.uid);
-    }));
+    })
+  );
 
   const onDeleteTrip = () => {
     db.collection("trips")
@@ -94,22 +95,24 @@ export default function PastTripOverview({ navigation, route }) {
         <>
           <View style={styles.row}>
             <Text style={styles.header}> {tripTitle} </Text>
-            {!isFriendTrip && <Menu>
-              <MenuTrigger>
-                <Text>
-                  <MaterialCommunityIcons
-                    style={styles.icon}
-                    name="dots-horizontal"
-                    color={"#808080"}
-                    size={26}
-                  />
-                </Text>
-              </MenuTrigger>
-              <MenuOptions>
-                <MenuOption onSelect={onDeleteTrip} text="Delete trip" />
-                <MenuOption onSelect={onEditTrip} text="Edit trip" />
-              </MenuOptions>
-            </Menu>}
+            {!isFriendTrip && (
+              <Menu>
+                <MenuTrigger>
+                  <Text>
+                    <MaterialCommunityIcons
+                      style={styles.icon}
+                      name="dots-horizontal"
+                      color={"#808080"}
+                      size={26}
+                    />
+                  </Text>
+                </MenuTrigger>
+                <MenuOptions>
+                  <MenuOption onSelect={onDeleteTrip} text="Delete trip" />
+                  <MenuOption onSelect={onEditTrip} text="Edit trip" />
+                </MenuOptions>
+              </Menu>
+            )}
           </View>
           <Text style={styles.date}>
             {" "}
