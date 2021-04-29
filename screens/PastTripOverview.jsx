@@ -6,7 +6,7 @@ import {
   View,
   Dimensions,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import moment from "moment";
 import {
   Menu,
@@ -19,6 +19,8 @@ import { ScrollView } from "react-native-gesture-handler";
 import { findRegion, tripViewComponent } from "./TripViewer";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import db from "../firebase";
+import * as firebase from "firebase";
+import { useFocusEffect } from "@react-navigation/native";
 
 /**
  * This component shows an overview of the trip such as a list of pins and a map
@@ -26,6 +28,14 @@ import db from "../firebase";
  */
 export default function PastTripOverview({ navigation, route }) {
   const { pins, tripTitle, time, coordinates, id } = route.params;
+  const [isFriendTrip, setIsFriendTrip] = useState(true);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const myUid = firebase.auth().currentUser.uid;
+      setIsFriendTrip(myUid !=  route.params.uid);
+      // console.log("route.params", route.params.uid);
+    }));
 
   const onDeleteTrip = () => {
     db.collection("trips")
@@ -84,7 +94,7 @@ export default function PastTripOverview({ navigation, route }) {
         <>
           <View style={styles.row}>
             <Text style={styles.header}> {tripTitle} </Text>
-            <Menu>
+            {!isFriendTrip && <Menu>
               <MenuTrigger>
                 <Text>
                   <MaterialCommunityIcons
@@ -99,7 +109,7 @@ export default function PastTripOverview({ navigation, route }) {
                 <MenuOption onSelect={onDeleteTrip} text="Delete trip" />
                 <MenuOption onSelect={onEditTrip} text="Edit trip" />
               </MenuOptions>
-            </Menu>
+            </Menu>}
           </View>
           <Text style={styles.date}>
             {" "}
