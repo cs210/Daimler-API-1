@@ -105,6 +105,10 @@ export default function Profile({ navigation }) {
             item.coordinates
           )}
         </View>
+        <View style={styles.likes}>
+          {item.likes == null && <Text> {item.likes} 0 likes </Text>}
+          {item.likes != null && <Text> {item.likes.length} likes </Text>}
+        </View>
       </TouchableOpacity>
     );
   };
@@ -213,4 +217,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     alignSelf: "center",
   },
+  likes: {
+    paddingBottom: 13
+  }
 });
