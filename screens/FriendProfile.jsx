@@ -51,17 +51,18 @@ export default function PastTrips({ navigation, route }) {
       } else if (userDoc.data()["followingRequests"].includes(item.uid)) {
         setIsFollowingRequested(true);
       }
+      if (parsedTrips.length != pastTrips.length) {
+        // Could potentially add more rigorous check than length
+        setPastTrips(parsedTrips);
+      }
     });
-    return parsedTrips;
   };
 
   const loadPastTrips = async () => {
     setLoading(true);
-    setPastTrips([]);
     const collRef = db.collection("trips");
     const tripsFromDatabase = await collRef.orderBy("time", "desc").get();
-    const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
-    setPastTrips(parsedTrips);
+    parseTripsFromDatabase(tripsFromDatabase);
     setLoading(false);
   };
 
@@ -78,7 +79,7 @@ export default function PastTrips({ navigation, route }) {
       });
       loadPastTrips();
       getFriendUser();
-    }, [])
+    }, [pastTrips])
   );
 
   const getFriendUser = () => {
