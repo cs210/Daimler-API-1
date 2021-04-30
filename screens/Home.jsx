@@ -109,7 +109,7 @@ export default function Home({ navigation }) {
       const tripRef = await db.collection("trips").doc(item.id);
       if (item.likes.includes(myUid)) {
         tripRef.update({
-          likes: firebase.firestore.FieldValue.arrayRemove(myUid)
+          likes: firebase.firestore.FieldValue.arrayRemove(myUid),
         });
         const index = item.likes.indexOf(myUid);
         if (index > -1) {
@@ -118,14 +118,14 @@ export default function Home({ navigation }) {
       } else {
         item.likes.push(myUid);
         tripRef.update({
-          likes: firebase.firestore.FieldValue.arrayUnion(myUid)
-      });
+          likes: firebase.firestore.FieldValue.arrayUnion(myUid),
+        });
       }
       const newLikesUsers = { ...likesUsers, [item.id]: item.likes };
-      setLikesUsers(newLikesUsers); 
+      setLikesUsers(newLikesUsers);
       // There is probably a way around likesUsers - used this to get rereneder to occur
     }
-  }
+  };
 
   const pastTripComponent = ({ item }) => {
     return (
@@ -159,20 +159,30 @@ export default function Home({ navigation }) {
               borderBottomWidth: 1,
             }}
           />
-          {item.likes != null && item.likes.includes(myUid) && <MaterialCommunityIcons
-            style={styles.icon}
-            name="thumb-up-outline"
-            color={"#00A398"}
-            size={25}
-            onPress={() => onUserLike(item)}
-          />}
-          {item.likes != null && !item.likes.includes(myUid) && <MaterialCommunityIcons
-            style={styles.icon}
-            name="thumb-up-outline"
-            color={"#808080"}
-            size={25}
-            onPress={() => onUserLike(item)}
-          />}
+          {item.likes != null && item.likes.includes(myUid) && (
+            <TouchableOpacity onPress={() => onUserLike(item)}>
+              <View style={{ padding: 10 }}>
+                <MaterialCommunityIcons
+                  style={styles.icon}
+                  name="thumb-up-outline"
+                  color={"#00A398"}
+                  size={25}
+                />
+              </View>
+            </TouchableOpacity>
+          )}
+          {item.likes != null && !item.likes.includes(myUid) && (
+            <TouchableOpacity onPress={() => onUserLike(item)}>
+              <View style={{ padding: 10 }}>
+                <MaterialCommunityIcons
+                  style={styles.icon}
+                  name="thumb-up-outline"
+                  color={"#808080"}
+                  size={25}
+                />
+              </View>
+            </TouchableOpacity>
+          )}
         </TouchableOpacity>
       </View>
     );
