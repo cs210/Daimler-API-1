@@ -161,7 +161,7 @@ export default function Home({ navigation }) {
           />
           {item.likes != null && item.likes.includes(myUid) && (
             <TouchableOpacity onPress={() => onUserLike(item)}>
-              <View style={{ padding: 10 }}>
+              <View>
                 <MaterialCommunityIcons
                   style={styles.icon}
                   name="thumb-up-outline"
@@ -173,7 +173,7 @@ export default function Home({ navigation }) {
           )}
           {item.likes != null && !item.likes.includes(myUid) && (
             <TouchableOpacity onPress={() => onUserLike(item)}>
-              <View style={{ padding: 10 }}>
+              <View>
                 <MaterialCommunityIcons
                   style={styles.icon}
                   name="thumb-up-outline"

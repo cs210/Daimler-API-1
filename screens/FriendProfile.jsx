@@ -16,6 +16,7 @@ import { findRegion, tripViewComponent } from "./TripViewer";
 import db from "../firebase";
 import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 /**
  * This component shows a profile which includes the number of followers
@@ -32,6 +33,8 @@ export default function PastTrips({ navigation, route }) {
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
   const [buttonText, setButtonText] = useState("Follow");
+  const [likesUsers, setLikesUsers] = useState({});
+  const myUid = firebase.auth().currentUser.uid;
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
     const parsedTrips = [];
@@ -134,6 +137,30 @@ export default function PastTrips({ navigation, route }) {
     }
   };
 
+  const onUserLike = async (item) => {
+    if (item.likes != null && item.uid != myUid) {
+      // Check to make sure it's not your own post
+      const tripRef = await db.collection("trips").doc(item.id);
+      if (item.likes.includes(myUid)) {
+        tripRef.update({
+          likes: firebase.firestore.FieldValue.arrayRemove(myUid),
+        });
+        const index = item.likes.indexOf(myUid);
+        if (index > -1) {
+          item.likes.splice(index, 1);
+        }
+      } else {
+        item.likes.push(myUid);
+        tripRef.update({
+          likes: firebase.firestore.FieldValue.arrayUnion(myUid),
+        });
+      }
+      const newLikesUsers = { ...likesUsers, [item.id]: item.likes };
+      setLikesUsers(newLikesUsers);
+      // There is probably a way around likesUsers - used this to get rereneder to occur
+    }
+  };
+
   const pastTripComponent = ({ item }) => {
     return (
       <TouchableOpacity
@@ -151,6 +178,41 @@ export default function PastTrips({ navigation, route }) {
             item.coordinates
           )}
         </View>
+        <View>
+          {item.likes == null && <Text> {item.likes} 0 likes </Text>}
+          {item.likes != null && <Text> {item.likes.length} likes </Text>}
+        </View>
+        <View
+          style={{
+            paddingTop: 10,
+            borderBottomColor: "lightgray",
+            borderBottomWidth: 1,
+          }}
+        />
+        {item.likes != null && item.likes.includes(myUid) && (
+          <TouchableOpacity onPress={() => onUserLike(item)}>
+            <View>
+              <MaterialCommunityIcons
+                style={styles.icon}
+                name="thumb-up-outline"
+                color={"#00A398"}
+                size={25}
+              />
+            </View>
+          </TouchableOpacity>
+        )}
+        {item.likes != null && !item.likes.includes(myUid) && (
+          <TouchableOpacity onPress={() => onUserLike(item)}>
+            <View>
+              <MaterialCommunityIcons
+                style={styles.icon}
+                name="thumb-up-outline"
+                color={"#808080"}
+                size={25}
+              />
+            </View>
+          </TouchableOpacity>
+        )}
       </TouchableOpacity>
     );
   };
@@ -301,5 +363,9 @@ const styles = StyleSheet.create({
   noTripText: {
     fontSize: 15,
     alignSelf: "center",
+  },
+  icon: {
+    alignSelf: "center",
+    marginVertical: 10,
   },
 });
