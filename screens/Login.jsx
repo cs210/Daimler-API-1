@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
 		backgroundColor: "#00A398",
 		borderColor: "#00A398",
 		borderWidth: 1,
-		borderRadius: 5,
+    borderRadius: 18,
     width: "90%",
 	},
 	loginButtonText: {
