@@ -29,12 +29,19 @@ import { useFocusEffect } from "@react-navigation/native";
 export default function PastTripOverview({ navigation, route }) {
   const { pins, tripTitle, time, coordinates, id } = route.params;
   const [isFriendTrip, setIsFriendTrip] = useState(true);
+  const [tripUser, setTripUser] = useState("");
 
   useFocusEffect(
     React.useCallback(() => {
       const myUid = firebase.auth().currentUser.uid;
       setIsFriendTrip(myUid != route.params.uid);
-      // console.log("route.params", route.params.uid);
+      async function fetchUserName() {
+        const user = await db.collection("users")
+        .doc(route.params.uid)
+        .get();
+        setTripUser(user.data()["displayName"]);
+      }
+      fetchUserName();
     })
   );
 
@@ -94,7 +101,7 @@ export default function PastTripOverview({ navigation, route }) {
       ListHeaderComponent={
         <>
           <View style={styles.row}>
-            <Text style={styles.header}> {tripTitle} </Text>
+          <Text style={styles.name}> By: {tripUser} </Text>
             {!isFriendTrip && (
               <Menu>
                 <MenuTrigger>
@@ -114,6 +121,8 @@ export default function PastTripOverview({ navigation, route }) {
               </Menu>
             )}
           </View>
+          <Text style={styles.header}> {tripTitle} </Text>
+
           <Text style={styles.date}>
             {" "}
             {moment(time, moment.ISO_8601).format("LLL")}
@@ -146,6 +155,12 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 30,
     fontWeight: "bold",
+    padding: 10,
+    paddingBottom: 0,
+    width: 370,
+  },
+  name: {
+    fontSize: 16,
     padding: 10,
     paddingBottom: 0,
     width: 370,

@@ -139,7 +139,7 @@ export default function Home({ navigation }) {
               <Text style={styles.tripName}>{item.tripTitle}</Text>
               <Text>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
             </View>
-            <Text>by {item.usersName}</Text>
+            <Text>By: {item.usersName}</Text>
           </View>
           <View style={styles.tripCard}>
             {tripViewComponent(
