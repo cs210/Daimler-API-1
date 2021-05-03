@@ -33,6 +33,9 @@ export default function Notifications({ navigation, route }) {
           setUsersFunc(userDoc.data()["followerRequests"]);
         });
       }
+      async function fetchLikes() {
+        
+      }
       fetchUsersNames();
       return () => { isMounted = false }
     }, [])

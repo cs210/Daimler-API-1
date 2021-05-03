@@ -94,7 +94,6 @@ export default function PastTrips({ navigation, route }) {
   };
 
   const onUnfollowUser = async () => {
-    const myUid = firebase.auth().currentUser.uid;
     const myRef = firebase.firestore().collection("users").doc(myUid);
     const theirRef = firebase.firestore().collection("users").doc(item.uid);
     const myRes = myRef.update({
@@ -109,7 +108,6 @@ export default function PastTrips({ navigation, route }) {
   };
 
   const onRequestUser = async () => {
-    const myUid = firebase.auth().currentUser.uid;
     const myRef = firebase.firestore().collection("users").doc(myUid);
     const theirRef = firebase.firestore().collection("users").doc(item.uid);
     if (buttonText == "Requested") {
@@ -222,13 +220,17 @@ export default function PastTrips({ navigation, route }) {
   };
 
   const onPressFollowers = () => {
-    const data = { follow: followers, isFollowers: true };
-    navigation.navigate("Follow", data);
+    if (followers.includes(myUid)) {
+      const data = { follow: followers, isFollowers: true };
+      navigation.navigate("Follow", data);
+    }
   };
 
   const onPressFollowing = () => {
-    const data = { follow: following, isFollowers: false };
-    navigation.navigate("Follow", data);
+    if (followers.includes(myUid)) {
+      const data = { follow: following, isFollowers: false };
+      navigation.navigate("Follow", data);
+    }
   };
 
   return (
