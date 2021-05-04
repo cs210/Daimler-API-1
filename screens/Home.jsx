@@ -228,7 +228,7 @@ export default function Home({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>Road Trip Buddy</Text>
+      {/* <Text style={styles.header}>Road Trip Buddy</Text> */}
       {isLoading ? (
         <ActivityIndicator style={styles.activityIndicator} size={"large"} />
       ) : (

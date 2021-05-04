@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 35,
-    color: "#00A398",
+    // color: "#00A398",
     fontWeight: "bold",
     margin: 15,
     width: 300,
@@ -182,9 +182,11 @@ const styles = StyleSheet.create({
   follow: {
     fontSize: 15,
     fontWeight: "bold",
+    // color: "#00A398",
     margin: 15,
   },
   header: {
+    color: "#00A398",
     fontSize: 24,
     margin: 15,
     fontWeight: "bold",
