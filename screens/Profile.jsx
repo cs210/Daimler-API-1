@@ -1,9 +1,11 @@
+import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase";
 
 import {
   ActivityIndicator,
   Dimensions,
   FlatList,
+  Image,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -15,6 +17,7 @@ import { findRegion, tripViewComponent } from "./TripViewer";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import db from "../firebase";
+import { getImageUrl } from "./TripOverview";
 import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -29,6 +32,7 @@ export default function Profile({ navigation }) {
   const [pastTrips, setPastTrips] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [profilePicture, setProfilePicture] = useState(null);
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
     const parsedTrips = [];
@@ -68,6 +72,9 @@ export default function Profile({ navigation }) {
     const unsubscribe = usersRef.doc(uid).onSnapshot((userDoc) => {
       setFollowers(userDoc.data()["followers"]);
       setFollowing(userDoc.data()["following"]);
+      if ("profilePicture" in userDoc.data()) {
+        setProfilePicture(userDoc.data()["profilePicture"]);
+      }
     });
     return unsubscribe;
   };
@@ -90,6 +97,25 @@ export default function Profile({ navigation }) {
     navigation.navigate("Follow", data);
   };
 
+  const addProfilePicture = async () => {
+    const userRef = await db
+      .collection("users")
+      .doc(firebase.auth().currentUser.uid);
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      base64: true,
+      quality: 0,
+    });
+    if (!result.cancelled) {
+      getImageUrl(result.uri).then((url) => {
+        userRef.update({
+          profilePicture: url,
+        });
+      });
+    }
+  };
+
   const pastTripComponent = ({ item }) => {
     return (
       <TouchableOpacity
@@ -98,7 +124,7 @@ export default function Profile({ navigation }) {
       >
         <View style={styles.cardHeader}>
           <Text style={styles.tripName}>{item.tripTitle}</Text>
-          <Text>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
+          <Text style={styles.time}>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
         </View>
         <View style={styles.tripCard}>
           {tripViewComponent(
@@ -109,8 +135,12 @@ export default function Profile({ navigation }) {
         </View>
         <View style={styles.likes}>
           {item.likes == null && <Text> {item.likes} 0 likes </Text>}
-          {item.likes != null && item.likes.length != 1 && <Text> {item.likes.length} likes </Text>}
-          {item.likes != null && item.likes.length == 1 && <Text> {item.likes.length} like </Text>}
+          {item.likes != null && item.likes.length != 1 && (
+            <Text> {item.likes.length} likes </Text>
+          )}
+          {item.likes != null && item.likes.length == 1 && (
+            <Text> {item.likes.length} like </Text>
+          )}
         </View>
       </TouchableOpacity>
     );
@@ -123,14 +153,28 @@ export default function Profile({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.spaceBetweenRow}>
+        {profilePicture ? (
+          <TouchableOpacity onPress={addProfilePicture}>
+            <Image style={styles.profilePic} source={{ uri: profilePicture }} />
+          </TouchableOpacity>
+        ) : (
+          <MaterialCommunityIcons
+            style={styles.profileIcon}
+            name="account-circle"
+            color={"#808080"}
+            size={100}
+            onPress={addProfilePicture}
+          />
+        )}
+
         <Text style={styles.name}>
           {firebase.auth().currentUser.displayName}
         </Text>
         <MaterialCommunityIcons
-          style={styles.icon}
+          style={styles.settingsIcon}
           name="account-cog"
           color={"#808080"}
-          size={34}
+          size={30}
           onPress={() => navigation.navigate("Settings")}
         />
       </View>
@@ -169,16 +213,30 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
   },
-  icon: {
-    marginRight: 8,
+  settingsIcon: {
+    // marginRight: 20,
+    paddingRight: 10,
     marginTop: 15,
   },
+  profileIcon: {
+    margin: 10,
+  },
+  profilePic: {
+    width: 100,
+    height: 100,
+    margin: 10,
+    borderRadius: 50,
+  },
   name: {
-    fontSize: 35,
+    fontSize: 28,
     // color: "#00A398",
     fontWeight: "bold",
-    margin: 15,
-    width: 300,
+    marginTop: 45,
+    width: 250,
+  },
+  time: {
+    color: "#A9A9A9",
+    paddingLeft: 4,
   },
   follow: {
     fontSize: 15,
@@ -223,7 +281,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   likes: {
-    paddingBottom: 13
+    paddingBottom: 13,
   },
   activityIndicator: {
     margin: 50,
