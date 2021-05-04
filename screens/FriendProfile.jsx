@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 35,
-    color: "#8275BD",
+    color: "#00A398",
     fontWeight: "bold",
     margin: 15,
   },
