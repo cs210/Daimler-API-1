@@ -154,7 +154,9 @@ export default function Profile({ navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.spaceBetweenRow}>
         {profilePicture ? (
-          <Image style={styles.profilePic} source={{ uri: profilePicture }} />
+          <TouchableOpacity onPress={addProfilePicture}>
+            <Image style={styles.profilePic} source={{ uri: profilePicture }} />
+          </TouchableOpacity>
         ) : (
           <MaterialCommunityIcons
             style={styles.profileIcon}
