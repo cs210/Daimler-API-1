@@ -122,6 +122,7 @@ export default function SearchScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#fff",
   },
   searchBarStyle: {
     backgroundColor: "transparent",
