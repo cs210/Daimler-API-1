@@ -178,8 +178,8 @@ export default function Home({ navigation }) {
             )}
           </View>
           <View>
-            {item.likes == null && <Text> {item.likes} 0 likes </Text>}
-            {item.likes != null && <Text> {item.likes.length} likes </Text>}
+            {item.likes == null && <Text onPress={() => navigation.navigate("Likes", item.likes)}> {item.likes} 0 likes </Text>}
+            {item.likes != null && <Text onPress={() => navigation.navigate("Likes", item.likes)}> {item.likes.length} likes </Text>}
           </View>
           <View
             style={{

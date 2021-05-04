@@ -20,6 +20,7 @@ import Settings from "./screens/Settings";
 import Notifications from "./screens/Notifications";
 import PastTripOverview from "./screens/PastTripOverview";
 import Follow from "./screens/Follow";
+import Likes from "./screens/Likes";
 import { MenuProvider } from "react-native-popup-menu";
 import FriendProfile from "./screens/FriendProfile";
 
@@ -167,6 +168,7 @@ const App = () => {
             <Stack.Screen name="Past Trip" component={PastTripOverview} />
             <Stack.Screen name="Friend Profile" component={FriendProfile} />
             <Stack.Screen name="Follow" component={Follow} />
+            <Stack.Screen name="Likes" component={Likes} />
           </Stack.Navigator>
         ) : (
           <Stack.Navigator>
