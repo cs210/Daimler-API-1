@@ -124,7 +124,7 @@ export default function Profile({ navigation }) {
       >
         <View style={styles.cardHeader}>
           <Text style={styles.tripName}>{item.tripTitle}</Text>
-          <Text>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
+          <Text style={styles.time}>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
         </View>
         <View style={styles.tripCard}>
           {tripViewComponent(
@@ -228,11 +228,15 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   name: {
-    fontSize: 35,
+    fontSize: 28,
     // color: "#00A398",
     fontWeight: "bold",
-    marginTop: 30,
+    marginTop: 45,
     width: 250,
+  },
+  time: {
+    color: "#A9A9A9",
+    paddingLeft: 4,
   },
   follow: {
     fontSize: 15,
