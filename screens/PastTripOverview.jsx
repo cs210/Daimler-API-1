@@ -101,7 +101,7 @@ export default function PastTripOverview({ navigation, route }) {
       ListHeaderComponent={
         <>
           <View style={styles.row}>
-          <Text style={styles.name}> By: {tripUser} </Text>
+            <Text style={styles.name}> By: {tripUser} </Text>
             {!isFriendTrip && (
               <Menu>
                 <MenuTrigger>
@@ -157,13 +157,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     padding: 10,
     paddingBottom: 0,
-    width: 370,
+    width: Dimensions.get("window").width * 0.9,
   },
   name: {
     fontSize: 16,
     padding: 10,
     paddingBottom: 0,
-    width: 370,
+    width: Dimensions.get("window").width * 0.9,
   },
   icon: {
     marginLeft: 50,

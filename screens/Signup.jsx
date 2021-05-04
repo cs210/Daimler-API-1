@@ -35,12 +35,13 @@ export default function Signup({ navigation }) {
           followers: [],
           following: [],
           followerRequests: [],
-          followingRequests: []
+          followingRequests: [],
+          openAppTimestamps: [],
+          hasDoneNPS: false,
         }
         db.collection("users")
           .doc(userCred.user.uid)
           .set(user);
-        navigation.navigate("Home")
       }).catch((error) => {
         alert(error);
       });
@@ -48,7 +49,6 @@ export default function Signup({ navigation }) {
 
   const onPressSignUp = () => {
     handleSignUp();
-    navigation.navigate("Road Trip Buddy", { screen: "Home" });
   }
 
   return (

@@ -15,23 +15,31 @@ import db from "../firebase";
 import moment from "moment";
 import { findRegion, tripViewComponent } from "./TripViewer";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { NativeFormsModal } from "native-forms";
 
 export default function Home({ navigation }) {
-  const [feedItems, setFeedItems] = useState(["asdasd"]);
+  const [feedItems, setFeedItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [likesUsers, setLikesUsers] = useState({});
+  const [showNPSForm, setShowNPSForm] = useState(false);
   const myUid = firebase.auth().currentUser.uid;
 
   useEffect(() => {
-    loadFeedTrips();
+    logOpenAppEvent();
+    loadData();
   }, []);
 
-  const loadFeedTrips = async () => {
+  const loadData = async () => {
     setIsLoading(true);
+    await loadFeedTrips();
+    await loadNPSForm();
+    setIsLoading(false);
+  };
+
+  const loadFeedTrips = async () => {
     setFeedItems([]);
     const feedTrips = await parseTripsForFeed();
     setFeedItems(feedTrips);
-    setIsLoading(false);
   };
 
   const parseTripsForFeed = async () => {
@@ -56,7 +64,6 @@ export default function Home({ navigation }) {
   };
 
   const fetchMyFollowing = async () => {
-    const myUid = firebase.auth().currentUser.uid;
     const userDoc = await db.collection("users").doc(myUid).get();
     const followedUserIds = userDoc.data()["following"];
     followedUserIds.push(myUid);
@@ -101,6 +108,28 @@ export default function Home({ navigation }) {
       });
     }
     return userIdToName;
+  };
+
+  const loadNPSForm = async () => {
+    const userDoc = await db.collection("users").doc(myUid).get();
+    const userData = userDoc.data();
+    const hasOpenedAppManyTimes = userData["openAppTimestamps"].length > 4;
+    const shouldSeeNPS = hasOpenedAppManyTimes && !userData["hasDoneNPS"];
+    setShowNPSForm(shouldSeeNPS);
+  };
+
+  const logOpenAppEvent = () => {
+    const timestamp = new Date().toISOString();
+    const userRef = db.collection("users").doc(myUid);
+    userRef.update({
+      openAppTimestamps: firebase.firestore.FieldValue.arrayUnion(timestamp)
+    });
+  };
+
+  const onSendNPSForm = () => {
+    const userRef = db.collection("users").doc(myUid);
+    userRef.update({ hasDoneNPS: true });
+    setTimeout(() => setShowNPSForm(false), 1500);
   };
 
   const onUserLike = async (item) => {
@@ -201,16 +230,24 @@ export default function Home({ navigation }) {
     <SafeAreaView style={styles.container}>
       <Text style={styles.header}>Road Trip Buddy</Text>
       {isLoading ? (
-        <ActivityIndicator />
+        <ActivityIndicator style={styles.activityIndicator} size={"large"} />
       ) : (
-        <FlatList
-          data={feedItems}
-          renderItem={pastTripComponent}
-          ListEmptyComponent={noTripsComponent}
-          refreshControl={
-            <RefreshControl refreshing={isLoading} onRefresh={loadFeedTrips} />
-          }
-        />
+        <View>
+          <NativeFormsModal
+            visible={showNPSForm}
+            form="https://my.nativeforms.com/gmUDFHZu1jZmcWTuhVQE1Db"
+            onClose={() => setShowNPSForm(false)}
+            onSend={onSendNPSForm}
+          />
+          <FlatList
+            data={feedItems}
+            renderItem={pastTripComponent}
+            ListEmptyComponent={noTripsComponent}
+            refreshControl={
+              <RefreshControl refreshing={isLoading} onRefresh={loadFeedTrips} />
+            }
+          />
+        </View>
       )}
     </SafeAreaView>
   );
@@ -266,5 +303,8 @@ const styles = StyleSheet.create({
   icon: {
     alignSelf: "center",
     marginVertical: 10,
+  },
+  activityIndicator: {
+    margin: 50,
   },
 });
