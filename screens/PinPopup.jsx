@@ -30,7 +30,7 @@ export default function PinPopup(props) {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       base64: true,
-      quality: 1,
+      quality: 0,
     });
     if (!result.cancelled) {
       const updatedPhotos = pinPhotos.concat([
