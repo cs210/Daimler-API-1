@@ -122,7 +122,7 @@ export default function Home({ navigation }) {
     const timestamp = new Date().toISOString();
     const userRef = db.collection("users").doc(myUid);
     userRef.update({
-      openAppTimestamps: firebase.firestore.FieldValue.arrayUnion(timestamp)
+      openAppTimestamps: firebase.firestore.FieldValue.arrayUnion(timestamp),
     });
   };
 
@@ -166,7 +166,10 @@ export default function Home({ navigation }) {
           <View style={styles.cardHeader}>
             <View style={styles.row}>
               <Text style={styles.tripName}>{item.tripTitle}</Text>
-              <Text style={styles.time}> {moment(item.time, moment.ISO_8601).format("LLL")}</Text>
+              <Text style={styles.time}>
+                {" "}
+                {moment(item.time, moment.ISO_8601).format("LLL")}
+              </Text>
             </View>
             <Text>By: {item.usersName}</Text>
           </View>
@@ -178,9 +181,24 @@ export default function Home({ navigation }) {
             )}
           </View>
           <View>
-            {item.likes == null && <Text> {item.likes} 0 likes </Text>}
-            {item.likes != null && item.likes.length != 1 && <Text> {item.likes.length} likes </Text>}
-            {item.likes != null && item.likes.length == 1 && <Text> {item.likes.length} like </Text>}
+            {item.likes == null && (
+              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
+                {" "}
+                {item.likes} 0 likes{" "}
+              </Text>
+            )}
+            {item.likes != null && item.likes.length != 1 && (
+              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
+                {" "}
+                {item.likes.length} likes{" "}
+              </Text>
+            )}
+            {item.likes != null && item.likes.length == 1 && (
+              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
+                {" "}
+                {item.likes.length} like{" "}
+              </Text>
+            )}
           </View>
           <View
             style={{
@@ -231,7 +249,7 @@ export default function Home({ navigation }) {
     setIsLoading(true);
     await loadFeedTrips();
     setIsLoading(false);
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -250,7 +268,10 @@ export default function Home({ navigation }) {
             renderItem={pastTripComponent}
             ListEmptyComponent={noTripsComponent}
             refreshControl={
-              <RefreshControl refreshing={isLoading} onRefresh={refreshFeedTrips} />
+              <RefreshControl
+                refreshing={isLoading}
+                onRefresh={refreshFeedTrips}
+              />
             }
           />
         </View>
