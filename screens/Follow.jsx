@@ -99,6 +99,7 @@ export default function Followers({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#fff",
   },
   peopleView: {
     flex: 10,

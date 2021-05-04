@@ -148,6 +148,7 @@ export default function Notifications({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#fff",
   },
   buttonAccept: {
       backgroundColor: 'rgba(118, 166, 239, 0.4)',
