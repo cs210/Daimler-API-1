@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingLeft: 2,
     paddingBottom: 0,
-    width: Dimensions.get("window").width * 0.9,
+    width: Dimensions.get("window").width * 0.75,
   },
   icon: {
     marginLeft: 50,
