@@ -259,7 +259,7 @@ export default function PastTrips({ navigation, route }) {
       </View>
       <Text style={styles.header}>Past Trips</Text>
       {loading ? (
-        <ActivityIndicator />
+        <ActivityIndicator style={styles.activityIndicator} size={"large"} />
       ) : isFollowing ? (
         <FlatList
           data={pastTrips}
@@ -361,11 +361,14 @@ const styles = StyleSheet.create({
     color: "white",
   },
   noTripText: {
-    fontSize: 15,
+    fontSize: 16,
     alignSelf: "center",
   },
   icon: {
     alignSelf: "center",
     marginVertical: 10,
+  },
+  activityIndicator: {
+    margin: 50,
   },
 });
