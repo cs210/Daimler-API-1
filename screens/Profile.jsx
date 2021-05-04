@@ -109,7 +109,8 @@ export default function Profile({ navigation }) {
         </View>
         <View style={styles.likes}>
           {item.likes == null && <Text> {item.likes} 0 likes </Text>}
-          {item.likes != null && <Text> {item.likes.length} likes </Text>}
+          {item.likes != null && item.likes.length != 1 && <Text> {item.likes.length} likes </Text>}
+          {item.likes != null && item.likes.length == 1 && <Text> {item.likes.length} like </Text>}
         </View>
       </TouchableOpacity>
     );
