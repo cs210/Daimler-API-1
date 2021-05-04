@@ -1,17 +1,19 @@
-import React, { useState } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import * as firebase from "firebase";
 
 import {
   FlatList,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import React, { useState } from "react";
 
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import db from "../firebase";
+import { useFocusEffect } from "@react-navigation/native";
 import uuidv4 from "uuid/v4";
-import * as firebase from "firebase";
 
 /**
  * This component displays a list of followers or those you are following
@@ -19,8 +21,23 @@ import * as firebase from "firebase";
  */
 export default function Followers({ navigation, route }) {
   const [users, setUsers] = useState([]);
-  const follow = route.params["follow"];
+  const [friendsPic, setFriendsPic] = useState({});
 
+  const follow = route.params["follow"];
+  useFocusEffect(
+    React.useCallback(() => {
+      async function fetchUsersPics() {
+        const dbUsers = await db.collection("users").get();
+        userPicDict = {};
+        dbUsers.forEach((user) => {
+          const userData = user.data();
+          userPicDict[userData.uid] = userData.profilePicture;
+        });
+        setFriendsPic(userPicDict);
+      }
+      fetchUsersPics();
+    }, [])
+  );
   useFocusEffect(
     React.useCallback(() => {
       if (follow.length == 0) {
@@ -60,37 +77,62 @@ export default function Followers({ navigation, route }) {
         {!route.params["isFollowers"] && (
           <Text style={styles.titleText}>Following</Text>
         )}
-        {users.length != 0 && <FlatList
-          style={{
-            marginLeft: 10,
-            marginRight: 10,
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: "rgba(216,213,214,1)",
-          }}
-          contentContainerStyle={{
-            alignItems: "center",
-          }}
-          data={users}
-          renderItem={({ item }) => {
-            return (
-              <TouchableOpacity
-                style={styles.userCard}
-                onPress={() => onPressUser(item)}
-              >
-                <View style={styles.userCardInfo}>
-                  <View style={styles.userCardRow}>
-                    <Text style={styles.userTitle}>{item.username}</Text>
+        {users.length != 0 && (
+          <FlatList
+            style={{
+              marginLeft: 10,
+              marginRight: 10,
+              borderRadius: 20,
+              borderWidth: 1,
+              borderColor: "rgba(216,213,214,1)",
+            }}
+            contentContainerStyle={{
+              alignItems: "center",
+            }}
+            data={users}
+            renderItem={({ item }) => {
+              return (
+                <TouchableOpacity
+                  style={styles.userCard}
+                  onPress={() => onPressUser(item)}
+                >
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: "row" }}>
+                      {friendsPic[item.uid] ? (
+                        <Image
+                          style={styles.profilePic}
+                          source={{ uri: friendsPic[item.uid] }}
+                        />
+                      ) : (
+                        <MaterialCommunityIcons
+                          name="account-circle"
+                          color={"#808080"}
+                          size={50}
+                        />
+                      )}
+                      <View style={styles.userCardInfo}>
+                        <View style={styles.userCardRow}>
+                          <Text style={styles.userTitle}>{item.username}</Text>
+                        </View>
+                        <Text style={styles.userText}>{item.displayName}</Text>
+                      </View>
+                    </View>
                   </View>
-                  <Text style={styles.userText}>{item.displayName}</Text>
-                </View>
-              </TouchableOpacity>
-            );
-          }}
-          keyExtractor={() => uuidv4()}
-        ></FlatList> }
-        {route.params["isFollowers"] && users.length == 0 &&  <Text style={styles.noFollowText}> You have no followers. </Text>}
-        {!route.params["isFollowers"] && users.length == 0 &&  <Text style={styles.noFollowText}> You are not following anyone. </Text>}
+                </TouchableOpacity>
+              );
+            }}
+            keyExtractor={() => uuidv4()}
+          ></FlatList>
+        )}
+        {route.params["isFollowers"] && users.length == 0 && (
+          <Text style={styles.noFollowText}> You have no followers. </Text>
+        )}
+        {!route.params["isFollowers"] && users.length == 0 && (
+          <Text style={styles.noFollowText}>
+            {" "}
+            You are not following anyone.{" "}
+          </Text>
+        )}
       </View>
     </View>
   );
@@ -137,5 +179,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  profilePic: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
   },
 });

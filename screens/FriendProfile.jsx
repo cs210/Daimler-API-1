@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
+  Image,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -13,10 +14,10 @@ import {
 import React, { useState } from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
 
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import db from "../firebase";
 import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 /**
  * This component shows a profile which includes the number of followers
@@ -32,6 +33,7 @@ export default function PastTrips({ navigation, route }) {
   const [pastTrips, setPastTrips] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [profilePic, setProfilePic] = useState(null);
   const [buttonText, setButtonText] = useState("Follow");
   const [likesUsers, setLikesUsers] = useState({});
   const myUid = firebase.auth().currentUser.uid;
@@ -90,6 +92,7 @@ export default function PastTrips({ navigation, route }) {
     usersRef.doc(item.uid).onSnapshot((userDoc) => {
       setFollowers(userDoc.data()["followers"]);
       setFollowing(userDoc.data()["following"]);
+      setProfilePic(userDoc.data()["profilePicture"]);
     });
   };
 
@@ -178,8 +181,12 @@ export default function PastTrips({ navigation, route }) {
         </View>
         <View>
           {item.likes == null && <Text> {item.likes} 0 likes </Text>}
-          {item.likes != null && item.likes.length != 1 && <Text> {item.likes.length} likes </Text>}
-          {item.likes != null && item.likes.length == 1 && <Text> {item.likes.length} like </Text>}
+          {item.likes != null && item.likes.length != 1 && (
+            <Text> {item.likes.length} likes </Text>
+          )}
+          {item.likes != null && item.likes.length == 1 && (
+            <Text> {item.likes.length} like </Text>
+          )}
         </View>
         <View
           style={{
@@ -236,7 +243,19 @@ export default function PastTrips({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.name}>{item.displayName}</Text>
+      <View style={styles.row}>
+        {profilePic ? (
+          <Image style={styles.profilePic} source={{ uri: profilePic }} />
+        ) : (
+          <MaterialCommunityIcons
+            style={styles.profileIcon}
+            name="account-circle"
+            color={"#808080"}
+            size={100}
+          />
+        )}
+        <Text style={styles.name}>{item.displayName}</Text>
+      </View>
       <View style={styles.row}>
         <TouchableOpacity onPress={onPressFollowers}>
           <Text style={styles.follow}>{followers.length} Followers</Text>
@@ -373,5 +392,14 @@ const styles = StyleSheet.create({
   },
   activityIndicator: {
     margin: 50,
+  },
+  profileIcon: {
+    // margin: 10,
+  },
+  profilePic: {
+    width: 100,
+    height: 100,
+    // margin: 10,
+    borderRadius: 50,
   },
 });
