@@ -217,12 +217,23 @@ export default function Home({ navigation }) {
             )}
           </View>
           <View>
-            {item.likes == null && <Text> {item.likes} 0 likes </Text>}
+            {item.likes == null && (
+              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
+                {" "}
+                {item.likes} 0 likes{" "}
+              </Text>
+            )}
             {item.likes != null && item.likes.length != 1 && (
-              <Text> {item.likes.length} likes </Text>
+              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
+                {" "}
+                {item.likes.length} likes{" "}
+              </Text>
             )}
             {item.likes != null && item.likes.length == 1 && (
-              <Text> {item.likes.length} like </Text>
+              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
+                {" "}
+                {item.likes.length} like{" "}
+              </Text>
             )}
           </View>
           <View
@@ -270,6 +281,12 @@ export default function Home({ navigation }) {
     );
   };
 
+  const refreshFeedTrips = async () => {
+    setIsLoading(true);
+    await loadFeedTrips();
+    setIsLoading(false);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {isLoading ? (
@@ -289,7 +306,7 @@ export default function Home({ navigation }) {
             refreshControl={
               <RefreshControl
                 refreshing={isLoading}
-                onRefresh={loadFeedTrips}
+                onRefresh={refreshFeedTrips}
               />
             }
           />
