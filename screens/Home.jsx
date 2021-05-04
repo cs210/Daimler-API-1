@@ -227,6 +227,12 @@ export default function Home({ navigation }) {
     );
   };
 
+  const refreshFeedTrips = async () => {
+    setIsLoading(true);
+    await loadFeedTrips();
+    setIsLoading(false);
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       {isLoading ? (
@@ -244,7 +250,7 @@ export default function Home({ navigation }) {
             renderItem={pastTripComponent}
             ListEmptyComponent={noTripsComponent}
             refreshControl={
-              <RefreshControl refreshing={isLoading} onRefresh={loadFeedTrips} />
+              <RefreshControl refreshing={isLoading} onRefresh={refreshFeedTrips} />
             }
           />
         </View>
