@@ -17,6 +17,7 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import db from "../firebase";
 import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
 
 /**
  * This component shows a profile which includes the number of followers
@@ -90,6 +91,21 @@ export default function Profile({ navigation }) {
     navigation.navigate("Follow", data);
   };
 
+  const addProfilePicture = async () => {
+    const userRef = await db.collection("users").doc(firebase.auth().currentUser.id);
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      base64: true,
+      quality: 0,
+    });
+    if (!result.cancelled) {
+      // userRef.update({
+      //   profilePicture: , //insert profilePicture value
+      // });
+    }
+  }
+
   const pastTripComponent = ({ item }) => {
     return (
       <TouchableOpacity
@@ -122,14 +138,21 @@ export default function Profile({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.spaceBetweenRow}>
+        <MaterialCommunityIcons
+          style={styles.profileIcon}
+          name="account-circle"
+          color={"#808080"}
+          size={70}
+          onPress={addProfilePicture}
+        />
         <Text style={styles.name}>
           {firebase.auth().currentUser.displayName}
         </Text>
         <MaterialCommunityIcons
-          style={styles.icon}
+          style={styles.settingsIcon}
           name="account-cog"
           color={"#808080"}
-          size={34}
+          size={30}
           onPress={() => navigation.navigate("Settings")}
         />
       </View>
@@ -168,16 +191,21 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
   },
-  icon: {
-    marginRight: 8,
+  settingsIcon: {
+    // marginRight: 20,
+    paddingRight: 10,
     marginTop: 15,
   },
+  profileIcon: {
+    marginLeft: 10,
+    marginTop: 10
+  },
   name: {
-    fontSize: 35,
+    fontSize: 24,
     color: "#8275BD",
     fontWeight: "bold",
-    margin: 15,
-    width: 300,
+    marginTop: 30,
+    width: 280,
   },
   follow: {
     fontSize: 15,
