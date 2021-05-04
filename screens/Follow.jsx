@@ -107,7 +107,8 @@ export default function Followers({ navigation, route }) {
                         <MaterialCommunityIcons
                           name="account-circle"
                           color={"#808080"}
-                          size={50}
+                          size={58}
+                          style={styles.profileIcon}
                         />
                       )}
                       <View style={styles.userCardInfo}>
@@ -184,5 +185,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+    margin: 4,
   },
 });

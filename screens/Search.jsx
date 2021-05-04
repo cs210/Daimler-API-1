@@ -135,7 +135,7 @@ export default function SearchScreen({ navigation }) {
                             <MaterialCommunityIcons
                               name="account-circle"
                               color={"#808080"}
-                              size={50}
+                              size={58}
                             />
                           )}
                           <View style={styles.userCardInfo}>
@@ -219,6 +219,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    margin: 5,
+    margin: 4,
   },
 });

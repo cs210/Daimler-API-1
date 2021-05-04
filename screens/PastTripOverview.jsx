@@ -189,6 +189,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     padding: 10,
+    paddingLeft: 2,
     paddingBottom: 0,
     width: Dimensions.get("window").width * 0.9,
   },
@@ -240,5 +241,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     margin: 5,
+    marginLeft: 10,
+    marginTop: 10,
   },
 });

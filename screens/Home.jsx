@@ -185,12 +185,6 @@ export default function Home({ navigation }) {
           style={styles.itemContainer}
         >
           <View style={styles.cardHeader}>
-            <View style={styles.row}>
-              <Text style={styles.tripName}>{item.tripTitle}</Text>
-              <Text style={styles.time}>
-                {moment(item.time, moment.ISO_8601).format("LLL")}
-              </Text>
-            </View>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               {profilePicture ? (
                 <Image
@@ -204,8 +198,16 @@ export default function Home({ navigation }) {
                   size={50}
                 />
               )}
-              <Text>{item.usersName}</Text>
+              <View>
+              <Text style={styles.userName}> {item.usersName}</Text>
+              <Text style={styles.time}>
+              {moment(item.time, moment.ISO_8601).format("LLL")}
+            </Text>
             </View>
+
+            </View>
+
+            <Text style={styles.tripName}>{item.tripTitle}</Text>
           </View>
           <View style={styles.tripCard}>
             {tripViewComponent(
@@ -326,6 +328,11 @@ const styles = StyleSheet.create({
   time: {
     color: "#A9A9A9",
     paddingLeft: 4,
+    fontSize: 12,
+  },
+  userName: {
+    paddingLeft: 2,
+    fontSize: 16,
   },
   row: {
     flexDirection: "row",
@@ -351,6 +358,7 @@ const styles = StyleSheet.create({
   icon: {
     alignSelf: "center",
     marginVertical: 10,
+    // paddingRight: 30,
   },
   activityIndicator: {
     margin: 50,
@@ -359,5 +367,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+    margin: 5,
   },
 });
