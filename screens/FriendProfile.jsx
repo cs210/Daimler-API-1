@@ -178,7 +178,8 @@ export default function PastTrips({ navigation, route }) {
         </View>
         <View>
           {item.likes == null && <Text> {item.likes} 0 likes </Text>}
-          {item.likes != null && <Text> {item.likes.length} likes </Text>}
+          {item.likes != null && item.likes.length != 1 && <Text> {item.likes.length} likes </Text>}
+          {item.likes != null && item.likes.length == 1 && <Text> {item.likes.length} like </Text>}
         </View>
         <View
           style={{

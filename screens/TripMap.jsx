@@ -116,7 +116,7 @@ export default function TripMap({ navigation }) {
 
   const onFinishTripPress = async () => {
     if ((pins.length == 0 && coordinates.length == 0) || !isTripStarted) {
-      navigation.navigate("Home");
+      navigation.navigate("Feed");
       return;
     }
     const data = {
