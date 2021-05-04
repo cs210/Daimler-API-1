@@ -35,8 +35,8 @@ function getHeaderTitle(route) {
   const routeName = getFocusedRouteNameFromRoute(route) ?? "Road Trip Buddy";
 
   switch (routeName) {
-    case "Home":
-      return "Home";
+    case "Feed":
+      return "Feed";
     case "Search":
       return "Search";
     case "Record Trip":
@@ -56,10 +56,10 @@ function Tabs() {
       }}
     >
       <Tab.Screen
-        name="Home"
+        name="Feed"
         component={Home}
         options={{
-          tabBarLabel: "Home",
+          tabBarLabel: "Feed",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="home" color={color} size={size} />
           ),
@@ -153,7 +153,7 @@ const App = () => {
         {loggedIn ? (
           <Stack.Navigator>
             <Stack.Screen
-              name="Road Trip Buddy"
+              name="Feed"
               component={Tabs}
               options={({ route }) => ({
                 headerTitle: getHeaderTitle(route),

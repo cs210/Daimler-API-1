@@ -1,3 +1,4 @@
+import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase";
 
 import {
@@ -17,7 +18,6 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import db from "../firebase";
 import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
-import * as ImagePicker from "expo-image-picker";
 
 /**
  * This component shows a profile which includes the number of followers
@@ -92,7 +92,9 @@ export default function Profile({ navigation }) {
   };
 
   const addProfilePicture = async () => {
-    const userRef = await db.collection("users").doc(firebase.auth().currentUser.id);
+    const userRef = await db
+      .collection("users")
+      .doc(firebase.auth().currentUser.id);
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -104,7 +106,7 @@ export default function Profile({ navigation }) {
       //   profilePicture: , //insert profilePicture value
       // });
     }
-  }
+  };
 
   const pastTripComponent = ({ item }) => {
     return (
@@ -125,7 +127,12 @@ export default function Profile({ navigation }) {
         </View>
         <View style={styles.likes}>
           {item.likes == null && <Text> {item.likes} 0 likes </Text>}
-          {item.likes != null && <Text> {item.likes.length} likes </Text>}
+          {item.likes != null && item.likes.length != 1 && (
+            <Text> {item.likes.length} likes </Text>
+          )}
+          {item.likes != null && item.likes.length == 1 && (
+            <Text> {item.likes.length} like </Text>
+          )}
         </View>
       </TouchableOpacity>
     );
@@ -198,11 +205,11 @@ const styles = StyleSheet.create({
   },
   profileIcon: {
     marginLeft: 10,
-    marginTop: 10
+    marginTop: 10,
   },
   name: {
-    fontSize: 24,
-    color: "#8275BD",
+    fontSize: 35,
+    // color: "#00A398",
     fontWeight: "bold",
     marginTop: 30,
     width: 280,
@@ -210,9 +217,11 @@ const styles = StyleSheet.create({
   follow: {
     fontSize: 15,
     fontWeight: "bold",
+    // color: "#00A398",
     margin: 15,
   },
   header: {
+    color: "#00A398",
     fontSize: 24,
     margin: 15,
     fontWeight: "bold",
@@ -248,7 +257,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   likes: {
-    paddingBottom: 13
+    paddingBottom: 13,
   },
   activityIndicator: {
     margin: 50,

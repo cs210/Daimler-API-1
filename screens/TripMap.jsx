@@ -116,7 +116,7 @@ export default function TripMap({ navigation }) {
 
   const onFinishTripPress = async () => {
     if ((pins.length == 0 && coordinates.length == 0) || !isTripStarted) {
-      navigation.navigate("Home");
+      navigation.navigate("Feed");
       return;
     }
     const data = {
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 30,
-    color: "#8275BD",
+    color: "#000000",
     fontWeight: "bold",
     margin: 15,
   },

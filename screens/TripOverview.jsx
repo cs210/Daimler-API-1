@@ -99,7 +99,7 @@ export default function TripOverview({ navigation, route }) {
           });
         navigation.navigate("Profile");
       } else {
-        navigation.navigate("Home");
+        navigation.navigate("Feed");
       }
       db.collection("trips")
         .add(post)
