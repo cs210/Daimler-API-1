@@ -57,17 +57,19 @@ export default function Profile({ navigation }) {
   useFocusEffect(
     React.useCallback(() => {
       loadPastTrips();
-      getCurrentUser();
+      const unsubscribe = getCurrentUser();
+      return () => unsubscribe();
     }, [])
   );
 
   const getCurrentUser = () => {
     let uid = firebase.auth().currentUser.uid;
     const usersRef = firebase.firestore().collection("users");
-    usersRef.doc(uid).onSnapshot((userDoc) => {
+    const unsubscribe = usersRef.doc(uid).onSnapshot((userDoc) => {
       setFollowers(userDoc.data()["followers"]);
       setFollowing(userDoc.data()["following"]);
     });
+    return unsubscribe;
   };
 
   const onPressFollowers = () => {
