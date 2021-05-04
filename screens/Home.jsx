@@ -1,27 +1,32 @@
+import * as firebase from "firebase";
+
 import {
+  ActivityIndicator,
+  Dimensions,
+  FlatList,
+  Image,
+  RefreshControl,
+  SafeAreaView,
   StyleSheet,
   Text,
-  View,
-  FlatList,
   TouchableOpacity,
-  Dimensions,
-  ActivityIndicator,
-  SafeAreaView,
-  RefreshControl,
+  View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import * as firebase from "firebase";
-import db from "../firebase";
-import moment from "moment";
 import { findRegion, tripViewComponent } from "./TripViewer";
+
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { NativeFormsModal } from "native-forms";
+import db from "../firebase";
+import moment from "moment";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function Home({ navigation }) {
   const [feedItems, setFeedItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [likesUsers, setLikesUsers] = useState({});
   const [showNPSForm, setShowNPSForm] = useState(false);
+  const [friendsPic, setFriendsPic] = useState({});
   const myUid = firebase.auth().currentUser.uid;
 
   useEffect(() => {
@@ -156,7 +161,23 @@ export default function Home({ navigation }) {
     }
   };
 
+  useFocusEffect(
+    React.useCallback(() => {
+      async function fetchUsersPics() {
+        const dbUsers = await db.collection("users").get();
+        userPicDict = {};
+        dbUsers.forEach((user) => {
+          const userData = user.data();
+          userPicDict[userData.uid] = userData.profilePicture;
+        });
+        setFriendsPic(userPicDict);
+      }
+      fetchUsersPics();
+    }, [])
+  );
+
   const pastTripComponent = ({ item }) => {
+    const profilePicture = friendsPic[item.uid];
     return (
       <View>
         <TouchableOpacity
@@ -164,14 +185,29 @@ export default function Home({ navigation }) {
           style={styles.itemContainer}
         >
           <View style={styles.cardHeader}>
-            <View style={styles.row}>
-              <Text style={styles.tripName}>{item.tripTitle}</Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              {profilePicture ? (
+                <Image
+                  style={styles.profilePic}
+                  source={{ uri: profilePicture }}
+                />
+              ) : (
+                <MaterialCommunityIcons
+                  name="account-circle"
+                  color={"#808080"}
+                  size={50}
+                />
+              )}
+              <View>
+              <Text style={styles.userName}> {item.usersName}</Text>
               <Text style={styles.time}>
-                {" "}
-                {moment(item.time, moment.ISO_8601).format("LLL")}
-              </Text>
+              {moment(item.time, moment.ISO_8601).format("LLL")}
+            </Text>
             </View>
-            <Text>By: {item.usersName}</Text>
+
+            </View>
+
+            <Text style={styles.tripName}>{item.tripTitle}</Text>
           </View>
           <View style={styles.tripCard}>
             {tripViewComponent(
@@ -309,6 +345,11 @@ const styles = StyleSheet.create({
   time: {
     color: "#A9A9A9",
     paddingLeft: 4,
+    fontSize: 12,
+  },
+  userName: {
+    paddingLeft: 2,
+    fontSize: 16,
   },
   row: {
     flexDirection: "row",
@@ -334,8 +375,15 @@ const styles = StyleSheet.create({
   icon: {
     alignSelf: "center",
     marginVertical: 10,
+    // paddingRight: 30,
   },
   activityIndicator: {
     margin: 50,
+  },
+  profilePic: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    margin: 5,
   },
 });
