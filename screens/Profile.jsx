@@ -141,7 +141,7 @@ export default function Profile({ navigation }) {
       </View>
       <Text style={styles.header}>My Past Trips</Text>
       {loading ? (
-        <ActivityIndicator />
+        <ActivityIndicator style={styles.activityIndicator} size={"large"} />
       ) : (
         <FlatList
           data={pastTrips}
@@ -214,10 +214,13 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   noTripText: {
-    fontSize: 15,
+    fontSize: 16,
     alignSelf: "center",
   },
   likes: {
     paddingBottom: 13
-  }
+  },
+  activityIndicator: {
+    margin: 50,
+  },
 });
