@@ -166,7 +166,7 @@ export default function Home({ navigation }) {
           <View style={styles.cardHeader}>
             <View style={styles.row}>
               <Text style={styles.tripName}>{item.tripTitle}</Text>
-              <Text>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
+              <Text style={styles.time}> {moment(item.time, moment.ISO_8601).format("LLL")}</Text>
             </View>
             <Text>By: {item.usersName}</Text>
           </View>
@@ -179,7 +179,8 @@ export default function Home({ navigation }) {
           </View>
           <View>
             {item.likes == null && <Text> {item.likes} 0 likes </Text>}
-            {item.likes != null && <Text> {item.likes.length} likes </Text>}
+            {item.likes != null && item.likes.length != 1 && <Text> {item.likes.length} likes </Text>}
+            {item.likes != null && item.likes.length == 1 && <Text> {item.likes.length} like </Text>}
           </View>
           <View
             style={{
@@ -228,7 +229,6 @@ export default function Home({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* <Text style={styles.header}>Road Trip Buddy</Text> */}
       {isLoading ? (
         <ActivityIndicator style={styles.activityIndicator} size={"large"} />
       ) : (
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 30,
-    color: "#00A398",
+    color: "#8275BD",
     fontWeight: "bold",
     alignSelf: "center",
     marginVertical: 5,
@@ -278,6 +278,10 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     margin: 5,
+  },
+  time: {
+    color: "#A9A9A9",
+    paddingLeft: 4,
   },
   row: {
     flexDirection: "row",
