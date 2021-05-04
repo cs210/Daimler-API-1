@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
+  Image,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -16,6 +17,7 @@ import { findRegion, tripViewComponent } from "./TripViewer";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import db from "../firebase";
+import { getImageUrl } from "./TripOverview";
 import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -30,6 +32,7 @@ export default function Profile({ navigation }) {
   const [pastTrips, setPastTrips] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [profilePicture, setProfilePicture] = useState(null);
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
     const parsedTrips = [];
@@ -69,6 +72,9 @@ export default function Profile({ navigation }) {
     const unsubscribe = usersRef.doc(uid).onSnapshot((userDoc) => {
       setFollowers(userDoc.data()["followers"]);
       setFollowing(userDoc.data()["following"]);
+      if ("profilePicture" in userDoc.data()) {
+        setProfilePicture(userDoc.data()["profilePicture"]);
+      }
     });
     return unsubscribe;
   };
@@ -94,7 +100,7 @@ export default function Profile({ navigation }) {
   const addProfilePicture = async () => {
     const userRef = await db
       .collection("users")
-      .doc(firebase.auth().currentUser.id);
+      .doc(firebase.auth().currentUser.uid);
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -102,9 +108,11 @@ export default function Profile({ navigation }) {
       quality: 0,
     });
     if (!result.cancelled) {
-      // userRef.update({
-      //   profilePicture: , //insert profilePicture value
-      // });
+      getImageUrl(result.uri).then((url) => {
+        userRef.update({
+          profilePicture: url,
+        });
+      });
     }
   };
 
@@ -145,13 +153,18 @@ export default function Profile({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.spaceBetweenRow}>
-        <MaterialCommunityIcons
-          style={styles.profileIcon}
-          name="account-circle"
-          color={"#808080"}
-          size={70}
-          onPress={addProfilePicture}
-        />
+        {profilePicture ? (
+          <Image style={styles.profilePic} source={{ uri: profilePicture }} />
+        ) : (
+          <MaterialCommunityIcons
+            style={styles.profileIcon}
+            name="account-circle"
+            color={"#808080"}
+            size={100}
+            onPress={addProfilePicture}
+          />
+        )}
+
         <Text style={styles.name}>
           {firebase.auth().currentUser.displayName}
         </Text>
@@ -204,15 +217,20 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   profileIcon: {
-    marginLeft: 10,
-    marginTop: 10,
+    margin: 10,
+  },
+  profilePic: {
+    width: 100,
+    height: 100,
+    margin: 10,
+    borderRadius: 50,
   },
   name: {
     fontSize: 35,
     // color: "#00A398",
     fontWeight: "bold",
     marginTop: 30,
-    width: 280,
+    width: 250,
   },
   follow: {
     fontSize: 15,
