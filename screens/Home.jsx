@@ -1,27 +1,32 @@
+import * as firebase from "firebase";
+
 import {
+  ActivityIndicator,
+  Dimensions,
+  FlatList,
+  Image,
+  RefreshControl,
+  SafeAreaView,
   StyleSheet,
   Text,
-  View,
-  FlatList,
   TouchableOpacity,
-  Dimensions,
-  ActivityIndicator,
-  SafeAreaView,
-  RefreshControl,
+  View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import * as firebase from "firebase";
-import db from "../firebase";
-import moment from "moment";
 import { findRegion, tripViewComponent } from "./TripViewer";
+
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { NativeFormsModal } from "native-forms";
+import db from "../firebase";
+import moment from "moment";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function Home({ navigation }) {
   const [feedItems, setFeedItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [likesUsers, setLikesUsers] = useState({});
   const [showNPSForm, setShowNPSForm] = useState(false);
+  const [friendsPic, setFriendsPic] = useState({});
   const myUid = firebase.auth().currentUser.uid;
 
   useEffect(() => {
@@ -122,7 +127,7 @@ export default function Home({ navigation }) {
     const timestamp = new Date().toISOString();
     const userRef = db.collection("users").doc(myUid);
     userRef.update({
-      openAppTimestamps: firebase.firestore.FieldValue.arrayUnion(timestamp)
+      openAppTimestamps: firebase.firestore.FieldValue.arrayUnion(timestamp),
     });
   };
 
@@ -156,7 +161,23 @@ export default function Home({ navigation }) {
     }
   };
 
+  useFocusEffect(
+    React.useCallback(() => {
+      async function fetchUsersPics() {
+        const dbUsers = await db.collection("users").get();
+        userPicDict = {};
+        dbUsers.forEach((user) => {
+          const userData = user.data();
+          userPicDict[userData.uid] = userData.profilePicture;
+        });
+        setFriendsPic(userPicDict);
+      }
+      fetchUsersPics();
+    }, [])
+  );
+
   const pastTripComponent = ({ item }) => {
+    const profilePicture = friendsPic[item.uid];
     return (
       <View>
         <TouchableOpacity
@@ -166,9 +187,25 @@ export default function Home({ navigation }) {
           <View style={styles.cardHeader}>
             <View style={styles.row}>
               <Text style={styles.tripName}>{item.tripTitle}</Text>
-              <Text style={styles.time}> {moment(item.time, moment.ISO_8601).format("LLL")}</Text>
+              <Text style={styles.time}>
+                {moment(item.time, moment.ISO_8601).format("LLL")}
+              </Text>
             </View>
-            <Text>By: {item.usersName}</Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              {profilePicture ? (
+                <Image
+                  style={styles.profilePic}
+                  source={{ uri: profilePicture }}
+                />
+              ) : (
+                <MaterialCommunityIcons
+                  name="account-circle"
+                  color={"#808080"}
+                  size={50}
+                />
+              )}
+              <Text>{item.usersName}</Text>
+            </View>
           </View>
           <View style={styles.tripCard}>
             {tripViewComponent(
@@ -179,8 +216,12 @@ export default function Home({ navigation }) {
           </View>
           <View>
             {item.likes == null && <Text> {item.likes} 0 likes </Text>}
-            {item.likes != null && item.likes.length != 1 && <Text> {item.likes.length} likes </Text>}
-            {item.likes != null && item.likes.length == 1 && <Text> {item.likes.length} like </Text>}
+            {item.likes != null && item.likes.length != 1 && (
+              <Text> {item.likes.length} likes </Text>
+            )}
+            {item.likes != null && item.likes.length == 1 && (
+              <Text> {item.likes.length} like </Text>
+            )}
           </View>
           <View
             style={{
@@ -244,7 +285,10 @@ export default function Home({ navigation }) {
             renderItem={pastTripComponent}
             ListEmptyComponent={noTripsComponent}
             refreshControl={
-              <RefreshControl refreshing={isLoading} onRefresh={loadFeedTrips} />
+              <RefreshControl
+                refreshing={isLoading}
+                onRefresh={loadFeedTrips}
+              />
             }
           />
         </View>
@@ -310,5 +354,11 @@ const styles = StyleSheet.create({
   },
   activityIndicator: {
     margin: 50,
+  },
+  profilePic: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    margin: 5,
   },
 });

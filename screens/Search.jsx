@@ -1,13 +1,19 @@
-import React, { useEffect, useState } from "react";
+import * as firebase from "firebase";
+
 import {
-  View,
+  FlatList,
+  Image,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  FlatList,
-  StyleSheet,
+  View,
 } from "react-native";
+import React, { useEffect, useState } from "react";
+
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { Searchbar } from "react-native-paper";
-import * as firebase from "firebase";
+import db from "../firebase";
+import { useFocusEffect } from "@react-navigation/native";
 import uuidv4 from "uuid/v4";
 
 export default function SearchScreen({ navigation }) {
@@ -15,9 +21,24 @@ export default function SearchScreen({ navigation }) {
   const [userId, setUserId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [users, setUsers] = useState([]);
+  const [friendsPic, setFriendsPic] = useState({});
+
   const onChangeSearch = (query) => setSearchQuery(query);
   const [loading, setLoading] = useState(true);
-
+  useFocusEffect(
+    React.useCallback(() => {
+      async function fetchUsersPics() {
+        const dbUsers = await db.collection("users").get();
+        userPicDict = {};
+        dbUsers.forEach((user) => {
+          const userData = user.data();
+          userPicDict[userData.uid] = userData.profilePicture;
+        });
+        setFriendsPic(userPicDict);
+      }
+      fetchUsersPics();
+    }, [])
+  );
   useEffect(() => {
     let mounted = true;
     let users = [];
@@ -99,12 +120,35 @@ export default function SearchScreen({ navigation }) {
                       .includes(searchQuery.toLowerCase()))
                 ) {
                   return (
-                    <TouchableOpacity style={styles.userCard} onPress={() => onPressUser(item)}>
-                      <View style={styles.userCardInfo}>
-                        <View style={styles.userCardRow}>
-                          <Text style={styles.userTitle}>{item.username}</Text> 
+                    <TouchableOpacity
+                      style={styles.userCard}
+                      onPress={() => onPressUser(item)}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <View style={{ flexDirection: "row" }}>
+                          {friendsPic[item.uid] ? (
+                            <Image
+                              style={styles.profilePic}
+                              source={{ uri: friendsPic[item.uid] }}
+                            />
+                          ) : (
+                            <MaterialCommunityIcons
+                              name="account-circle"
+                              color={"#808080"}
+                              size={50}
+                            />
+                          )}
+                          <View style={styles.userCardInfo}>
+                            <View style={styles.userCardRow}>
+                              <Text style={styles.userTitle}>
+                                {item.username}
+                              </Text>
+                            </View>
+                            <Text style={styles.userText}>
+                              {item.displayName}
+                            </Text>
+                          </View>
                         </View>
-                        <Text style={styles.userText}>{item.displayName}</Text>
                       </View>
                     </TouchableOpacity>
                   );
@@ -162,12 +206,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   userCardInfo: {
-    flex: 1,
+    flexDirection: "column",
     paddingLeft: 10,
+    justifyContent: "center",
   },
   userCardRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  profilePic: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    margin: 5,
   },
 });
