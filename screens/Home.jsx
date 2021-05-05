@@ -298,6 +298,7 @@ export default function Home({ navigation }) {
             form={netPromoterUrl}
             onClose={() => setShowNPSForm(false)}
             onSend={onSendNPSForm}
+            extraData={{ "UserID": myUid }}
           />
           <FlatList
             data={feedItems}
