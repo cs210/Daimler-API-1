@@ -65,7 +65,7 @@ export default function PastTripOverview({ navigation, route }) {
       .doc(route.params["id"])
       .delete()
       .then(() => {
-        navigation.navigate("Profile");
+        navigation.goBack(null);
       })
       .catch((error) => {
         console.error("Error removing document: ", error);

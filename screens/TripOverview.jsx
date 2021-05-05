@@ -99,10 +99,8 @@ export default function TripOverview({ navigation, route }) {
           .catch((error) => {
             console.error("Error removing document: ", error);
           });
-        navigation.navigate("Profile");
-      } else {
-        navigation.navigate("Feed");
       }
+      navigation.navigate("Feed");
       db.collection("trips")
         .add(post)
         .then(() => {
