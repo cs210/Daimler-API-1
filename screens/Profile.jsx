@@ -38,11 +38,9 @@ export default function Profile({ navigation }) {
     const parsedTrips = [];
     tripsFromDatabase.forEach((trip) => {
       const tripData = trip.data();
-      if (tripData.uid == currentUser.uid) {
-        tripData["id"] = trip.id;
-        tripData["tripTitle"] = tripData.tripTitleText;
-        parsedTrips.push(tripData);
-      }
+      tripData["id"] = trip.id;
+      tripData["tripTitle"] = tripData.tripTitleText;
+      parsedTrips.push(tripData);
     });
     return parsedTrips;
   };
@@ -50,8 +48,10 @@ export default function Profile({ navigation }) {
   const loadPastTrips = async () => {
     setLoading(true);
     setPastTrips([]);
-    const collRef = db.collection("trips");
-    const tripsFromDatabase = await collRef.orderBy("time", "desc").get();
+    const tripsFromDatabase = await db.collection("trips")
+      .where("uid", "==", currentUser.uid)
+      .orderBy("time", "desc")
+      .get();
     const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
     setPastTrips(parsedTrips);
     setLoading(false);
@@ -60,21 +60,18 @@ export default function Profile({ navigation }) {
   useFocusEffect(
     React.useCallback(() => {
       loadPastTrips();
-      const unsubscribe = getCurrentUser();
-      return () => unsubscribe();
+      loadUserData();
     }, [])
   );
 
-  const getCurrentUser = () => {
-    const usersRef = firebase.firestore().collection("users");
-    const unsubscribe = usersRef.doc(currentUser.uid).onSnapshot((userDoc) => {
-      setFollowers(userDoc.data()["followers"]);
-      setFollowing(userDoc.data()["following"]);
-      if ("profilePicture" in userDoc.data()) {
-        setProfilePicture(userDoc.data()["profilePicture"]);
-      }
-    });
-    return unsubscribe;
+  const loadUserData = async () => {
+    const userDoc = await db.collection("users").doc(currentUser.uid).get();
+    const userData = userDoc.data();
+    setFollowers(userData["followers"]);
+    setFollowing(userData["following"]);
+    if ("profilePicture" in userData) {
+      setProfilePicture(userData["profilePicture"]);
+    }
   };
 
   const onPressFollowers = () => {
@@ -110,6 +107,7 @@ export default function Profile({ navigation }) {
         userRef.update({
           profilePicture: url,
         });
+        setProfilePicture(url);
       });
     }
   };
