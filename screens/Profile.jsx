@@ -150,8 +150,7 @@ export default function Profile({ navigation }) {
         <MaterialCommunityIcons
           style={styles.settingsIcon}
           name="account-cog"
-          color={"#808080"}
-          size={30}
+          size={28}
           onPress={() => navigation.navigate("Settings")}
         />
       </View>
@@ -219,7 +218,7 @@ const styles = StyleSheet.create({
     // color: "#00A398",
     fontWeight: "bold",
     marginTop: 45,
-    width: Dimensions.get("window").height * 0.4,
+    width: Dimensions.get("window").height * 0.3,
   },
   time: {
     color: "#A9A9A9",
