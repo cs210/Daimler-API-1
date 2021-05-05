@@ -73,6 +73,7 @@ export default function PinPopup(props) {
                 placeholder="Pin description"
                 onChangeText={(text) => setPinDescrip(text)}
                 defaultValue={pinDescrip}
+                autoCorrect={true}
               />
             </View>
             <View

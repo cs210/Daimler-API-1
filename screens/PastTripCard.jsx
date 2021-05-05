@@ -101,19 +101,13 @@ export default function PastTripCard(props) {
           )}
         </View>
         <View>
-          {item.likes == null && (
-            <Text onPress={() => navigation.navigate("Likes", item.likes)}>
-              {" "}
-              {item.likes} 0 likes{" "}
-            </Text>
-          )}
-          {item.likes != null && item.likes.length != 1 && (
+          {item.likes.length != 1 && (
             <Text onPress={() => navigation.navigate("Likes", item.likes)}>
               {" "}
               {item.likes.length} likes{" "}
             </Text>
           )}
-          {item.likes != null && item.likes.length == 1 && (
+          {item.likes.length == 1 && (
             <Text onPress={() => navigation.navigate("Likes", item.likes)}>
               {" "}
               {item.likes.length} like{" "}
@@ -127,18 +121,16 @@ export default function PastTripCard(props) {
             borderBottomWidth: 1,
           }}
         />
-        {item.likes != null && (
-          <TouchableOpacity onPress={() => onUserLike(item)}>
-            <View>
-              <MaterialCommunityIcons
-                style={styles.icon}
-                name="thumb-up-outline"
-                color={item.likes.includes(myUid) ? "#00A398" : "#808080"}
-                size={25}
-              />
-            </View>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity onPress={() => onUserLike(item)}>
+          <View>
+            <MaterialCommunityIcons
+              style={styles.icon}
+              name="thumb-up-outline"
+              color={item.likes.includes(myUid) ? "#00A398" : "#808080"}
+              size={25}
+            />
+          </View>
+        </TouchableOpacity>
       </TouchableOpacity>
     </View>
   );
