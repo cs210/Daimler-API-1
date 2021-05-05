@@ -18,6 +18,13 @@ export default function Settings({ navigation }) {
       } catch (e) {
         console.log(e);
       }
+    } else if (item.key == "Delete Account") {
+      firebase.auth().currentUser.delete().then(function () {
+        console.log('delete successful?')
+        console.log(app.auth().currentUser)
+      }).catch(function (error) {
+        console.error({error})
+      })
     }
   };
 
@@ -25,6 +32,15 @@ export default function Settings({ navigation }) {
     <View style={styles.container}>
       <FlatList
         data={[{ key: "Logout" }]}
+        renderItem={({ item }) => (
+          <Text style={styles.item} onPress={() => getListViewItem(item)}>
+            {item.key}
+          </Text>
+        )}
+        ItemSeparatorComponent={renderSeparator}
+      />
+      <FlatList
+        data={[{ key: "Delete Account" }]}
         renderItem={({ item }) => (
           <Text style={styles.item} onPress={() => getListViewItem(item)}>
             {item.key}
