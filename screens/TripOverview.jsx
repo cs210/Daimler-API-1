@@ -16,43 +16,45 @@ import { findRegion, tripViewComponent } from "./TripViewer";
 
 import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
+import { firebaseStorageUrl } from "../keys";
 
 /**
  * This component shows an overview of the trip such as a list of pins and a map
  * of the trip. The user can also enter a trip title and save/edit the trip.
  */
+
+export const getImageUrl = (uri) => {
+  const splitURI = uri.split("/");
+  const filename = splitURI[splitURI.length - 1];
+  const path = "/trip_assets/";
+  var storageRef = firebase.storage().ref(path);
+  const ref = storageRef.child(`${filename}`);
+  const url = "gs://" + firebaseStorageUrl + path + filename;
+  return fetch(uri)
+    .then((response) => response.blob())
+    .then((blob) => {
+      return ref.put(blob).then((snapshot) => {
+        return firebase
+          .storage()
+          .refFromURL(url)
+          .getDownloadURL()
+          .then(function (imageUrl) {
+            return imageUrl;
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
+    })
+    .catch((error) => {
+      console.log("Error My Guy!", error);
+    });
+};
+
 export default function TripOverview({ navigation, route }) {
   const [tripTitle, setTripTitle] = useState("");
   const [loadingSave, setLoadingSave] = useState(false);
 
-  const storage = firebase.storage();
-
-  const getImageUrl = (uri) => {
-    const splitURI = uri.split("/");
-    const filename = splitURI[splitURI.length - 1];
-    const path = "/trip_assets/";
-    var storageRef = firebase.storage().ref(path);
-    const ref = storageRef.child(`${filename}`);
-    const url = "gs://cs-210-project.appspot.com/trip_assets/" + filename;
-    return fetch(uri)
-      .then((response) => response.blob())
-      .then((blob) => {
-        return ref.put(blob).then((snapshot) => {
-          return storage
-            .refFromURL(url)
-            .getDownloadURL()
-            .then(function (imageUrl) {
-              return imageUrl;
-            })
-            .catch((error) => {
-              console.log(error);
-            });
-        });
-      })
-      .catch((error) => {
-        console.log("Error My Guy!", error);
-      });
-  };
   const onSaveTrip = () => {
     setLoadingSave(true);
     var tripTitleText = tripTitle["text"];
@@ -97,10 +99,8 @@ export default function TripOverview({ navigation, route }) {
           .catch((error) => {
             console.error("Error removing document: ", error);
           });
-        navigation.navigate("Profile");
-      } else {
-        navigation.navigate("Feed");
       }
+      navigation.navigate("Feed");
       db.collection("trips")
         .add(post)
         .then(() => {

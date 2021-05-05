@@ -1,25 +1,26 @@
+import * as firebase from "firebase";
+
 import {
+  Dimensions,
   FlatList,
   Image,
   StyleSheet,
   Text,
   View,
-  Dimensions,
 } from "react-native";
-import React, { useState } from "react";
-import moment from "moment";
 import {
   Menu,
-  MenuOptions,
   MenuOption,
+  MenuOptions,
   MenuTrigger,
 } from "react-native-popup-menu";
-
-import { ScrollView } from "react-native-gesture-handler";
+import React, { useState } from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
+
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
-import * as firebase from "firebase";
+import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
 
 /**
@@ -30,19 +31,33 @@ export default function PastTripOverview({ navigation, route }) {
   const { pins, tripTitle, time, coordinates, id } = route.params;
   const [isFriendTrip, setIsFriendTrip] = useState(true);
   const [tripUser, setTripUser] = useState("");
+  const [friendsPic, setFriendsPic] = useState({});
 
   useFocusEffect(
     React.useCallback(() => {
       const myUid = firebase.auth().currentUser.uid;
       setIsFriendTrip(myUid != route.params.uid);
       async function fetchUserName() {
-        const user = await db.collection("users")
-        .doc(route.params.uid)
-        .get();
-        setTripUser(user.data()["displayName"]);
+        const user = await db.collection("users").doc(route.params.uid).get();
+        setTripUser(user.data());
       }
       fetchUserName();
     })
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      async function fetchUsersPics() {
+        const dbUsers = await db.collection("users").get();
+        userPicDict = {};
+        dbUsers.forEach((user) => {
+          const userData = user.data();
+          userPicDict[userData.uid] = userData.profilePicture;
+        });
+        setFriendsPic(userPicDict);
+      }
+      fetchUsersPics();
+    }, [])
   );
 
   const onDeleteTrip = () => {
@@ -50,7 +65,7 @@ export default function PastTripOverview({ navigation, route }) {
       .doc(route.params["id"])
       .delete()
       .then(() => {
-        navigation.navigate("Profile");
+        navigation.goBack(null);
       })
       .catch((error) => {
         console.error("Error removing document: ", error);
@@ -101,7 +116,19 @@ export default function PastTripOverview({ navigation, route }) {
       ListHeaderComponent={
         <>
           <View style={styles.row}>
-            <Text style={styles.name}> By: {tripUser} </Text>
+            {friendsPic[tripUser.uid] ? (
+              <Image
+                style={styles.profilePic}
+                source={{ uri: friendsPic[tripUser.uid] }}
+              />
+            ) : (
+              <MaterialCommunityIcons
+                name="account-circle"
+                color={"#808080"}
+                size={50}
+              />
+            )}
+            <Text style={styles.name}>{tripUser["displayName"]} </Text>
             {!isFriendTrip && (
               <Menu>
                 <MenuTrigger>
@@ -122,7 +149,6 @@ export default function PastTripOverview({ navigation, route }) {
             )}
           </View>
           <Text style={styles.header}> {tripTitle} </Text>
-
           <Text style={styles.date}>
             {" "}
             {moment(time, moment.ISO_8601).format("LLL")}
@@ -157,13 +183,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     padding: 10,
     paddingBottom: 0,
-    width: Dimensions.get("window").width * 0.9,
+    textAlign: 'center',
+    // width: Dimensions.get("window").width * 0.9,
   },
   name: {
     fontSize: 16,
     padding: 10,
+    paddingLeft: 2,
     paddingBottom: 0,
-    width: Dimensions.get("window").width * 0.9,
+    width: Dimensions.get("window").width * 0.75,
   },
   icon: {
     marginLeft: 50,
@@ -171,6 +199,7 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
+    alignItems: "center",
   },
   date: {
     fontSize: 10,
@@ -206,5 +235,13 @@ const styles = StyleSheet.create({
     height: Dimensions.get("window").height * 0.6,
     marginLeft: 22,
     paddingTop: 20,
+  },
+  profilePic: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    margin: 5,
+    marginLeft: 10,
+    marginTop: 10,
   },
 });

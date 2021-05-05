@@ -2,15 +2,24 @@ import "firebase/firestore";
 
 import * as firebase from "firebase";
 
+import {
+  firebaseApiKey,
+  firebaseAppId,
+  firebaseMeasurementId,
+  firebaseProjectName,
+  firebaseSenderId,
+  firebaseStorageUrl,
+} from "./keys";
+
 // Your web app's Firebase configuration
 var firebaseConfig = {
-  apiKey: "AIzaSyAE0XqY7UIt84jbvDgwR_bWWkRy4k-X1EM",
-  authDomain: "cs-210-project.firebaseapp.com",
-  projectId: "cs-210-project",
-  storageBucket: "cs-210-project.appspot.com",
-  messagingSenderId: "263845644775",
-  appId: "1:263845644775:web:608290748a570d669d1542",
-  measurementId: "G-FSFDGW8XDY",
+  apiKey: firebaseApiKey,
+  authDomain: firebaseProjectName + ".firebaseapp.com",
+  projectId: firebaseProjectName,
+  storageBucket: firebaseStorageUrl,
+  messagingSenderId: firebaseSenderId,
+  appId: firebaseAppId,
+  measurementId: firebaseMeasurementId,
 };
 
 // Initialize Firebase
@@ -21,4 +30,4 @@ if (!firebase.apps.length) {
 var firestore = firebase.firestore();
 
 // export const auth = firebase.auth();
-export default firestore; 
+export default firestore;

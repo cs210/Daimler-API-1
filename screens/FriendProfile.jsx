@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
+  Image,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -11,12 +12,11 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
-import { findRegion, tripViewComponent } from "./TripViewer";
 
-import db from "../firebase";
-import moment from "moment";
-import { useFocusEffect } from "@react-navigation/native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import db from "../firebase";
+import { useFocusEffect } from "@react-navigation/native";
+import PastTripCard from "./PastTripCard";
 
 /**
  * This component shows a profile which includes the number of followers
@@ -32,8 +32,9 @@ export default function PastTrips({ navigation, route }) {
   const [pastTrips, setPastTrips] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [profilePic, setProfilePic] = useState(null);
   const [buttonText, setButtonText] = useState("Follow");
-  const [likesUsers, setLikesUsers] = useState({});
+  const displayName = item.displayName;
   const myUid = firebase.auth().currentUser.uid;
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
@@ -82,7 +83,7 @@ export default function PastTrips({ navigation, route }) {
       });
       loadPastTrips();
       getFriendUser();
-    }, [pastTrips])
+    }, [])
   );
 
   const getFriendUser = () => {
@@ -90,6 +91,7 @@ export default function PastTrips({ navigation, route }) {
     usersRef.doc(item.uid).onSnapshot((userDoc) => {
       setFollowers(userDoc.data()["followers"]);
       setFollowing(userDoc.data()["following"]);
+      setProfilePic(userDoc.data()["profilePicture"]);
     });
   };
 
@@ -135,85 +137,14 @@ export default function PastTrips({ navigation, route }) {
     }
   };
 
-  const onUserLike = async (item) => {
-    if (item.likes != null && item.uid != myUid) {
-      // Check to make sure it's not your own post
-      const tripRef = await db.collection("trips").doc(item.id);
-      if (item.likes.includes(myUid)) {
-        tripRef.update({
-          likes: firebase.firestore.FieldValue.arrayRemove(myUid),
-        });
-        const index = item.likes.indexOf(myUid);
-        if (index > -1) {
-          item.likes.splice(index, 1);
-        }
-      } else {
-        item.likes.push(myUid);
-        tripRef.update({
-          likes: firebase.firestore.FieldValue.arrayUnion(myUid),
-        });
+  const getUpdatedItem = (newItem) => {
+    const newPastTrips = pastTrips.map((item) => {
+      if (item.id === newItem.id) {
+        return newItem;
       }
-      const newLikesUsers = { ...likesUsers, [item.id]: item.likes };
-      setLikesUsers(newLikesUsers);
-      // There is probably a way around likesUsers - used this to get rereneder to occur
-    }
-  };
-
-  const pastTripComponent = ({ item }) => {
-    return (
-      <TouchableOpacity
-        onPress={() => navigation.navigate("Past Trip", item)}
-        style={styles.itemContainer}
-      >
-        <View style={styles.cardHeader}>
-          <Text style={styles.tripName}>{item.tripTitle}</Text>
-          <Text>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
-        </View>
-        <View style={styles.tripCard}>
-          {tripViewComponent(
-            item.pins,
-            findRegion(item.pins, item.coordinates),
-            item.coordinates
-          )}
-        </View>
-        <View>
-          {item.likes == null && <Text> {item.likes} 0 likes </Text>}
-          {item.likes != null && item.likes.length != 1 && <Text> {item.likes.length} likes </Text>}
-          {item.likes != null && item.likes.length == 1 && <Text> {item.likes.length} like </Text>}
-        </View>
-        <View
-          style={{
-            paddingTop: 10,
-            borderBottomColor: "lightgray",
-            borderBottomWidth: 1,
-          }}
-        />
-        {item.likes != null && item.likes.includes(myUid) && (
-          <TouchableOpacity onPress={() => onUserLike(item)}>
-            <View>
-              <MaterialCommunityIcons
-                style={styles.icon}
-                name="thumb-up-outline"
-                color={"#00A398"}
-                size={25}
-              />
-            </View>
-          </TouchableOpacity>
-        )}
-        {item.likes != null && !item.likes.includes(myUid) && (
-          <TouchableOpacity onPress={() => onUserLike(item)}>
-            <View>
-              <MaterialCommunityIcons
-                style={styles.icon}
-                name="thumb-up-outline"
-                color={"#808080"}
-                size={25}
-              />
-            </View>
-          </TouchableOpacity>
-        )}
-      </TouchableOpacity>
-    );
+      return item;
+    });
+    setPastTrips(newPastTrips);
   };
 
   const noTripsComponent = () => {
@@ -236,7 +167,19 @@ export default function PastTrips({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.name}>{item.displayName}</Text>
+      <View style={styles.spaceBetweenRow}>
+        {profilePic ? (
+          <Image style={styles.profilePic} source={{ uri: profilePic }} />
+        ) : (
+          <MaterialCommunityIcons
+            style={styles.profileIcon}
+            name="account-circle"
+            color={"#808080"}
+            size={100}
+          />
+        )}
+        <Text style={styles.name}>{item.displayName}</Text>
+      </View>
       <View style={styles.row}>
         <TouchableOpacity onPress={onPressFollowers}>
           <Text style={styles.follow}>{followers.length} Followers</Text>
@@ -266,7 +209,17 @@ export default function PastTrips({ navigation, route }) {
       ) : isFollowing ? (
         <FlatList
           data={pastTrips}
-          renderItem={pastTripComponent}
+          renderItem={({ item }) => (
+            <PastTripCard
+              item={item}
+              profilePic={profilePic}
+              displayName={displayName}
+              uid={myUid}
+              getUpdatedItem={getUpdatedItem}
+            >
+              {" "}
+            </PastTripCard>
+          )}
           ListEmptyComponent={noTripsComponent}
         />
       ) : (
@@ -300,10 +253,11 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   name: {
-    fontSize: 35,
-    color: "#00A398",
+    fontSize: 28,
+    // color: "#00A398",
     fontWeight: "bold",
-    margin: 15,
+    marginTop: 45,
+    width: Dimensions.get("window").height * 0.4,
   },
   follow: {
     fontSize: 15,
@@ -333,6 +287,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     paddingHorizontal: 12,
     marginVertical: 10,
+  },
+  spaceBetweenRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   tripName: {
     fontSize: 20,
@@ -373,5 +331,14 @@ const styles = StyleSheet.create({
   },
   activityIndicator: {
     margin: 50,
+  },
+  profileIcon: {
+    margin: 10,
+  },
+  profilePic: {
+    width: Dimensions.get("window").height * 0.1,
+    height: Dimensions.get("window").height * 0.1,
+    margin: 10,
+    borderRadius: 50,
   },
 });

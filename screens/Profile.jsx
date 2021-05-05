@@ -1,9 +1,11 @@
+import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase";
 
 import {
   ActivityIndicator,
   Dimensions,
   FlatList,
+  Image,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -11,12 +13,12 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
-import { findRegion, tripViewComponent } from "./TripViewer";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import db from "../firebase";
-import moment from "moment";
+import { getImageUrl } from "./TripOverview";
 import { useFocusEffect } from "@react-navigation/native";
+import PastTripCard from "./PastTripCard";
 
 /**
  * This component shows a profile which includes the number of followers
@@ -29,13 +31,14 @@ export default function Profile({ navigation }) {
   const [pastTrips, setPastTrips] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const currentUser = firebase.auth().currentUser;
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
     const parsedTrips = [];
-    const user = firebase.auth().currentUser;
     tripsFromDatabase.forEach((trip) => {
       const tripData = trip.data();
-      if (tripData.uid == user.uid) {
+      if (tripData.uid == currentUser.uid) {
         tripData["id"] = trip.id;
         tripData["tripTitle"] = tripData.tripTitleText;
         parsedTrips.push(tripData);
@@ -63,18 +66,20 @@ export default function Profile({ navigation }) {
   );
 
   const getCurrentUser = () => {
-    let uid = firebase.auth().currentUser.uid;
     const usersRef = firebase.firestore().collection("users");
-    const unsubscribe = usersRef.doc(uid).onSnapshot((userDoc) => {
+    const unsubscribe = usersRef.doc(currentUser.uid).onSnapshot((userDoc) => {
       setFollowers(userDoc.data()["followers"]);
       setFollowing(userDoc.data()["following"]);
+      if ("profilePicture" in userDoc.data()) {
+        setProfilePicture(userDoc.data()["profilePicture"]);
+      }
     });
     return unsubscribe;
   };
 
   const onPressFollowers = () => {
     const data = {
-      email: firebase.auth().currentUser.email,
+      email: currentUser.email,
       follow: followers,
       isFollowers: true,
     };
@@ -83,54 +88,70 @@ export default function Profile({ navigation }) {
 
   const onPressFollowing = () => {
     const data = {
-      email: firebase.auth().currentUser.email,
+      email: currentUser.email,
       follow: following,
       isFollowers: false,
     };
     navigation.navigate("Follow", data);
   };
 
-  const pastTripComponent = ({ item }) => {
-    return (
-      <TouchableOpacity
-        onPress={() => navigation.navigate("Past Trip", item)}
-        style={styles.itemContainer}
-      >
-        <View style={styles.cardHeader}>
-          <Text style={styles.tripName}>{item.tripTitle}</Text>
-          <Text>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
-        </View>
-        <View style={styles.tripCard}>
-          {tripViewComponent(
-            item.pins,
-            findRegion(item.pins, item.coordinates),
-            item.coordinates
-          )}
-        </View>
-        <View style={styles.likes}>
-          {item.likes == null && <Text> {item.likes} 0 likes </Text>}
-          {item.likes != null && item.likes.length != 1 && <Text> {item.likes.length} likes </Text>}
-          {item.likes != null && item.likes.length == 1 && <Text> {item.likes.length} like </Text>}
-        </View>
-      </TouchableOpacity>
-    );
+  const addProfilePicture = async () => {
+    const userRef = await db
+      .collection("users")
+      .doc(currentUser.uid);
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      base64: true,
+      quality: 0,
+    });
+    if (!result.cancelled) {
+      getImageUrl(result.uri).then((url) => {
+        userRef.update({
+          profilePicture: url,
+        });
+      });
+    }
   };
-
   const noTripsComponent = () => {
     return <Text style={styles.noTripText}>No trips to display!</Text>;
+  };
+
+  const getUpdatedItem = (newItem) => {
+    const newPastTrips = pastTrips.map((item) => {
+      if (item.id === newItem.id) {
+        return newItem;
+      }
+      return item;
+    });
+    setPastTrips(newPastTrips);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.spaceBetweenRow}>
+        {profilePicture ? (
+          <TouchableOpacity onPress={addProfilePicture}>
+            <Image style={styles.profilePic} source={{ uri: profilePicture }} />
+          </TouchableOpacity>
+        ) : (
+          <MaterialCommunityIcons
+            style={styles.profileIcon}
+            name="account-circle"
+            color={"#808080"}
+            size={100}
+            onPress={addProfilePicture}
+          />
+        )}
+
         <Text style={styles.name}>
-          {firebase.auth().currentUser.displayName}
+          {currentUser.displayName}
         </Text>
         <MaterialCommunityIcons
-          style={styles.icon}
+          style={styles.settingsIcon}
           name="account-cog"
           color={"#808080"}
-          size={34}
+          size={30}
           onPress={() => navigation.navigate("Settings")}
         />
       </View>
@@ -148,7 +169,17 @@ export default function Profile({ navigation }) {
       ) : (
         <FlatList
           data={pastTrips}
-          renderItem={pastTripComponent}
+        renderItem={({ item }) => (
+            <PastTripCard
+            item={item}
+            profilePic={profilePicture}
+            displayName={currentUser.displayName}
+            uid={currentUser.uid}
+            getUpdatedItem={getUpdatedItem}
+          >
+            {" "}
+          </PastTripCard>
+                )}
           ListEmptyComponent={noTripsComponent}
         />
       )}
@@ -169,16 +200,30 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
   },
-  icon: {
-    marginRight: 8,
+  settingsIcon: {
+    // marginRight: 20,
+    paddingRight: 10,
     marginTop: 15,
   },
+  profileIcon: {
+    margin: 10,
+  },
+  profilePic: {
+    width: Dimensions.get("window").height * 0.1,
+    height: Dimensions.get("window").height * 0.1,
+    margin: 10,
+    borderRadius: 50,
+  },
   name: {
-    fontSize: 35,
+    fontSize: 28,
     // color: "#00A398",
     fontWeight: "bold",
-    margin: 15,
-    width: 300,
+    marginTop: 45,
+    width: Dimensions.get("window").height * 0.4,
+  },
+  time: {
+    color: "#A9A9A9",
+    paddingLeft: 4,
   },
   follow: {
     fontSize: 15,
@@ -223,7 +268,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   likes: {
-    paddingBottom: 13
+    paddingBottom: 13,
   },
   activityIndicator: {
     margin: 50,
