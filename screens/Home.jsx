@@ -243,25 +243,13 @@ export default function Home({ navigation }) {
               borderBottomWidth: 1,
             }}
           />
-          {item.likes != null && item.likes.includes(myUid) && (
+          {item.likes != null && (
             <TouchableOpacity onPress={() => onUserLike(item)}>
               <View>
                 <MaterialCommunityIcons
                   style={styles.icon}
                   name="thumb-up-outline"
-                  color={"#00A398"}
-                  size={25}
-                />
-              </View>
-            </TouchableOpacity>
-          )}
-          {item.likes != null && !item.likes.includes(myUid) && (
-            <TouchableOpacity onPress={() => onUserLike(item)}>
-              <View>
-                <MaterialCommunityIcons
-                  style={styles.icon}
-                  name="thumb-up-outline"
-                  color={"#808080"}
+                  color={item.likes.includes(myUid)? "#00A398": "#808080"}
                   size={25}
                 />
               </View>
