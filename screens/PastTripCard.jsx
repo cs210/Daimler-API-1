@@ -155,7 +155,7 @@ export default function PastTripCard(props) {
             />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => onUserComment(item)}>
+        <TouchableOpacity onPress={() => navigation.navigate("Comment", item)}>
           <View style={styles.iconView}>
             <MaterialCommunityIcons
               style={styles.icon}

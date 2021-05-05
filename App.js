@@ -23,6 +23,8 @@ import Follow from "./screens/Follow";
 import Likes from "./screens/Likes";
 import { MenuProvider } from "react-native-popup-menu";
 import FriendProfile from "./screens/FriendProfile";
+import Comment from "./screens/Comment";
+
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
@@ -169,6 +171,7 @@ const App = () => {
             <Stack.Screen name="Friend Profile" component={FriendProfile} />
             <Stack.Screen name="Follow" component={Follow} />
             <Stack.Screen name="Likes" component={Likes} />
+            <Stack.Screen name="Comment" component={Comment} />
           </Stack.Navigator>
         ) : (
           <Stack.Navigator>
