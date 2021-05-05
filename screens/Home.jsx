@@ -19,6 +19,7 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import { NativeFormsModal } from "native-forms";
 import db from "../firebase";
 import moment from "moment";
+import { netPromoterUrl } from "../keys";
 import { useFocusEffect } from "@react-navigation/native";
 
 export default function Home({ navigation }) {
@@ -199,12 +200,11 @@ export default function Home({ navigation }) {
                 />
               )}
               <View>
-              <Text style={styles.userName}> {item.usersName}</Text>
-              <Text style={styles.time}>
-              {moment(item.time, moment.ISO_8601).format("LLL")}
-            </Text>
-            </View>
-
+                <Text style={styles.userName}> {item.usersName}</Text>
+                <Text style={styles.time}>
+                  {moment(item.time, moment.ISO_8601).format("LLL")}
+                </Text>
+              </View>
             </View>
 
             <Text style={styles.tripName}>{item.tripTitle}</Text>
@@ -295,7 +295,7 @@ export default function Home({ navigation }) {
         <View>
           <NativeFormsModal
             visible={showNPSForm}
-            form="https://my.nativeforms.com/gmUDFHZu1jZmcWTuhVQE1Db"
+            form={netPromoterUrl}
             onClose={() => setShowNPSForm(false)}
             onSend={onSendNPSForm}
           />
