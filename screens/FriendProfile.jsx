@@ -243,8 +243,8 @@ export default function PastTrips({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.row}>
-        {profilePic ? (
+<View style={styles.spaceBetweenRow}>
+          {profilePic ? (
           <Image style={styles.profilePic} source={{ uri: profilePic }} />
         ) : (
           <MaterialCommunityIcons
@@ -319,10 +319,11 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   name: {
-    fontSize: 35,
-    color: "#00A398",
+    fontSize: 28,
+    // color: "#00A398",
     fontWeight: "bold",
-    margin: 15,
+    marginTop: 45,
+    width: Dimensions.get("window").height * 0.4,
   },
   follow: {
     fontSize: 15,
@@ -352,6 +353,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     paddingHorizontal: 12,
     marginVertical: 10,
+  },
+  spaceBetweenRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   tripName: {
     fontSize: 20,
@@ -394,12 +399,12 @@ const styles = StyleSheet.create({
     margin: 50,
   },
   profileIcon: {
-    // margin: 10,
+    margin: 10,
   },
   profilePic: {
-    width: 100,
-    height: 100,
-    // margin: 10,
+    width: Dimensions.get("window").width * 0.22,
+    height: Dimensions.get("window").height * 0.1,
+    margin: 10,
     borderRadius: 50,
   },
 });

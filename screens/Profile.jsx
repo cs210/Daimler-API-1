@@ -222,8 +222,8 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   profilePic: {
-    width: 100,
-    height: 100,
+    width: Dimensions.get("window").width * 0.22,
+    height: Dimensions.get("window").height * 0.1,
     margin: 10,
     borderRadius: 50,
   },
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     // color: "#00A398",
     fontWeight: "bold",
     marginTop: 45,
-    width: 250,
+    width: Dimensions.get("window").height * 0.4,
   },
   time: {
     color: "#A9A9A9",
