@@ -6,7 +6,7 @@ import {
   Dimensions,
   Image,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
 import moment from "moment";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -30,8 +30,7 @@ export default function PastTripCard(props) {
   const userName = props.displayName;
 
   const onUserLike = async (item) => {
-    if (item.likes != null && item.uid != myUid) {
-      // Check to make sure it's not your own post
+    if (item.likes != null) {
       const tripRef = await db.collection("trips").doc(item.id);
       if (item.likes.includes(myUid)) {
         tripRef.update({
@@ -48,8 +47,16 @@ export default function PastTripCard(props) {
         });
       }
       props.getUpdatedItem({
-        item
+        item,
       });
+    }
+  };
+
+  const onPressUser = (item) => {
+    if (item.uid == firebase.auth().currentUser.uid) {
+      navigation.navigate("Profile");
+    } else {
+      navigation.navigate("Friend Profile", { item: item });
     }
   };
 
@@ -61,18 +68,20 @@ export default function PastTripCard(props) {
       >
         <View style={styles.cardHeader}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            {profilePicture ? (
-              <Image
-                style={styles.profilePic}
-                source={{ uri: profilePicture }}
-              />
-            ) : (
-              <MaterialCommunityIcons
-                name="account-circle"
-                color={"#808080"}
-                size={50}
-              />
-            )}
+            <TouchableOpacity onPress={() => onPressUser(item)}>
+              {profilePicture ? (
+                <Image
+                  style={styles.profilePic}
+                  source={{ uri: profilePicture }}
+                />
+              ) : (
+                <MaterialCommunityIcons
+                  name="account-circle"
+                  color={"#808080"}
+                  size={50}
+                />
+              )}
+            </TouchableOpacity>
             <View>
               <Text style={styles.userName}> {userName}</Text>
               <Text style={styles.time}>
@@ -117,25 +126,13 @@ export default function PastTripCard(props) {
             borderBottomWidth: 1,
           }}
         />
-        {item.likes != null && item.likes.includes(myUid) && (
+        {item.likes != null && (
           <TouchableOpacity onPress={() => onUserLike(item)}>
             <View>
               <MaterialCommunityIcons
                 style={styles.icon}
                 name="thumb-up-outline"
-                color={"#00A398"}
-                size={25}
-              />
-            </View>
-          </TouchableOpacity>
-        )}
-        {item.likes != null && !item.likes.includes(myUid) && (
-          <TouchableOpacity onPress={() => onUserLike(item)}>
-            <View>
-              <MaterialCommunityIcons
-                style={styles.icon}
-                name="thumb-up-outline"
-                color={"#808080"}
+                color={item.likes.includes(myUid) ? "#00A398" : "#808080"}
                 size={25}
               />
             </View>
@@ -191,7 +188,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   tripCard: {
-    width: Dimensions.get("window").width,
+    width: Dimensions.get("window").width * 1.02,
     height: Dimensions.get("window").height * 0.4,
     paddingLeft: 10,
     paddingTop: 15,
@@ -205,15 +202,15 @@ const styles = StyleSheet.create({
   icon: {
     alignSelf: "center",
     marginVertical: 10,
-    // paddingRight: 30,
   },
   activityIndicator: {
     margin: 50,
   },
   profilePic: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: Dimensions.get("window").height * 0.058,
+    height: Dimensions.get("window").height * 0.058,
+    borderRadius: 50,
     margin: 5,
+    marginLeft: 0,
   },
 });

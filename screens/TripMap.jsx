@@ -59,7 +59,7 @@ export default function TripMap({ navigation }) {
 
   useEffect(() => {
     updateUsersLocation();
-    let timer = setInterval(updateUsersLocation, 3000);
+    let timer = setInterval(updateUsersLocation, 10000);
     // clean-up interval timer on un-mount
     return () => {
       clearInterval(timer);
