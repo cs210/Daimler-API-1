@@ -56,6 +56,7 @@ export default function PastTripCard(props) {
     if (item.uid == firebase.auth().currentUser.uid) {
       navigation.navigate("Profile");
     } else {
+      item.displayName = userName;
       navigation.navigate("Friend Profile", { item: item });
     }
   };
