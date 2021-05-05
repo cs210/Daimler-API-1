@@ -127,18 +127,16 @@ export default function PastTripCard(props) {
             borderBottomWidth: 1,
           }}
         />
-        {item.likes != null && (
-          <TouchableOpacity onPress={() => onUserLike(item)}>
-            <View>
-              <MaterialCommunityIcons
-                style={styles.icon}
-                name="thumb-up-outline"
-                color={item.likes.includes(myUid) ? "#00A398" : "#808080"}
-                size={25}
-              />
-            </View>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity onPress={() => onUserLike(item)}>
+          <View>
+            <MaterialCommunityIcons
+              style={styles.icon}
+              name="thumb-up-outline"
+              color={item.likes.includes(myUid) ? "#00A398" : "#808080"}
+              size={25}
+            />
+          </View>
+        </TouchableOpacity>
       </TouchableOpacity>
     </View>
   );
