@@ -16,6 +16,7 @@ import { findRegion, tripViewComponent } from "./TripViewer";
 
 import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
+import { firebaseStorageUrl } from "../keys";
 
 /**
  * This component shows an overview of the trip such as a list of pins and a map
@@ -28,7 +29,7 @@ export const getImageUrl = (uri) => {
   const path = "/trip_assets/";
   var storageRef = firebase.storage().ref(path);
   const ref = storageRef.child(`${filename}`);
-  const url = "gs://cs-210-project.appspot.com/trip_assets/" + filename;
+  const url = "gs://" + firebaseStorageUrl + path + filename;
   return fetch(uri)
     .then((response) => response.blob())
     .then((blob) => {
