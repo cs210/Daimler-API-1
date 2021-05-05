@@ -139,7 +139,7 @@ export default function Profile({ navigation }) {
             style={styles.profileIcon}
             name="account-circle"
             color={"#808080"}
-            size={100}
+            size={90}
             onPress={addProfilePicture}
           />
         )}

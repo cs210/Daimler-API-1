@@ -27,9 +27,9 @@ export default function Settings({ navigation }) {
           {
             text: "Cancel",
             onPress: () => console.log("Cancel Pressed"),
-            style: "cancel"
+            style: "cancel",
           },
-          { text: "OK", onPress: () => deleteAccount() }
+          { text: "OK", onPress: () => deleteAccount() },
         ]
       );
     }
@@ -37,45 +37,42 @@ export default function Settings({ navigation }) {
 
   const deleteAccount = () => {
     var user = firebase.auth().currentUser;
-    console.log(user)
-    user.delete().then(function () {
-      db.collection("users").doc(user.uid).delete().then(() => {
-        console.log("Document successfully deleted!");
-      }).catch((error) => {
-        console.error("Error removing document: ", error);
+    console.log(user);
+    user
+      .delete()
+      .then(function () {
+        db.collection("users")
+          .doc(user.uid)
+          .delete()
+          .then(() => {
+            console.log("Document successfully deleted!");
+          })
+          .catch((error) => {
+            console.error("Error removing document: ", error);
+          });
+        console.log("success");
+        console.log(firebase.auth().currentUser);
+      })
+      .catch(function (error) {
+        Alert.alert(
+          "Log in again before retrying this request.",
+          "This operation is sensitive and requires recent authentication.",
+          [{ text: "OK", onPress: () => console.error({ error }) }]
+        );
       });
-      console.log("success")
-      console.log(firebase.auth().currentUser)
-    }).catch(function (error) {
-      Alert.alert(
-        "Log in again before retrying this request.",
-        "This operation is sensitive and requires recent authentication.",
-        [
-          { text: "OK", onPress: () => console.error({error}) }
-        ]
-      );
-    });
-  }
+  };
 
   return (
     <View style={styles.container}>
       <FlatList
-        data={[{ key: "Logout" }]}
+        data={[{ key: "Logout" }, { key: "Delete Account" }]}
         renderItem={({ item }) => (
           <Text style={styles.item} onPress={() => getListViewItem(item)}>
             {item.key}
           </Text>
         )}
         ItemSeparatorComponent={renderSeparator}
-      />
-      <FlatList
-        data={[{ key: "Delete Account" }]}
-        renderItem={({ item }) => (
-          <Text style={styles.item} onPress={() => getListViewItem(item)}>
-            {item.key}
-          </Text>
-        )}
-        ItemSeparatorComponent={renderSeparator}
+        ListFooterComponent={renderSeparator}
       />
     </View>
   );
@@ -96,6 +93,6 @@ const styles = StyleSheet.create({
   seperator: {
     height: 1,
     width: "100%",
-    backgroundColor: "#000",
+    backgroundColor: "lightgray",
   },
 });
