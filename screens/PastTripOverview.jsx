@@ -149,7 +149,6 @@ export default function PastTripOverview({ navigation, route }) {
             )}
           </View>
           <Text style={styles.header}> {tripTitle} </Text>
-
           <Text style={styles.date}>
             {" "}
             {moment(time, moment.ISO_8601).format("LLL")}
@@ -184,7 +183,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     padding: 10,
     paddingBottom: 0,
-    width: Dimensions.get("window").width * 0.9,
+    textAlign: 'center',
+    // width: Dimensions.get("window").width * 0.9,
   },
   name: {
     fontSize: 16,
