@@ -4,28 +4,23 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
-  Image,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { findRegion, tripViewComponent } from "./TripViewer";
 
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { NativeFormsModal } from "native-forms";
 import db from "../firebase";
-import moment from "moment";
 import { netPromoterUrl } from "../keys";
 import { useFocusEffect } from "@react-navigation/native";
+import PastTripCard from "./PastTripCard";
 
 export default function Home({ navigation }) {
   const [feedItems, setFeedItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [likesUsers, setLikesUsers] = useState({});
   const [showNPSForm, setShowNPSForm] = useState(false);
   const [friendsPic, setFriendsPic] = useState({});
   const myUid = firebase.auth().currentUser.uid;
@@ -53,7 +48,6 @@ export default function Home({ navigation }) {
     const followedUserIds = await fetchMyFollowing();
     const tripsFromDatabase = await fetchUsersTrips(followedUserIds);
     const userIdToNameMap = await fetchUsersNames(followedUserIds);
-    const likeUserDict = {};
     for (let tripBatch of tripsFromDatabase) {
       tripBatch.forEach((trip) => {
         const tripData = trip.data();
@@ -61,11 +55,9 @@ export default function Home({ navigation }) {
         tripData["usersName"] = userIdToNameMap[usersId];
         tripData["id"] = trip.id;
         tripData["tripTitle"] = tripData.tripTitleText;
-        likeUserDict[trip.id] = tripData.likes;
         parsedTrips.push(tripData);
       });
     }
-    setLikesUsers(likeUserDict);
     return parsedTrips;
   };
 
@@ -138,30 +130,6 @@ export default function Home({ navigation }) {
     setTimeout(() => setShowNPSForm(false), 1500);
   };
 
-  const onUserLike = async (item) => {
-    if (item.likes != null && item.uid != myUid) {
-      // Check to make sure it's not your own post
-      const tripRef = await db.collection("trips").doc(item.id);
-      if (item.likes.includes(myUid)) {
-        tripRef.update({
-          likes: firebase.firestore.FieldValue.arrayRemove(myUid),
-        });
-        const index = item.likes.indexOf(myUid);
-        if (index > -1) {
-          item.likes.splice(index, 1);
-        }
-      } else {
-        item.likes.push(myUid);
-        tripRef.update({
-          likes: firebase.firestore.FieldValue.arrayUnion(myUid),
-        });
-      }
-      const newLikesUsers = { ...likesUsers, [item.id]: item.likes };
-      setLikesUsers(newLikesUsers);
-      // There is probably a way around likesUsers - used this to get rereneder to occur
-    }
-  };
-
   useFocusEffect(
     React.useCallback(() => {
       async function fetchUsersPics() {
@@ -176,102 +144,7 @@ export default function Home({ navigation }) {
       fetchUsersPics();
     }, [])
   );
-
-  const pastTripComponent = ({ item }) => {
-    const profilePicture = friendsPic[item.uid];
-    return (
-      <View>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Past Trip", item)}
-          style={styles.itemContainer}
-        >
-          <View style={styles.cardHeader}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              {profilePicture ? (
-                <Image
-                  style={styles.profilePic}
-                  source={{ uri: profilePicture }}
-                />
-              ) : (
-                <MaterialCommunityIcons
-                  name="account-circle"
-                  color={"#808080"}
-                  size={50}
-                />
-              )}
-              <View>
-                <Text style={styles.userName}> {item.usersName}</Text>
-                <Text style={styles.time}>
-                  {moment(item.time, moment.ISO_8601).format("LLL")}
-                </Text>
-              </View>
-            </View>
-
-            <Text style={styles.tripName}>{item.tripTitle}</Text>
-          </View>
-          <View style={styles.tripCard}>
-            {tripViewComponent(
-              item.pins,
-              findRegion(item.pins, item.coordinates),
-              item.coordinates
-            )}
-          </View>
-          <View>
-            {item.likes == null && (
-              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
-                {" "}
-                {item.likes} 0 likes{" "}
-              </Text>
-            )}
-            {item.likes != null && item.likes.length != 1 && (
-              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
-                {" "}
-                {item.likes.length} likes{" "}
-              </Text>
-            )}
-            {item.likes != null && item.likes.length == 1 && (
-              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
-                {" "}
-                {item.likes.length} like{" "}
-              </Text>
-            )}
-          </View>
-          <View
-            style={{
-              paddingTop: 10,
-              borderBottomColor: "lightgray",
-              borderBottomWidth: 1,
-            }}
-          />
-          {item.likes != null && item.likes.includes(myUid) && (
-            <TouchableOpacity onPress={() => onUserLike(item)}>
-              <View>
-                <MaterialCommunityIcons
-                  style={styles.icon}
-                  name="thumb-up-outline"
-                  color={"#00A398"}
-                  size={25}
-                />
-              </View>
-            </TouchableOpacity>
-          )}
-          {item.likes != null && !item.likes.includes(myUid) && (
-            <TouchableOpacity onPress={() => onUserLike(item)}>
-              <View>
-                <MaterialCommunityIcons
-                  style={styles.icon}
-                  name="thumb-up-outline"
-                  color={"#808080"}
-                  size={25}
-                />
-              </View>
-            </TouchableOpacity>
-          )}
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
+  
   const noTripsComponent = () => {
     return (
       <Text style={styles.noTripText}>
@@ -287,6 +160,16 @@ export default function Home({ navigation }) {
     setIsLoading(false);
   };
 
+  const getUpdatedItem = (newItem) => {
+    const newFeedItems = feedItems.map((item) => {
+      if (item.id === newItem.id) {
+        return newItem;
+      }
+      return item;
+    });
+    setFeedItems(newFeedItems);
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       {isLoading ? (
@@ -298,11 +181,21 @@ export default function Home({ navigation }) {
             form={netPromoterUrl}
             onClose={() => setShowNPSForm(false)}
             onSend={onSendNPSForm}
-            extraData={{ "UserID": myUid }}
+            extraData={{ UserID: myUid }}
           />
           <FlatList
             data={feedItems}
-            renderItem={pastTripComponent}
+            renderItem={({ item }) => (
+              <PastTripCard
+                item={item}
+                friendsPic={friendsPic}
+                uid={myUid}
+                displayName={item.usersName}
+                getUpdatedItem={getUpdatedItem}
+              >
+                {" "}
+              </PastTripCard>
+            )}
             ListEmptyComponent={noTripsComponent}
             refreshControl={
               <RefreshControl

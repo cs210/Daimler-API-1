@@ -13,13 +13,12 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
-import { findRegion, tripViewComponent } from "./TripViewer";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import db from "../firebase";
 import { getImageUrl } from "./TripOverview";
-import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
+import PastTripCard from "./PastTripCard";
 
 /**
  * This component shows a profile which includes the number of followers
@@ -33,13 +32,13 @@ export default function Profile({ navigation }) {
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
   const [profilePicture, setProfilePicture] = useState(null);
+  const currentUser = firebase.auth().currentUser;
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
     const parsedTrips = [];
-    const user = firebase.auth().currentUser;
     tripsFromDatabase.forEach((trip) => {
       const tripData = trip.data();
-      if (tripData.uid == user.uid) {
+      if (tripData.uid == currentUser.uid) {
         tripData["id"] = trip.id;
         tripData["tripTitle"] = tripData.tripTitleText;
         parsedTrips.push(tripData);
@@ -67,9 +66,8 @@ export default function Profile({ navigation }) {
   );
 
   const getCurrentUser = () => {
-    let uid = firebase.auth().currentUser.uid;
     const usersRef = firebase.firestore().collection("users");
-    const unsubscribe = usersRef.doc(uid).onSnapshot((userDoc) => {
+    const unsubscribe = usersRef.doc(currentUser.uid).onSnapshot((userDoc) => {
       setFollowers(userDoc.data()["followers"]);
       setFollowing(userDoc.data()["following"]);
       if ("profilePicture" in userDoc.data()) {
@@ -81,7 +79,7 @@ export default function Profile({ navigation }) {
 
   const onPressFollowers = () => {
     const data = {
-      email: firebase.auth().currentUser.email,
+      email: currentUser.email,
       follow: followers,
       isFollowers: true,
     };
@@ -90,7 +88,7 @@ export default function Profile({ navigation }) {
 
   const onPressFollowing = () => {
     const data = {
-      email: firebase.auth().currentUser.email,
+      email: currentUser.email,
       follow: following,
       isFollowers: false,
     };
@@ -100,7 +98,7 @@ export default function Profile({ navigation }) {
   const addProfilePicture = async () => {
     const userRef = await db
       .collection("users")
-      .doc(firebase.auth().currentUser.uid);
+      .doc(currentUser.uid);
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -115,39 +113,18 @@ export default function Profile({ navigation }) {
       });
     }
   };
-
-  const pastTripComponent = ({ item }) => {
-    return (
-      <TouchableOpacity
-        onPress={() => navigation.navigate("Past Trip", item)}
-        style={styles.itemContainer}
-      >
-        <View style={styles.cardHeader}>
-          <Text style={styles.tripName}>{item.tripTitle}</Text>
-          <Text style={styles.time}>{moment(item.time, moment.ISO_8601).format("LLL")}</Text>
-        </View>
-        <View style={styles.tripCard}>
-          {tripViewComponent(
-            item.pins,
-            findRegion(item.pins, item.coordinates),
-            item.coordinates
-          )}
-        </View>
-        <View style={styles.likes}>
-          {item.likes == null && <Text> {item.likes} 0 likes </Text>}
-          {item.likes != null && item.likes.length != 1 && (
-            <Text> {item.likes.length} likes </Text>
-          )}
-          {item.likes != null && item.likes.length == 1 && (
-            <Text> {item.likes.length} like </Text>
-          )}
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
   const noTripsComponent = () => {
     return <Text style={styles.noTripText}>No trips to display!</Text>;
+  };
+
+  const getUpdatedItem = (newItem) => {
+    const newPastTrips = pastTrips.map((item) => {
+      if (item.id === newItem.id) {
+        return newItem;
+      }
+      return item;
+    });
+    setPastTrips(newPastTrips);
   };
 
   return (
@@ -168,7 +145,7 @@ export default function Profile({ navigation }) {
         )}
 
         <Text style={styles.name}>
-          {firebase.auth().currentUser.displayName}
+          {currentUser.displayName}
         </Text>
         <MaterialCommunityIcons
           style={styles.settingsIcon}
@@ -192,7 +169,17 @@ export default function Profile({ navigation }) {
       ) : (
         <FlatList
           data={pastTrips}
-          renderItem={pastTripComponent}
+        renderItem={({ item }) => (
+            <PastTripCard
+            item={item}
+            profilePic={profilePicture}
+            displayName={currentUser.displayName}
+            uid={currentUser.uid}
+            getUpdatedItem={getUpdatedItem}
+          >
+            {" "}
+          </PastTripCard>
+                )}
           ListEmptyComponent={noTripsComponent}
         />
       )}
@@ -222,7 +209,7 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   profilePic: {
-    width: Dimensions.get("window").width * 0.22,
+    width: Dimensions.get("window").height * 0.1,
     height: Dimensions.get("window").height * 0.1,
     margin: 10,
     borderRadius: 50,
