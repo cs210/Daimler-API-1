@@ -52,6 +52,29 @@ export default function PastTripCard(props) {
     }
   };
 
+  const onUserComment = async (item) => {
+    if (item.likes != null) {
+      const tripRef = await db.collection("trips").doc(item.id);
+      if (item.likes.includes(myUid)) {
+        tripRef.update({
+          likes: firebase.firestore.FieldValue.arrayRemove(myUid),
+        });
+        const index = item.likes.indexOf(myUid);
+        if (index > -1) {
+          item.likes.splice(index, 1);
+        }
+      } else {
+        item.likes.push(myUid);
+        tripRef.update({
+          likes: firebase.firestore.FieldValue.arrayUnion(myUid),
+        });
+      }
+      props.getUpdatedItem({
+        item,
+      });
+    }
+  };
+
   const onPressUser = (item) => {
     if (item.uid == firebase.auth().currentUser.uid) {
       navigation.navigate("Profile");
@@ -101,19 +124,13 @@ export default function PastTripCard(props) {
           )}
         </View>
         <View>
-          {item.likes == null && (
-            <Text onPress={() => navigation.navigate("Likes", item.likes)}>
-              {" "}
-              {item.likes} 0 likes{" "}
-            </Text>
-          )}
-          {item.likes != null && item.likes.length != 1 && (
+          {item.likes.length != 1 && (
             <Text onPress={() => navigation.navigate("Likes", item.likes)}>
               {" "}
               {item.likes.length} likes{" "}
             </Text>
           )}
-          {item.likes != null && item.likes.length == 1 && (
+          {item.likes.length == 1 && (
             <Text onPress={() => navigation.navigate("Likes", item.likes)}>
               {" "}
               {item.likes.length} like{" "}
@@ -127,8 +144,9 @@ export default function PastTripCard(props) {
             borderBottomWidth: 1,
           }}
         />
+        <View style={styles.reactionBar}>
         <TouchableOpacity onPress={() => onUserLike(item)}>
-          <View>
+          <View style={styles.iconView}>
             <MaterialCommunityIcons
               style={styles.icon}
               name="thumb-up-outline"
@@ -137,6 +155,17 @@ export default function PastTripCard(props) {
             />
           </View>
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => onUserComment(item)}>
+          <View style={styles.iconView}>
+            <MaterialCommunityIcons
+              style={styles.icon}
+              name="comment-text-outline"
+              color={item.likes.includes(myUid) ? "#00A398" : "#808080"}
+              size={25}
+            />
+          </View>
+        </TouchableOpacity>
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -173,6 +202,10 @@ const styles = StyleSheet.create({
     paddingLeft: 4,
     fontSize: 12,
   },
+  reactionBar: {
+    flexDirection: "row", 
+    alignItems: "center" 
+  },
   userName: {
     paddingLeft: 2,
     fontSize: 16,
@@ -201,6 +234,9 @@ const styles = StyleSheet.create({
   icon: {
     alignSelf: "center",
     marginVertical: 10,
+  },
+  iconView: {
+    width: Dimensions.get("window").width * 0.5,
   },
   activityIndicator: {
     margin: 50,
