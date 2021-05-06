@@ -21,7 +21,6 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
 import moment from "moment";
-import { useFocusEffect } from "@react-navigation/native";
 
 /**
  * This component shows an overview of the trip such as a list of pins and a map
