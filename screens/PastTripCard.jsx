@@ -52,29 +52,6 @@ export default function PastTripCard(props) {
     }
   };
 
-  const onUserComment = async (item) => {
-    if (item.likes != null) {
-      const tripRef = await db.collection("trips").doc(item.id);
-      if (item.likes.includes(myUid)) {
-        tripRef.update({
-          likes: firebase.firestore.FieldValue.arrayRemove(myUid),
-        });
-        const index = item.likes.indexOf(myUid);
-        if (index > -1) {
-          item.likes.splice(index, 1);
-        }
-      } else {
-        item.likes.push(myUid);
-        tripRef.update({
-          likes: firebase.firestore.FieldValue.arrayUnion(myUid),
-        });
-      }
-      props.getUpdatedItem({
-        item,
-      });
-    }
-  };
-
   const onPressUser = (item) => {
     if (item.uid == firebase.auth().currentUser.uid) {
       navigation.navigate("Profile");
