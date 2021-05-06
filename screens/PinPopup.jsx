@@ -65,6 +65,7 @@ export default function PinPopup(props) {
                 placeholder="Pin title"
                 onChangeText={(text) => setPinTitle(text)}
                 defaultValue={pinTitle}
+                autoCorrect={true}
               />
             </View>
             <View style={styles.flexView}>

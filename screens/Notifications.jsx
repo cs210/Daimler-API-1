@@ -73,6 +73,11 @@ export default function Notifications({ navigation, route }) {
       following: firebase.firestore.FieldValue.arrayUnion(myUid),
       followingRequests: firebase.firestore.FieldValue.arrayRemove(myUid),
     });
+    const index = users.indexOf(item);
+    if (index > -1) {
+      users.splice(index, 1);
+    }
+    setUsers(...users);
   };
 
   const onPressDecline = (item) => {
@@ -85,6 +90,11 @@ export default function Notifications({ navigation, route }) {
     theirRef.update({
       followingRequests: firebase.firestore.FieldValue.arrayRemove(myUid),
     });
+    const index = users.indexOf(item);
+    if (index > -1) {
+      users.splice(index, 1);
+    }
+    setUsers(...users);
   };
 
   return (
