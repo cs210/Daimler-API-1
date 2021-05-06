@@ -19,27 +19,20 @@ import * as firebase from "firebase";
  */
 export default function Notifications({ navigation, route }) {
   const [users, setUsers] = useState([]);
+  const myUid = firebase.auth().currentUser.uid;
 
   useFocusEffect(
     React.useCallback(() => {
-      let isMounted = true;
-
-      async function fetchUsersNames() {
-        let uid = firebase.auth().currentUser.uid;
-        const usersRef = firebase.firestore().collection("users");
-        let isThereFollowers = false;
-        usersRef.doc(uid).onSnapshot((userDoc) => {
-          isThereFollowers = true;
-          setUsersFunc(userDoc.data()["followerRequests"]);
-        });
-      }
-      async function fetchLikes() {
-        
-      }
-      fetchUsersNames();
-      return () => { isMounted = false }
+      loadFollowerRequests();
     }, [])
   );
+
+  const loadFollowerRequests = async () => {
+    const userDoc = await db.collection("users").doc(myUid).get();
+    const userData = userDoc.data();
+    const followerRequests = userData["followerRequests"];
+    setUsersFunc(followerRequests);
+  };
 
   const setUsersFunc = async (followersList) => {
     if (followersList.length == 0) {

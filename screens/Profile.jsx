@@ -69,9 +69,7 @@ export default function Profile({ navigation }) {
     const userData = userDoc.data();
     setFollowers(userData["followers"]);
     setFollowing(userData["following"]);
-    if ("profilePicture" in userData) {
-      setProfilePicture(userData["profilePicture"]);
-    }
+    setProfilePicture(userData["profilePicture"]);
   };
 
   const onPressFollowers = () => {
