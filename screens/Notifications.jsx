@@ -77,7 +77,7 @@ export default function Notifications({ navigation, route }) {
     if (index > -1) {
       users.splice(index, 1);
     }
-    setUsers(...users);
+    setUsers([...users]);
   };
 
   const onPressDecline = (item) => {
@@ -94,7 +94,7 @@ export default function Notifications({ navigation, route }) {
     if (index > -1) {
       users.splice(index, 1);
     }
-    setUsers(...users);
+    setUsers([...users]);
   };
 
   return (
