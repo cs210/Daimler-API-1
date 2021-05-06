@@ -59,12 +59,12 @@ export default function TripMap({ navigation }) {
 
   useEffect(() => {
     updateUsersLocation();
-    let timer = setInterval(updateUsersLocation, 10000);
+    let timer = setInterval(updateUsersLocation, 4000);
     // clean-up interval timer on un-mount
     return () => {
       clearInterval(timer);
     };
-  }, [isTripRecording, coordinates]);
+  }, [isTripRecording]);
 
   const updateUsersLocation = async () => {
     let { status } = await Location.requestPermissionsAsync();
@@ -90,8 +90,7 @@ export default function TripMap({ navigation }) {
       longitude: location.coords.longitude,
     };
     if (isTripRecording) {
-      const newcoordinates = [...coordinates, keys];
-      setCoordinates(newcoordinates);
+      setCoordinates(coordinates => ([...coordinates, keys]));
     }
   };
 
