@@ -150,7 +150,7 @@ const App = () => {
       <NavigationContainer>
         {loggedIn == null ? (
           <Stack.Navigator>
-            <Stack.Screen name="Splash Screen" component={SplashScreen} />
+            <Stack.Screen name="Road Trip Pal" component={SplashScreen} />
           </Stack.Navigator>
         ) : loggedIn ? (
           <Stack.Navigator>
