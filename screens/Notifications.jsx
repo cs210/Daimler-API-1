@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Dimensions,
 } from "react-native";
 
 import db from "../firebase";
@@ -50,7 +51,7 @@ export default function Notifications({ navigation, route }) {
       userList.push(userData);
     });
     setUsers(userList);
-  }
+  };
 
   const onPressUser = (item) => {
     if (item.uid == firebase.auth().currentUser.uid) {
@@ -91,13 +92,7 @@ export default function Notifications({ navigation, route }) {
       <View style={styles.peopleView}>
         <Text style={styles.titleText}>Follow Requests</Text>
         <FlatList
-          style={{
-            marginLeft: 10,
-            marginRight: 10,
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: "rgba(216,213,214,1)",
-          }}
+          style={styles.list}
           contentContainerStyle={{
             alignItems: "center",
           }}
@@ -115,7 +110,7 @@ export default function Notifications({ navigation, route }) {
                       style={styles.buttonAccept}
                       onPress={() => onPressAccept(item)}
                     >
-                    <Text>Accept</Text>
+                      <Text>Accept</Text>
                     </TouchableOpacity>
                   </View>
                   <View style={styles.userCardRow}>
@@ -124,7 +119,7 @@ export default function Notifications({ navigation, route }) {
                       style={styles.buttonDecline}
                       onPress={() => onPressDecline(item)}
                     >
-                    <Text>Decline</Text>
+                      <Text>Decline</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -143,29 +138,38 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
+  list: {
+    marginLeft: 10,
+    marginRight: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(216,213,214,1)",
+  },
   buttonAccept: {
-      backgroundColor: 'rgba(118, 166, 239, 0.4)',
-      shadowColor: 'gray',
-      paddingLeft: 16,
-      paddingRight: 16,
-      marginRight: 5,
-      marginTop: 5,
-      height: 30,
-      borderRadius: 5,
-      alignItems: "center",
-      justifyContent: 'center'
+    backgroundColor: "rgba(118, 166, 239, 0.4)",
+    shadowColor: "gray",
+    paddingLeft: 16,
+    paddingRight: 16,
+    marginRight: 5,
+    marginTop: 5,
+    height: Dimensions.get("window").height * 0.033,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "27%",
   },
   buttonDecline: {
-      backgroundColor: '#F07F7C',
-      shadowColor: 'gray',
-      paddingLeft: 16,
-      paddingRight: 16,
-      marginRight: 5,
-      marginTop: 5,
-      height: 30,
-      borderRadius: 5,
-      alignItems: "center",
-      justifyContent: 'center'
+    backgroundColor: "#F07F7C",
+    shadowColor: "gray",
+    paddingLeft: 16,
+    paddingRight: 16,
+    marginRight: 5,
+    marginTop: 5,
+    height: Dimensions.get("window").height * 0.033,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "27%",
   },
   peopleView: {
     flex: 10,

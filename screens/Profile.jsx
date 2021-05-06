@@ -196,7 +196,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   settingsIcon: {
-    // marginRight: 20,
     paddingRight: 10,
     marginTop: 15,
   },
@@ -211,7 +210,6 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 28,
-    // color: "#00A398",
     fontWeight: "bold",
     marginTop: 45,
     width: Dimensions.get("window").height * 0.3,

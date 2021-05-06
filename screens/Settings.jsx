@@ -1,4 +1,11 @@
-import { FlatList, StyleSheet, Text, View, Alert } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  Alert,
+  Dimensions,
+} from "react-native";
 import React from "react";
 import * as firebase from "firebase";
 import db from "../firebase";
@@ -86,7 +93,7 @@ const styles = StyleSheet.create({
   item: {
     padding: 10,
     fontSize: 18,
-    height: 44,
+    height:  Dimensions.get("window").height * 0.045,
     color: "#00A398",
     margin: 5,
   },

@@ -260,35 +260,9 @@ const styles = StyleSheet.create({
     margin: 15,
     fontWeight: "bold",
   },
-  itemContainer: {
-    borderRadius: 6,
-    elevation: 3,
-    backgroundColor: "#fff",
-    shadowOffset: { width: 1, height: 1 },
-    shadowColor: "#333",
-    shadowOpacity: 0.3,
-    paddingHorizontal: 12,
-    marginVertical: 10,
-  },
   spaceBetweenRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  tripName: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  tripCard: {
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height * 0.4,
-    paddingLeft: 10,
-    paddingTop: 20,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    margin: 5,
   },
   button: {
     justifyContent: "center",

@@ -30,7 +30,6 @@ export default function PastTripOverview({ navigation, route }) {
   const { pins, tripTitle, time, coordinates, id, uid } = route.params;
   const [isFriendTrip, setIsFriendTrip] = useState(true);
   const [tripUser, setTripUser] = useState("");
-  const [profilePicture, setProfilePicture] = useState(null);
 
   useEffect(() => {
     loadUserData();
@@ -85,7 +84,12 @@ export default function PastTripOverview({ navigation, route }) {
               <Image
                 key={photo.key}
                 source={{ uri: photo.uri }}
-                style={{ width: 200, height: 200, margin: 5, padding: 5 }}
+                style={{
+                  width: Dimensions.get("window").height * 0.23,
+                  height: Dimensions.get("window").height * 0.23,
+                  margin: 5,
+                  padding: 5,
+                }}
               />
             ))}
           </ScrollView>
@@ -167,8 +171,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     padding: 10,
     paddingBottom: 0,
-    textAlign: 'center',
-    // width: Dimensions.get("window").width * 0.9,
+    textAlign: "center",
   },
   name: {
     fontSize: 16,
@@ -221,8 +224,8 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   profilePic: {
-    width: 50,
-    height: 50,
+    width: Dimensions.get("window").height * 0.058,
+    height: Dimensions.get("window").height * 0.058,
     borderRadius: 25,
     margin: 5,
     marginLeft: 10,

@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Dimensions
 } from "react-native";
 import React, { useState } from "react";
 
@@ -179,8 +180,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   profilePic: {
-    width: 50,
-    height: 50,
+    width: Dimensions.get("window").height * 0.058,
+    height: Dimensions.get("window").height * 0.058,
     borderRadius: 25,
     margin: 4,
   },
