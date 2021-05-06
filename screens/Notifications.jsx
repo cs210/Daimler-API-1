@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// import { useFocusEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 
 import {
@@ -8,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Dimensions,
 } from "react-native";
 
 import db from "../firebase";
@@ -15,81 +15,43 @@ import uuidv4 from "uuid/v4";
 import * as firebase from "firebase";
 
 /**
- * This component displays a list of followers or those you are following
- * when a user clicks on followers or following from someone's profile.
+ * This component displays the notifications - currently the follow requests
+ * that someone has.
  */
 export default function Notifications({ navigation, route }) {
   const [users, setUsers] = useState([]);
-  const [followerRequests, setFollowerRequests] = useState([]);
-  const [likers, setLikers] = useState([]);
-  const [followers, setFollowers] = useState([]);
+  const myUid = firebase.auth().currentUser.uid;
 
   useFocusEffect(
     React.useCallback(() => {
-      // let isMounted = true;
-      async function fetchFollowUsersNames() {
-        let uid = firebase.auth().currentUser.uid;
-        const usersRef = firebase.firestore().collection("users");
-        usersRef.doc(uid).onSnapshot((userDoc) => {
-          setFollowerRequests(userDoc.data()["followerRequests"]);
-        });
-        console.log(followerRequests);
-
-        if (followerRequests.length == 0) {
-          setUsers([]);
-          return;
-        }
-        const dbUsers = await db
-          .collection("users")
-          .where("uid", "in", followerRequests)
-          .get();
-
-        const userList = [];
-        dbUsers.forEach((user) => {
-          const userData = user.data();
-          userList.push(userData);
-        });
-        console.log("here")
-        setUsers(userList);
-        console.log("userList", userList);
-      }
-
-      async function fetchLikeUsersNames() {
-        let uid = firebase.auth().currentUser.uid;
-        const likersList = [];
-        const tripsFromDatabase = await db.collection("trips")
-          .where("uid", "==", uid)
-          .orderBy("time", "desc")
-          .get();
-        tripsFromDatabase.forEach((trip) => {
-          const tripData = trip.data();
-          likersList.concat(tripData.likes);
-        });
-
-        if (likersList.length == 0) {
-          setLikers([]);
-          return;
-        }
-
-        const dbUsers = await db
-          .collection("users")
-          .where("uid", "in", likersList)
-          .get();
-
-        const userList = [];
-        dbUsers.forEach((user) => {
-          const userData = user.data();
-          userList.push(userData);
-        });
-        console.log("here")
-        setLikers(userList);
-        console.log("userList", userList);
-      }
-      fetchFollowUsersNames();
-      // fetchLikeUsersNames();
-      // return () => { isMounted = false }
+      loadFollowerRequests();
     }, [])
   );
+
+  const loadFollowerRequests = async () => {
+    const userDoc = await db.collection("users").doc(myUid).get();
+    const userData = userDoc.data();
+    const followerRequests = userData["followerRequests"];
+    setUsersFunc(followerRequests);
+  };
+
+  const setUsersFunc = async (followersList) => {
+    if (followersList.length == 0) {
+      setUsers([]);
+      return;
+    }
+    const dbUsers = await db
+      .collection("users")
+      .where("uid", "in", followersList)
+      .get();
+
+    const userList = [];
+    dbUsers.forEach((user) => {
+      const userData = user.data();
+      userList.push(userData);
+    });
+    setUsers(userList);
+  };
 
   const onPressUser = (item) => {
     if (item.uid == firebase.auth().currentUser.uid) {
@@ -101,30 +63,38 @@ export default function Notifications({ navigation, route }) {
 
   const onPressAccept = (item) => {
     const myUid = firebase.auth().currentUser.uid;
-    const theirUid = item.uid;
     const myRef = firebase.firestore().collection("users").doc(myUid);
     const theirRef = firebase.firestore().collection("users").doc(item.uid);
-    const myRes = myRef.update({
+    myRef.update({
       followers: firebase.firestore.FieldValue.arrayUnion(item.uid),
       followerRequests: firebase.firestore.FieldValue.arrayRemove(item.uid),
     });
-    const theirRes = theirRef.update({
+    theirRef.update({
       following: firebase.firestore.FieldValue.arrayUnion(myUid),
       followingRequests: firebase.firestore.FieldValue.arrayRemove(myUid),
     });
+    const index = users.indexOf(item);
+    if (index > -1) {
+      users.splice(index, 1);
+    }
+    setUsers(...users);
   };
 
   const onPressDecline = (item) => {
     const myUid = firebase.auth().currentUser.uid;
-    const theirUid = item.uid;
     const myRef = firebase.firestore().collection("users").doc(myUid);
     const theirRef = firebase.firestore().collection("users").doc(item.uid);
-    const myRes = myRef.update({
+    myRef.update({
       followerRequests: firebase.firestore.FieldValue.arrayRemove(item.uid),
     });
-    const theirRes = theirRef.update({
+    theirRef.update({
       followingRequests: firebase.firestore.FieldValue.arrayRemove(myUid),
     });
+    const index = users.indexOf(item);
+    if (index > -1) {
+      users.splice(index, 1);
+    }
+    setUsers(...users);
   };
 
   return (
@@ -132,13 +102,7 @@ export default function Notifications({ navigation, route }) {
       <View style={styles.peopleView}>
         <Text style={styles.titleText}>Follow Requests</Text>
         <FlatList
-          style={{
-            marginLeft: 10,
-            marginRight: 10,
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: "rgba(216,213,214,1)",
-          }}
+          style={styles.list}
           contentContainerStyle={{
             alignItems: "center",
           }}
@@ -156,7 +120,7 @@ export default function Notifications({ navigation, route }) {
                       style={styles.buttonAccept}
                       onPress={() => onPressAccept(item)}
                     >
-                    <Text>Accept</Text>
+                      <Text>Accept</Text>
                     </TouchableOpacity>
                   </View>
                   <View style={styles.userCardRow}>
@@ -165,42 +129,8 @@ export default function Notifications({ navigation, route }) {
                       style={styles.buttonDecline}
                       onPress={() => onPressDecline(item)}
                     >
-                    <Text>Decline</Text>
+                      <Text>Decline</Text>
                     </TouchableOpacity>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            );
-          }}
-          keyExtractor={() => uuidv4()}
-        ></FlatList>
-      </View>
-      <View style={styles.peopleView}>
-        <Text style={styles.titleText}>Activity</Text>
-        <FlatList
-          style={{
-            marginLeft: 10,
-            marginRight: 10,
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: "rgba(216,213,214,1)",
-          }}
-          contentContainerStyle={{
-            alignItems: "center",
-          }}
-          data={likers}
-          renderItem={({ item }) => {
-            return (
-              <TouchableOpacity
-                style={styles.userCard}
-                onPress={() => onPressUser(item)}
-              >
-                <View style={styles.userCardInfo}>
-                  <View style={styles.userCardRow}>
-                    <Text style={styles.userTitle}>{item.username}</Text>
-                  </View>
-                  <View style={styles.userCardRow}>
-                    <Text style={styles.userText}>{item.displayName}</Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -216,30 +146,40 @@ export default function Notifications({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#fff",
+  },
+  list: {
+    marginLeft: 10,
+    marginRight: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(216,213,214,1)",
   },
   buttonAccept: {
-      backgroundColor: 'rgba(118, 166, 239, 0.4)',
-      shadowColor: 'gray',
-      paddingLeft: 16,
-      paddingRight: 16,
-      marginRight: 5,
-      marginTop: 5,
-      height: 30,
-      borderRadius: 5,
-      alignItems: "center",
-      justifyContent: 'center'
+    backgroundColor: "rgba(118, 166, 239, 0.4)",
+    shadowColor: "gray",
+    paddingLeft: 16,
+    paddingRight: 16,
+    marginRight: 5,
+    marginTop: 5,
+    height: Dimensions.get("window").height * 0.033,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "27%",
   },
   buttonDecline: {
-      backgroundColor: '#F07F7C',
-      shadowColor: 'gray',
-      paddingLeft: 16,
-      paddingRight: 16,
-      marginRight: 5,
-      marginTop: 5,
-      height: 30,
-      borderRadius: 5,
-      alignItems: "center",
-      justifyContent: 'center'
+    backgroundColor: "#F07F7C",
+    shadowColor: "gray",
+    paddingLeft: 16,
+    paddingRight: 16,
+    marginRight: 5,
+    marginTop: 5,
+    height: Dimensions.get("window").height * 0.033,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "27%",
   },
   peopleView: {
     flex: 10,

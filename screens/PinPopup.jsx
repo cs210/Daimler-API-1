@@ -10,6 +10,7 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   View,
+  Dimensions,
 } from "react-native";
 import React, { useState } from "react";
 
@@ -64,6 +65,7 @@ export default function PinPopup(props) {
                 placeholder="Pin title"
                 onChangeText={(text) => setPinTitle(text)}
                 defaultValue={pinTitle}
+                autoCorrect={true}
               />
             </View>
             <View style={styles.flexView}>
@@ -163,13 +165,13 @@ const styles = StyleSheet.create({
   flexView: {
     marginBottom: 15,
     alignItems: "stretch",
-    height: 40,
+    height: Dimensions.get("window").height * 0.04,
     flexDirection: "row",
   },
   buttonFlexView: {
     marginBottom: 15,
     alignItems: "stretch",
-    height: 53,
+    height:  Dimensions.get("window").height * 0.058,
     flexDirection: "row",
   },
   text: {
@@ -199,18 +201,18 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   exit: {
-    width: 30,
-    height: 30,
+    width: Dimensions.get("window").height * 0.032,
+    height: Dimensions.get("window").height * 0.032,
     marginLeft: 250,
     marginBottom: 20,
   },
   deletePhoto: {
-    width: 30,
-    height: 30,
+    width: Dimensions.get("window").height * 0.032,
+    height: Dimensions.get("window").height * 0.032,
   },
   photos: {
-    width: 200,
-    height: 200,
+    width: Dimensions.get("window").height * 0.22,
+    height: Dimensions.get("window").height * 0.22,
     margin: 5,
     alignItems: "flex-end",
   },

@@ -1,4 +1,4 @@
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Dimensions, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
 
 import React from "react";
@@ -57,7 +57,7 @@ export const tripViewComponent = (pins, region, coords) => {
                     <Image
                       key={photo.key}
                       source={{ uri: photo.uri }}
-                      style={{ width: 150, height: 150, margin: 5 }}
+                      style={styles.image}
                     />
                   ))}
               </View>
@@ -111,4 +111,9 @@ const styles = StyleSheet.create({
     width: "90%",
     height: "90%",
   },
+  image: {
+    width:  Dimensions.get("window").height * 0.19, 
+    height:  Dimensions.get("window").height * 0.19, 
+    margin: 5
+  }
 });

@@ -11,11 +11,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import db from "../firebase";
-import { useFocusEffect } from "@react-navigation/native";
 import PastTripCard from "./PastTripCard";
 
 /**
@@ -36,70 +35,53 @@ export default function PastTrips({ navigation, route }) {
   const [buttonText, setButtonText] = useState("Follow");
   const displayName = item.displayName;
   const myUid = firebase.auth().currentUser.uid;
+  const theirUid = item.uid;
 
-  const parseTripsFromDatabase = (tripsFromDatabase) => {
-    const parsedTrips = [];
-    const uid = firebase.auth().currentUser.uid;
-    const usersRef = firebase.firestore().collection("users");
-    usersRef.doc(uid).onSnapshot((userDoc) => {
-      if (userDoc.data()["following"].includes(item.uid)) {
-        setIsFollowing(true);
-        tripsFromDatabase.forEach((trip) => {
-          const tripData = trip.data();
-          if (tripData.uid == item.uid) {
-            tripData["id"] = trip.id;
-            tripData["tripTitle"] = tripData.tripTitleText;
-            parsedTrips.push(tripData);
-          }
-        });
-      } else if (userDoc.data()["followingRequests"].includes(item.uid)) {
-        setIsFollowingRequested(true);
-      }
-      if (parsedTrips.length != pastTrips.length) {
-        // Could potentially add more rigorous check than length
-        setPastTrips(parsedTrips);
-      }
-    });
-  };
+  useEffect(() => {
+    loadPastTrips();
+    loadUserData();
+  }, []);
 
   const loadPastTrips = async () => {
     setLoading(true);
-    const collRef = db.collection("trips");
-    const tripsFromDatabase = await collRef.orderBy("time", "desc").get();
-    parseTripsFromDatabase(tripsFromDatabase);
+    const tripsFromDatabase = await db.collection("trips")
+      .where("uid", "==", theirUid)
+      .orderBy("time", "desc")
+      .get();
+    const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
+    setPastTrips(parsedTrips);
     setLoading(false);
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      let isMounted = true;
-      const uid = firebase.auth().currentUser.uid;
-      const usersRef = firebase.firestore().collection("users");
-      usersRef.doc(uid).onSnapshot((userDoc) => {
-        if (userDoc.data()["followingRequests"].includes(item.uid)) {
-          setIsFollowingRequested(true);
-          setButtonText("Requested");
-        }
-      });
-      loadPastTrips();
-      getFriendUser();
-    }, [])
-  );
-
-  const getFriendUser = () => {
-    const usersRef = firebase.firestore().collection("users");
-    usersRef.doc(item.uid).onSnapshot((userDoc) => {
-      setFollowers(userDoc.data()["followers"]);
-      setFollowing(userDoc.data()["following"]);
-      setProfilePic(userDoc.data()["profilePicture"]);
+  const parseTripsFromDatabase = (tripsFromDatabase) => {
+    const parsedTrips = [];
+    tripsFromDatabase.forEach((trip) => {
+      const tripData = trip.data();
+      tripData["id"] = trip.id;
+      tripData["tripTitle"] = tripData.tripTitleText;
+      parsedTrips.push(tripData);
     });
+    return parsedTrips;
+  };
+
+  const loadUserData = async () => {
+    const userDoc = await db.collection("users").doc(theirUid).get();
+    const userData = userDoc.data();
+    setFollowers(userData["followers"]);
+    setFollowing(userData["following"]);
+    setProfilePic(userData["profilePicture"]);
+    setIsFollowing(userData["followers"].includes(myUid));
+    if (userData["followerRequests"].includes(myUid)) {
+      setIsFollowingRequested(true);
+      setButtonText("Requested");
+    }
   };
 
   const onUnfollowUser = async () => {
     const myRef = firebase.firestore().collection("users").doc(myUid);
-    const theirRef = firebase.firestore().collection("users").doc(item.uid);
+    const theirRef = firebase.firestore().collection("users").doc(theirUid);
     const myRes = myRef.update({
-      following: firebase.firestore.FieldValue.arrayRemove(item.uid),
+      following: firebase.firestore.FieldValue.arrayRemove(theirUid),
     });
     const theirRes = theirRef.update({
       followers: firebase.firestore.FieldValue.arrayRemove(myUid),
@@ -111,10 +93,10 @@ export default function PastTrips({ navigation, route }) {
 
   const onRequestUser = async () => {
     const myRef = firebase.firestore().collection("users").doc(myUid);
-    const theirRef = firebase.firestore().collection("users").doc(item.uid);
+    const theirRef = firebase.firestore().collection("users").doc(theirUid);
     if (buttonText == "Requested") {
       const myRes = myRef.update({
-        followingRequests: firebase.firestore.FieldValue.arrayRemove(item.uid),
+        followingRequests: firebase.firestore.FieldValue.arrayRemove(theirUid),
       });
       const theirRes = theirRef.update({
         followerRequests: firebase.firestore.FieldValue.arrayRemove(myUid),
@@ -125,7 +107,7 @@ export default function PastTrips({ navigation, route }) {
       setButtonText("Follow");
     } else {
       const myRes = myRef.update({
-        followingRequests: firebase.firestore.FieldValue.arrayUnion(item.uid),
+        followingRequests: firebase.firestore.FieldValue.arrayUnion(theirUid),
       });
       const theirRes = theirRef.update({
         followerRequests: firebase.firestore.FieldValue.arrayUnion(myUid),
@@ -278,35 +260,9 @@ const styles = StyleSheet.create({
     margin: 15,
     fontWeight: "bold",
   },
-  itemContainer: {
-    borderRadius: 6,
-    elevation: 3,
-    backgroundColor: "#fff",
-    shadowOffset: { width: 1, height: 1 },
-    shadowColor: "#333",
-    shadowOpacity: 0.3,
-    paddingHorizontal: 12,
-    marginVertical: 10,
-  },
   spaceBetweenRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  tripName: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  tripCard: {
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height * 0.4,
-    paddingLeft: 10,
-    paddingTop: 20,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    margin: 5,
   },
   button: {
     justifyContent: "center",

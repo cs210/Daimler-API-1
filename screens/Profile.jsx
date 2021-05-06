@@ -69,9 +69,7 @@ export default function Profile({ navigation }) {
     const userData = userDoc.data();
     setFollowers(userData["followers"]);
     setFollowing(userData["following"]);
-    if ("profilePicture" in userData) {
-      setProfilePicture(userData["profilePicture"]);
-    }
+    setProfilePicture(userData["profilePicture"]);
   };
 
   const onPressFollowers = () => {
@@ -137,7 +135,7 @@ export default function Profile({ navigation }) {
             style={styles.profileIcon}
             name="account-circle"
             color={"#808080"}
-            size={100}
+            size={90}
             onPress={addProfilePicture}
           />
         )}
@@ -198,7 +196,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   settingsIcon: {
-    // marginRight: 20,
     paddingRight: 10,
     marginTop: 15,
   },
@@ -213,7 +210,6 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 28,
-    // color: "#00A398",
     fontWeight: "bold",
     marginTop: 45,
     width: Dimensions.get("window").height * 0.3,

@@ -204,7 +204,7 @@ export default function TripMap({ navigation }) {
                       <Image
                         key={photo.key}
                         source={{ uri: photo.uri }}
-                        style={{ width: 200, height: 200, margin: 5 }}
+                        style={styles.image}
                       />
                     ))}
                 </ScrollView>
@@ -286,5 +286,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     alignSelf: "center",
     textTransform: "uppercase",
+  },
+  image: {
+    width: Dimensions.get("window").width * 0.28,
+    height: Dimensions.get("window").width * 0.28,
+    margin: 5,
   },
 });
