@@ -20,11 +20,13 @@ import * as firebase from "firebase";
  */
 export default function Notifications({ navigation, route }) {
   const [users, setUsers] = useState([]);
+  const [likers, setLikers] = useState([]);
   const myUid = firebase.auth().currentUser.uid;
 
   useFocusEffect(
     React.useCallback(() => {
       loadFollowerRequests();
+      loadLikes();
     }, [])
   );
 
@@ -34,6 +36,50 @@ export default function Notifications({ navigation, route }) {
     const followerRequests = userData["followerRequests"];
     setUsersFunc(followerRequests);
   };
+
+  const loadLikes = async () => {
+    const pastTrips = [];
+    const tripsFromDatabase = await db.collection("trips")
+      .where("uid", "==", currentUser.uid)
+      .orderBy("time", "desc")
+      .get();
+    getLikes(tripsFromDatabase);
+  };
+
+  const getLikes = async (tripsFromDatabase) => {
+    const likersMap = {};
+    tripsFromDatabase.forEach((trip) => {
+      const tripData = trip.data();
+      likersMap[tripData.uid] = tripData.likes;
+    });
+    setUserLikesFunc(likersMap);
+  };
+
+  const setUserLikesFunc = async (likersMap) => {
+    if (likersMap.size == 0) {
+      setLikers([]);
+      return;
+    }
+    const userLikesList = [];
+
+    likersMap.keys().forEach((key) => {
+      const dbLikesUsers = await db
+        .collection("users")
+        .where("uid", "in", likersMap[key])
+        .get();
+
+      const userTripLikesList = [];
+      dbLikesUsers.forEach((user) => {
+        const userData = user.data();
+        const individualTripInfo = [];
+        individualTripInfo.push(userData);
+        individualTripInfo.push(key);
+        userTripLikesList.push(individualTripInfo);
+      });
+      userLikesList.concat(userTripLikesList);
+    }
+    setLikers(userLikesList);
+  }
 
   const setUsersFunc = async (followersList) => {
     if (followersList.length == 0) {
@@ -131,6 +177,39 @@ export default function Notifications({ navigation, route }) {
                     >
                       <Text>Decline</Text>
                     </TouchableOpacity>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          }}
+          keyExtractor={() => uuidv4()}
+        ></FlatList>
+      </View>
+      <View style={styles.peopleView}>
+        <Text style={styles.titleText}>Activity</Text>
+        <FlatList
+          style={styles.list}
+          contentContainerStyle={{
+            alignItems: "center",
+          }}
+          data={likers}
+          renderItem={({ item }) => {
+            return (
+              <TouchableOpacity
+                style={styles.userCard}
+                onPress={() => onPressUser(item[0])}
+              >
+                <View style={styles.userCardInfo}>
+                  <View style={styles.userCardRow}>
+                    <Text style={styles.userTitle}>{item[0].username}</Text>
+                    <TouchableOpacity
+                      style={styles.buttonAccept}
+                    >
+                      <Text>{item[1]}</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.userCardRow}>
+                    <Text style={styles.userText}>{item[0].displayName}</Text>
                   </View>
                 </View>
               </TouchableOpacity>
