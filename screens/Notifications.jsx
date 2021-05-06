@@ -40,7 +40,7 @@ export default function Notifications({ navigation, route }) {
   const loadLikes = async () => {
     const pastTrips = [];
     const tripsFromDatabase = await db.collection("trips")
-      .where("uid", "==", currentUser.uid)
+      .where("uid", "==", firebase.auth().currentUser.uid)
       .orderBy("time", "desc")
       .get();
     getLikes(tripsFromDatabase);
@@ -49,9 +49,12 @@ export default function Notifications({ navigation, route }) {
   const getLikes = async (tripsFromDatabase) => {
     const likersMap = {};
     tripsFromDatabase.forEach((trip) => {
+      console.log("hi");
+      // by making key tripData.uid, you are resplacing the entry constantly - should use a trip unique ID instead?
       const tripData = trip.data();
       likersMap[tripData.uid] = tripData.likes;
     });
+    console.log("likersMap", likersMap);
     setUserLikesFunc(likersMap);
   };
 
@@ -61,13 +64,18 @@ export default function Notifications({ navigation, route }) {
       return;
     }
     const userLikesList = [];
-
-    likersMap.keys().forEach((key) => {
+    // likersMap.keys().forEach((key) => {
+    console.log("likersMap", likersMap)
+    for (const key in likersMap) {
+      // console.log("key", key);
+      console.log("likersMap[key]", likersMap[key]);
+      if (likersMap[key].length != 0) {
       const dbLikesUsers = await db
         .collection("users")
         .where("uid", "in", likersMap[key])
         .get();
-
+      
+      console.log("dbLikesUsers", dbLikesUsers)
       const userTripLikesList = [];
       dbLikesUsers.forEach((user) => {
         const userData = user.data();
@@ -78,6 +86,8 @@ export default function Notifications({ navigation, route }) {
       });
       userLikesList.concat(userTripLikesList);
     }
+    };
+    console.log("userLikesList", userLikesList);
     setLikers(userLikesList);
   }
 
