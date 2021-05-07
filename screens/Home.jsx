@@ -115,8 +115,10 @@ export default function Home({ navigation }) {
   const loadNPSForm = async () => {
     const userDoc = await db.collection("users").doc(myUid).get();
     const userData = userDoc.data();
-    const hasOpenedAppManyTimes = userData["openAppTimestamps"].length > 4;
-    const shouldSeeNPS = hasOpenedAppManyTimes && !userData["hasDoneNPS"];
+    const isFamiliarWithApp = userData["openAppTimestamps"].length > 4;
+    const hasntDoneNPS = !userData["hasDoneNPS"];
+    const randomChance = Math.random() < 0.25;
+    const shouldSeeNPS = isFamiliarWithApp && hasntDoneNPS && randomChance;
     setShowNPSForm(shouldSeeNPS);
   };
 
