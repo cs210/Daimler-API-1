@@ -14,6 +14,8 @@ import db from "../firebase";
  * This component is the settings page where the user can logout of the app.
  */
 export default function Settings({ navigation }) {
+  const uid = firebase.auth().currentUser.uid;
+
   const renderSeparator = () => {
     return <View style={styles.seperator} />;
   };
@@ -42,23 +44,20 @@ export default function Settings({ navigation }) {
     }
   };
 
-  const deleteAccount = () => {
-    var user = firebase.auth().currentUser;
-    console.log(user);
-    user
+  const deleteAccount = async () => {
+    firebase.auth().currentUser
       .delete()
       .then(function () {
         db.collection("users")
-          .doc(user.uid)
+          .doc(uid)
           .delete()
           .then(() => {
             console.log("Document successfully deleted!");
+            updateFollow();
           })
           .catch((error) => {
             console.error("Error removing document: ", error);
           });
-        console.log("success");
-        console.log(firebase.auth().currentUser);
       })
       .catch(function (error) {
         Alert.alert(
@@ -68,6 +67,19 @@ export default function Settings({ navigation }) {
         );
       });
   };
+
+  const updateFollow = async () => {
+    const dbUsers = await db.collection("users").get();
+    dbUsers.forEach((user) => {
+      user.update({
+        following: firebase.firestore.FieldValue.arrayRemove(uid),
+      });
+      user.update({
+        followers: firebase.firestore.FieldValue.arrayRemove(uid),
+      });
+      console.log("user data", user.data());
+    });
+  }
 
   return (
     <View style={styles.container}>
