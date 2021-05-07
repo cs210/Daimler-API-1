@@ -4,7 +4,7 @@
     "slug": "trip-recorder",
     "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/app-logo.png",
+    "icon": "./assets/app-logo-no-text.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
