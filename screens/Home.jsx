@@ -11,12 +11,12 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 
 import { NativeFormsModal } from "native-forms";
+import PastTripCard from "./PastTripCard";
 import db from "../firebase";
 import { netPromoterUrl } from "../keys";
-import { useFocusEffect } from "@react-navigation/native";
-import PastTripCard from "./PastTripCard";
 
 export default function Home({ navigation }) {
   const [feedItems, setFeedItems] = useState([]);
@@ -24,6 +24,11 @@ export default function Home({ navigation }) {
   const [showNPSForm, setShowNPSForm] = useState(false);
   const [friendsPic, setFriendsPic] = useState({});
   const myUid = firebase.auth().currentUser.uid;
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    loadFeedTrips();
+  }, [isFocused]);
 
   useEffect(() => {
     logOpenAppEvent();
@@ -38,7 +43,6 @@ export default function Home({ navigation }) {
   };
 
   const loadFeedTrips = async () => {
-    setFeedItems([]);
     const feedTrips = await parseTripsForFeed();
     setFeedItems(feedTrips);
   };
@@ -144,7 +148,7 @@ export default function Home({ navigation }) {
       fetchUsersPics();
     }, [])
   );
-  
+
   const noTripsComponent = () => {
     return (
       <Text style={styles.noTripText}>
@@ -168,7 +172,7 @@ export default function Home({ navigation }) {
       return item;
     });
     setFeedItems(newFeedItems);
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
