@@ -45,20 +45,26 @@ export default function Settings({ navigation }) {
   };
 
   const deleteAccount = async () => {
-    firebase.auth().currentUser
-      .delete()
-      .then(function () {
-        db.collection("users")
+    const userDoc = await db.collection("users").doc(uid).get();
+    const followedUserIds = userDoc.data()["following"];
+    const followersUserIds = userDoc.data()["followers"];
+
+    firebase
+      .auth()
+      .currentUser.delete()
+      .then(
+        db
+          .collection("users")
           .doc(uid)
           .delete()
           .then(() => {
             console.log("Document successfully deleted!");
-            updateFollow();
+            updateFollow(followedUserIds, followersUserIds);
           })
           .catch((error) => {
             console.error("Error removing document: ", error);
-          });
-      })
+          })
+      )
       .catch(function (error) {
         Alert.alert(
           "Log in again before retrying this request.",
@@ -68,18 +74,23 @@ export default function Settings({ navigation }) {
       });
   };
 
-  const updateFollow = async () => {
-    const dbUsers = await db.collection("users").get();
-    dbUsers.forEach((user) => {
-      user.update({
-        following: firebase.firestore.FieldValue.arrayRemove(uid),
-      });
-      user.update({
+  const updateFollow = async (followedUserIds, followersUserIds) => {
+    followedUserIds.forEach((id) => {
+      const userFollowingRef = db.collection("users").doc(id);
+      // Remove deleted user from their followers list
+      userFollowingRef.update({
         followers: firebase.firestore.FieldValue.arrayRemove(uid),
       });
-      console.log("user data", user.data());
     });
-  }
+
+    followersUserIds.forEach((id) => {
+      const userFollowerRef = db.collection("users").doc(id);
+      // Remove deleted user from their following list
+      userFollowerRef.update({
+        following: firebase.firestore.FieldValue.arrayRemove(uid),
+      });
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -105,7 +116,7 @@ const styles = StyleSheet.create({
   item: {
     padding: 10,
     fontSize: 18,
-    height:  Dimensions.get("window").height * 0.045,
+    height: Dimensions.get("window").height * 0.045,
     color: "#00A398",
     margin: 5,
   },
