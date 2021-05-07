@@ -54,7 +54,7 @@ export default function TripMap({ navigation }) {
         setPins([]);
         setCoordinates([]);
       }
-    }, [isTripRecording])
+    }, [isTripRecording, isTripStarted])
   );
 
   useEffect(() => {
@@ -113,7 +113,7 @@ export default function TripMap({ navigation }) {
     markers[marker.key].hideCallout();
   };
 
-  const onFinishTripPress = async () => {
+  const onFinishTripPress = () => {
     if ((pins.length == 0 && coordinates.length == 0) || !isTripStarted) {
       navigation.navigate("Feed");
       return;
