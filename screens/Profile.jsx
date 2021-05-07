@@ -12,13 +12,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import PastTripCard from "./PastTripCard";
 import db from "../firebase";
 import { getImageUrl } from "./TripOverview";
-import { useFocusEffect } from "@react-navigation/native";
-import PastTripCard from "./PastTripCard";
 
 /**
  * This component shows a profile which includes the number of followers
@@ -33,6 +33,11 @@ export default function Profile({ navigation }) {
   const [following, setFollowing] = useState([]);
   const [profilePicture, setProfilePicture] = useState(null);
   const currentUser = firebase.auth().currentUser;
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    loadPastTrips();
+  }, [isFocused]);
 
   const parseTripsFromDatabase = (tripsFromDatabase) => {
     const parsedTrips = [];
@@ -47,8 +52,8 @@ export default function Profile({ navigation }) {
 
   const loadPastTrips = async () => {
     setLoading(true);
-    setPastTrips([]);
-    const tripsFromDatabase = await db.collection("trips")
+    const tripsFromDatabase = await db
+      .collection("trips")
       .where("uid", "==", currentUser.uid)
       .orderBy("time", "desc")
       .get();
@@ -91,9 +96,7 @@ export default function Profile({ navigation }) {
   };
 
   const addProfilePicture = async () => {
-    const userRef = await db
-      .collection("users")
-      .doc(currentUser.uid);
+    const userRef = await db.collection("users").doc(currentUser.uid);
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -140,9 +143,7 @@ export default function Profile({ navigation }) {
           />
         )}
 
-        <Text style={styles.name}>
-          {currentUser.displayName}
-        </Text>
+        <Text style={styles.name}>{currentUser.displayName}</Text>
         <MaterialCommunityIcons
           style={styles.settingsIcon}
           name="account-cog"
@@ -164,17 +165,17 @@ export default function Profile({ navigation }) {
       ) : (
         <FlatList
           data={pastTrips}
-        renderItem={({ item }) => (
+          renderItem={({ item }) => (
             <PastTripCard
-            item={item}
-            profilePic={profilePicture}
-            displayName={currentUser.displayName}
-            uid={currentUser.uid}
-            getUpdatedItem={getUpdatedItem}
-          >
-            {" "}
-          </PastTripCard>
-                )}
+              item={item}
+              profilePic={profilePicture}
+              displayName={currentUser.displayName}
+              uid={currentUser.uid}
+              getUpdatedItem={getUpdatedItem}
+            >
+              {" "}
+            </PastTripCard>
+          )}
           ListEmptyComponent={noTripsComponent}
         />
       )}
