@@ -2,7 +2,7 @@
   "expo": {
     "name": "Road Trip Pal",
     "slug": "trip-recorder",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/app-logo-no-text.png",
     "splash": {
