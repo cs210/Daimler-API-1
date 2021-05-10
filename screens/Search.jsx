@@ -99,7 +99,7 @@ export default function SearchScreen({ navigation }) {
                             <MaterialCommunityIcons
                               name="account-circle"
                               color={"#808080"}
-                              size={58}
+                              size={ Dimensions.get("window").height * 0.065}
                             />
                           )}
                           <View style={styles.userCardInfo}>
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   profilePic: {
     width: Dimensions.get("window").height * 0.058,
     height: Dimensions.get("window").height * 0.058,
-    borderRadius: 25,
+    borderRadius: 1000,
     margin: 4,
   },
 });

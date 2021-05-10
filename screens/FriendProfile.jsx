@@ -149,7 +149,7 @@ export default function PastTrips({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.spaceBetweenRow}>
+      <View style={styles.rowName}>
         {profilePic ? (
           <Image style={styles.profilePic} source={{ uri: profilePic }} />
         ) : (
@@ -157,7 +157,7 @@ export default function PastTrips({ navigation, route }) {
             style={styles.profileIcon}
             name="account-circle"
             color={"#808080"}
-            size={100}
+            size={Dimensions.get("window").height * 0.1}
           />
         )}
         <Text style={styles.name}>{item.displayName}</Text>
@@ -222,6 +222,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 10,
   },
+  rowName: {
+    flexDirection: "row",
+  },
   row: {
     flexDirection: "row",
     alignItems: "center",
@@ -236,9 +239,8 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 28,
-    // color: "#00A398",
     fontWeight: "bold",
-    marginTop: 45,
+    marginTop: Dimensions.get("window").height * 0.042,
     width: Dimensions.get("window").height * 0.4,
   },
   follow: {

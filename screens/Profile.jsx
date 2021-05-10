@@ -129,6 +129,7 @@ export default function Profile({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.spaceBetweenRow}>
+        <View style={styles.row}>
         {profilePicture ? (
           <TouchableOpacity onPress={addProfilePicture}>
             <Image style={styles.profilePic} source={{ uri: profilePicture }} />
@@ -142,8 +143,9 @@ export default function Profile({ navigation }) {
             onPress={addProfilePicture}
           />
         )}
-
         <Text style={styles.name}>{currentUser.displayName}</Text>
+        </View>
+
         <MaterialCommunityIcons
           style={styles.settingsIcon}
           name="account-cog"
@@ -207,12 +209,12 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").height * 0.1,
     height: Dimensions.get("window").height * 0.1,
     margin: 10,
-    borderRadius: 50,
+    borderRadius: 1000,
   },
   name: {
     fontSize: 28,
     fontWeight: "bold",
-    marginTop: 45,
+    marginTop: Dimensions.get("window").height * 0.042,
     width: Dimensions.get("window").height * 0.3,
   },
   time: {
