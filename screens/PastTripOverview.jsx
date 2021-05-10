@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   profilePic: {
     width: Dimensions.get("window").height * 0.058,
     height: Dimensions.get("window").height * 0.058,
-    borderRadius: 25,
+    borderRadius: 1000,
     margin: 5,
     marginLeft: 10,
     marginTop: 10,
