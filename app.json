@@ -2,7 +2,7 @@
   "expo": {
     "name": "Road Trip Pal",
     "slug": "trip-recorder",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/app-logo-no-text.png",
     "splash": {
@@ -22,7 +22,12 @@
         "UIBackgroundModes": [
           "location",
           "fetch"
-        ]
+        ],
+        "NSPhotoLibraryUsageDescription": "This app uses your photo library for adding images to pins.",
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to track your trip's route.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses your location to track your trip's route.",
+        "NSLocationAlwaysUsageDescription": "This app uses your location to track your trip's route.",
+        "NSLocationUsageDescription": "This app uses your location to track your trip's route."
       },
       "bundleIdentifier": "com.roadtrippal"
     },
