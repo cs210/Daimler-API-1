@@ -11,12 +11,12 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 
 import { NativeFormsModal } from "native-forms";
+import PastTripCard from "./PastTripCard";
 import db from "../firebase";
 import { netPromoterUrl } from "../keys";
-import { useFocusEffect } from "@react-navigation/native";
-import PastTripCard from "./PastTripCard";
 
 export default function Home({ navigation }) {
   const [feedItems, setFeedItems] = useState([]);
@@ -24,6 +24,11 @@ export default function Home({ navigation }) {
   const [showNPSForm, setShowNPSForm] = useState(false);
   const [friendsPic, setFriendsPic] = useState({});
   const myUid = firebase.auth().currentUser.uid;
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    loadFeedTrips();
+  }, [isFocused]);
 
   useEffect(() => {
     logOpenAppEvent();
@@ -38,7 +43,6 @@ export default function Home({ navigation }) {
   };
 
   const loadFeedTrips = async () => {
-    setFeedItems([]);
     const feedTrips = await parseTripsForFeed();
     setFeedItems(feedTrips);
   };
@@ -122,8 +126,10 @@ export default function Home({ navigation }) {
   const loadNPSForm = async () => {
     const userDoc = await db.collection("users").doc(myUid).get();
     const userData = userDoc.data();
-    const hasOpenedAppManyTimes = userData["openAppTimestamps"].length > 4;
-    const shouldSeeNPS = hasOpenedAppManyTimes && !userData["hasDoneNPS"];
+    const isFamiliarWithApp = userData["openAppTimestamps"].length > 4;
+    const hasntDoneNPS = !userData["hasDoneNPS"];
+    const randomChance = Math.random() < 0.25;
+    const shouldSeeNPS = isFamiliarWithApp && hasntDoneNPS && randomChance;
     setShowNPSForm(shouldSeeNPS);
   };
 
@@ -234,42 +240,15 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginVertical: 5,
   },
-  itemContainer: {
-    borderRadius: 6,
-    elevation: 3,
-    backgroundColor: "#fff",
-    shadowOffset: { width: 1, height: 1 },
-    shadowColor: "#333",
-    shadowOpacity: 0.3,
-    paddingHorizontal: 12,
-    marginVertical: 10,
-  },
-  cardHeader: {
-    margin: 5,
-  },
   time: {
     color: "#A9A9A9",
     paddingLeft: 4,
     fontSize: 12,
   },
-  userName: {
-    paddingLeft: 2,
-    fontSize: 16,
-  },
   row: {
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
-  },
-  tripName: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  tripCard: {
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height * 0.4,
-    paddingLeft: 10,
-    paddingTop: 15,
   },
   noTripText: {
     paddingTop: Dimensions.get("window").height * 0.3,
@@ -277,18 +256,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     textAlign: "center",
   },
-  icon: {
-    alignSelf: "center",
-    marginVertical: 10,
-    // paddingRight: 30,
-  },
   activityIndicator: {
     margin: 50,
-  },
-  profilePic: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    margin: 5,
   },
 });

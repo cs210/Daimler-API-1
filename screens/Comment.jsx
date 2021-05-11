@@ -26,7 +26,7 @@ export default function Comment({ navigation, route }) {
     console.log("useEffect called");
     // return () => console.log('unmounting...');
     addUsersToComments();
-  }, []);
+  }, [comments]);
 
   const addUsersToComments = async () => {
     console.log("addUsersToComments called");
@@ -42,6 +42,9 @@ export default function Comment({ navigation, route }) {
             commentsWithUsers.push(comment);
           });
         });
+    }
+    if (commentsWithUsers == comments) {
+      return;
     }
     setComments(commentsWithUsers);
   };
@@ -78,6 +81,9 @@ export default function Comment({ navigation, route }) {
       <FlatList
         data={comments}
         renderItem={({ item }) => (
+          // <Text>
+          //   {item.comment}
+          // </Text>
           <View>
             {item.user.profilePicture ? (
               <Image

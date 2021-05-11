@@ -1,17 +1,20 @@
-import React, { useState } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import * as firebase from "firebase";
 
 import {
+  Dimensions,
   FlatList,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import React, { useState } from "react";
 
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import db from "../firebase";
+import { useFocusEffect } from "@react-navigation/native";
 import uuidv4 from "uuid/v4";
-import * as firebase from "firebase";
 
 /**
  * This component displays a list of followers or those you are following
@@ -19,6 +22,8 @@ import * as firebase from "firebase";
  */
 export default function Likers({ navigation, route }) {
   const [users, setUsers] = useState([]);
+  const [friendsPic, setFriendsPic] = useState({});
+
   const likes = route.params;
 
   useFocusEffect(
@@ -42,6 +47,20 @@ export default function Likers({ navigation, route }) {
       fetchUsersNames();
     }, [likes])
   );
+  useFocusEffect(
+    React.useCallback(() => {
+      async function fetchUsersPics() {
+        const dbUsers = await db.collection("users").get();
+        userPicDict = {};
+        dbUsers.forEach((user) => {
+          const userData = user.data();
+          userPicDict[userData.uid] = userData.profilePicture;
+        });
+        setFriendsPic(userPicDict);
+      }
+      fetchUsersPics();
+    }, [])
+  );
 
   const onPressUser = (item) => {
     if (item.uid == firebase.auth().currentUser.uid) {
@@ -55,36 +74,56 @@ export default function Likers({ navigation, route }) {
     <View style={styles.container}>
       <View style={styles.peopleView}>
         <Text style={styles.titleText}>Likers</Text>
-        {users.length != 0 && <FlatList
-          style={{
-            marginLeft: 10,
-            marginRight: 10,
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: "rgba(216,213,214,1)",
-          }}
-          contentContainerStyle={{
-            alignItems: "center",
-          }}
-          data={users}
-          renderItem={({ item }) => {
-            return (
-              <TouchableOpacity
-                style={styles.userCard}
-                onPress={() => onPressUser(item)}
-              >
-                <View style={styles.userCardInfo}>
-                  <View style={styles.userCardRow}>
-                    <Text style={styles.userTitle}>{item.username}</Text>
+        {users.length != 0 && (
+          <FlatList
+            style={{
+              marginLeft: 10,
+              marginRight: 10,
+              borderRadius: 20,
+              borderWidth: 1,
+              borderColor: "rgba(216,213,214,1)",
+            }}
+            contentContainerStyle={{
+              alignItems: "center",
+            }}
+            data={users}
+            renderItem={({ item }) => {
+              return (
+                <TouchableOpacity
+                  style={styles.userCard}
+                  onPress={() => onPressUser(item)}
+                >
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: "row" }}>
+                      {friendsPic[item.uid] ? (
+                        <Image
+                          style={styles.profilePic}
+                          source={{ uri: friendsPic[item.uid] }}
+                        />
+                      ) : (
+                        <MaterialCommunityIcons
+                          name="account-circle"
+                          color={"#808080"}
+                          size={Dimensions.get("window").height * 0.065}
+                        />
+                      )}
+                      <View style={styles.userCardInfo}>
+                        <View style={styles.userCardRow}>
+                          <Text style={styles.userTitle}>{item.username}</Text>
+                        </View>
+                        <Text style={styles.userText}>{item.displayName}</Text>
+                      </View>
+                    </View>
                   </View>
-                  <Text style={styles.userText}>{item.displayName}</Text>
-                </View>
-              </TouchableOpacity>
-            );
-          }}
-          keyExtractor={() => uuidv4()}
-        ></FlatList> }
-        {users.length == 0 &&  <Text style={styles.noFollowText}> This post has no likes. </Text>}
+                </TouchableOpacity>
+              );
+            }}
+            keyExtractor={() => uuidv4()}
+          ></FlatList>
+        )}
+        {users.length == 0 && (
+          <Text style={styles.noFollowText}> This post has no likes. </Text>
+        )}
       </View>
     </View>
   );
@@ -124,12 +163,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   userCardInfo: {
-    flex: 1,
+    flexDirection: "column",
     paddingLeft: 10,
+    justifyContent: "center",
   },
   userCardRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  profilePic: {
+    width: Dimensions.get("window").height * 0.058,
+    height: Dimensions.get("window").height * 0.058,
+    borderRadius: 1000,
+    margin: 4,
   },
 });

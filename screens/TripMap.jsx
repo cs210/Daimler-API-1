@@ -54,17 +54,17 @@ export default function TripMap({ navigation }) {
         setPins([]);
         setCoordinates([]);
       }
-    }, [isTripRecording])
+    }, [isTripRecording, isTripStarted])
   );
 
   useEffect(() => {
     updateUsersLocation();
-    let timer = setInterval(updateUsersLocation, 10000);
+    let timer = setInterval(updateUsersLocation, 4000);
     // clean-up interval timer on un-mount
     return () => {
       clearInterval(timer);
     };
-  }, [isTripRecording, coordinates]);
+  }, [isTripRecording]);
 
   const updateUsersLocation = async () => {
     let { status } = await Location.requestPermissionsAsync();
@@ -90,8 +90,7 @@ export default function TripMap({ navigation }) {
       longitude: location.coords.longitude,
     };
     if (isTripRecording) {
-      const newcoordinates = [...coordinates, keys];
-      setCoordinates(newcoordinates);
+      setCoordinates(coordinates => ([...coordinates, keys]));
     }
   };
 
@@ -114,7 +113,7 @@ export default function TripMap({ navigation }) {
     markers[marker.key].hideCallout();
   };
 
-  const onFinishTripPress = async () => {
+  const onFinishTripPress = () => {
     if ((pins.length == 0 && coordinates.length == 0) || !isTripStarted) {
       navigation.navigate("Feed");
       return;
@@ -204,7 +203,7 @@ export default function TripMap({ navigation }) {
                       <Image
                         key={photo.key}
                         source={{ uri: photo.uri }}
-                        style={{ width: 200, height: 200, margin: 5 }}
+                        style={styles.image}
                       />
                     ))}
                 </ScrollView>
@@ -286,5 +285,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     alignSelf: "center",
     textTransform: "uppercase",
+  },
+  image: {
+    width: Dimensions.get("window").width * 0.28,
+    height: Dimensions.get("window").width * 0.28,
+    margin: 5,
   },
 });

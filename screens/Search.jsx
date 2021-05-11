@@ -7,8 +7,9 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Dimensions
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { Searchbar } from "react-native-paper";
@@ -17,65 +18,28 @@ import { useFocusEffect } from "@react-navigation/native";
 import uuidv4 from "uuid/v4";
 
 export default function SearchScreen({ navigation }) {
-  const [name, setName] = useState("");
-  const [userId, setUserId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [users, setUsers] = useState([]);
   const [friendsPic, setFriendsPic] = useState({});
 
-  const onChangeSearch = (query) => setSearchQuery(query);
-  const [loading, setLoading] = useState(true);
   useFocusEffect(
     React.useCallback(() => {
-      async function fetchUsersPics() {
-        const dbUsers = await db.collection("users").get();
-        userPicDict = {};
-        dbUsers.forEach((user) => {
-          const userData = user.data();
-          userPicDict[userData.uid] = userData.profilePicture;
-        });
-        setFriendsPic(userPicDict);
-      }
-      fetchUsersPics();
+      loadUserData();
     }, [])
   );
-  useEffect(() => {
-    let mounted = true;
-    let users = [];
-    firebase
-      .firestore()
-      .collection("users")
-      .get()
-      .then((snapshot) => {
-        snapshot.forEach((doc) => {
-          if (doc.exists) {
-            let user = doc.data();
-            users.push(user);
-          }
-          if (mounted) {
-            setUsers(users);
-          }
-        });
-      });
 
-    // Get current user
-    let uid = firebase.auth().currentUser.uid;
-    const usersRef = firebase.firestore().collection("users");
-    usersRef.doc(uid).onSnapshot((userDoc) => {
-      if (!userDoc.exists) {
-        alert("User does not exist anymore.");
-        return;
-      }
-      if (mounted) {
-        setUserId(userDoc.data()["uid"]);
-        setName(userDoc.data()["displayName"]);
-      }
-      if (mounted) setLoading(false);
+  const loadUserData = async () => {
+    const userList = []
+    const userPicDict = {};
+    const usersDoc = await db.collection("users").get();
+    usersDoc.forEach(user => {
+      const userData = user.data();
+      userList.push(userData);
+      userPicDict[userData.uid] = userData.profilePicture;
     });
-    return () => {
-      mounted = false;
-    };
-  }, []);
+    setUsers(userList);
+    setFriendsPic(userPicDict);
+  };
 
   const onPressUser = (item) => {
     if (item.uid == firebase.auth().currentUser.uid) {
@@ -89,7 +53,7 @@ export default function SearchScreen({ navigation }) {
     <View style={styles.container}>
       <Searchbar
         placeholder="Search"
-        onChangeText={onChangeSearch} //when input changes
+        onChangeText={(query) => setSearchQuery(query)} //when input changes
         value={searchQuery} //input
       />
       <View style={styles.container}>
@@ -135,7 +99,7 @@ export default function SearchScreen({ navigation }) {
                             <MaterialCommunityIcons
                               name="account-circle"
                               color={"#808080"}
-                              size={58}
+                              size={ Dimensions.get("window").height * 0.065}
                             />
                           )}
                           <View style={styles.userCardInfo}>
@@ -216,9 +180,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   profilePic: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: Dimensions.get("window").height * 0.058,
+    height: Dimensions.get("window").height * 0.058,
+    borderRadius: 1000,
     margin: 4,
   },
 });

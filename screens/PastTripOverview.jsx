@@ -14,55 +14,38 @@ import {
   MenuOptions,
   MenuTrigger,
 } from "react-native-popup-menu";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
 import moment from "moment";
-import { useFocusEffect } from "@react-navigation/native";
 
 /**
  * This component shows an overview of the trip such as a list of pins and a map
  * of the trip. It allows you to delete the trip.
  */
 export default function PastTripOverview({ navigation, route }) {
-  const { pins, tripTitle, time, coordinates, id } = route.params;
+  const { pins, tripTitle, time, coordinates, id, uid } = route.params;
   const [isFriendTrip, setIsFriendTrip] = useState(true);
   const [tripUser, setTripUser] = useState("");
-  const [friendsPic, setFriendsPic] = useState({});
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const myUid = firebase.auth().currentUser.uid;
-      setIsFriendTrip(myUid != route.params.uid);
-      async function fetchUserName() {
-        const user = await db.collection("users").doc(route.params.uid).get();
-        setTripUser(user.data());
-      }
-      fetchUserName();
-    })
-  );
+  useEffect(() => {
+    loadUserData();
+  }, []);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      async function fetchUsersPics() {
-        const dbUsers = await db.collection("users").get();
-        userPicDict = {};
-        dbUsers.forEach((user) => {
-          const userData = user.data();
-          userPicDict[userData.uid] = userData.profilePicture;
-        });
-        setFriendsPic(userPicDict);
-      }
-      fetchUsersPics();
-    }, [])
-  );
+  const loadUserData = async () => {
+    const myUid = firebase.auth().currentUser.uid;
+    setIsFriendTrip(myUid != uid);
+    const userDoc = await db.collection("users").doc(uid).get();
+    const userData = userDoc.data();
+    setTripUser(userData);
+  };
 
   const onDeleteTrip = () => {
     db.collection("trips")
-      .doc(route.params["id"])
+      .doc(id)
       .delete()
       .then(() => {
         navigation.goBack(null);
@@ -101,7 +84,12 @@ export default function PastTripOverview({ navigation, route }) {
               <Image
                 key={photo.key}
                 source={{ uri: photo.uri }}
-                style={{ width: 200, height: 200, margin: 5, padding: 5 }}
+                style={{
+                  width: Dimensions.get("window").height * 0.23,
+                  height: Dimensions.get("window").height * 0.23,
+                  margin: 5,
+                  padding: 5,
+                }}
               />
             ))}
           </ScrollView>
@@ -116,10 +104,10 @@ export default function PastTripOverview({ navigation, route }) {
       ListHeaderComponent={
         <>
           <View style={styles.row}>
-            {friendsPic[tripUser.uid] ? (
+            {tripUser["profilePicture"] ? (
               <Image
                 style={styles.profilePic}
-                source={{ uri: friendsPic[tripUser.uid] }}
+                source={{ uri: tripUser["profilePicture"] }}
               />
             ) : (
               <MaterialCommunityIcons
@@ -155,7 +143,7 @@ export default function PastTripOverview({ navigation, route }) {
           </Text>
         </>
       }
-      data={route.params["pins"]}
+      data={pins}
       renderItem={pinImages}
       keyExtractor={(item, index) => index.toString()}
       ListFooterComponent={
@@ -183,8 +171,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     padding: 10,
     paddingBottom: 0,
-    textAlign: 'center',
-    // width: Dimensions.get("window").width * 0.9,
+    textAlign: "center",
   },
   name: {
     fontSize: 16,
@@ -237,9 +224,9 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   profilePic: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: Dimensions.get("window").height * 0.058,
+    height: Dimensions.get("window").height * 0.058,
+    borderRadius: 1000,
     margin: 5,
     marginLeft: 10,
     marginTop: 10,

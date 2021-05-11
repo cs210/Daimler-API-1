@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Dimensions,
 } from "react-native";
 import React, { useState } from "react";
 
@@ -107,7 +108,7 @@ export default function Followers({ navigation, route }) {
                         <MaterialCommunityIcons
                           name="account-circle"
                           color={"#808080"}
-                          size={58}
+                          size={Dimensions.get("window").height * 0.065}
                           style={styles.profileIcon}
                         />
                       )}
@@ -182,9 +183,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   profilePic: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: Dimensions.get("window").height * 0.058,
+    height: Dimensions.get("window").height * 0.058,
+    borderRadius: 1000,
     margin: 4,
   },
 });

@@ -132,7 +132,7 @@ export default function TripOverview({ navigation, route }) {
               <Image
                 key={photo.key}
                 source={{ uri: photo.uri }}
-                style={{ width: 200, height: 200, margin: 5, padding: 5 }}
+                style={styles.image}
               />
             ))}
           </ScrollView>
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   tripTitleView: {
     margin: 10,
     alignItems: "stretch",
-    height: 40,
+    height:  Dimensions.get("window").width * 0.085,
     flexDirection: "row",
   },
   tripTitleText: {
@@ -268,4 +268,10 @@ const styles = StyleSheet.create({
   bottom: {
     paddingBottom: 20,
   },
+  image: {
+      width: Dimensions.get("window").width * 0.4,
+      height: Dimensions.get("window").width * 0.4,
+      margin: 5,
+      padding: 5,
+  }
 });

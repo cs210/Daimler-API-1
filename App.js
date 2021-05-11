@@ -1,32 +1,33 @@
 import "react-native-gesture-handler";
 
 import * as React from "react";
-import { useEffect, useState } from "react";
 import * as firebase from "firebase";
 
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
+import { useEffect, useState } from "react";
+
+import Follow from "./screens/Follow";
+import FriendProfile from "./screens/FriendProfile";
 import Home from "./screens/Home";
+import Likes from "./screens/Likes";
+import Login from "./screens/Login";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { MenuProvider } from "react-native-popup-menu";
+import { NavigationContainer } from "@react-navigation/native";
+import Notifications from "./screens/Notifications";
+import PastTripOverview from "./screens/PastTripOverview";
 import Profile from "./screens/Profile";
+import Search from "./screens/Search";
+import Settings from "./screens/Settings";
+import Signup from "./screens/Signup";
+import SplashScreen from "./screens/SplashScreen";
 import TripMap from "./screens/TripMap";
 import TripOverview from "./screens/TripOverview";
 import TripViewer from "./screens/TripViewer";
-import Login from "./screens/Login";
-import Signup from "./screens/Signup";
-import Search from "./screens/Search";
-import Settings from "./screens/Settings";
-import Notifications from "./screens/Notifications";
-import PastTripOverview from "./screens/PastTripOverview";
-import Follow from "./screens/Follow";
-import Likes from "./screens/Likes";
-import { MenuProvider } from "react-native-popup-menu";
-import FriendProfile from "./screens/FriendProfile";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createStackNavigator } from "@react-navigation/stack";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import Comment from "./screens/Comment";
 
-
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -98,11 +99,7 @@ function Tabs() {
         options={{
           tabBarLabel: "Notifications",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="bell"
-              color={color}
-              size={size}
-            />
+            <MaterialCommunityIcons name="bell" color={color} size={size} />
           ),
         }}
       />
@@ -121,7 +118,7 @@ function Tabs() {
 }
 
 const App = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(null);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -153,7 +150,11 @@ const App = () => {
   return (
     <MenuProvider>
       <NavigationContainer>
-        {loggedIn ? (
+        {loggedIn == null ? (
+          <Stack.Navigator>
+            <Stack.Screen name="Road Trip Pal" component={SplashScreen} />
+          </Stack.Navigator>
+        ) : loggedIn ? (
           <Stack.Navigator>
             <Stack.Screen
               name="Feed"
