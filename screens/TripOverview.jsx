@@ -91,7 +91,7 @@ export default function TripOverview({ navigation, route }) {
         time: time,
         uid: user.uid,
         likes: [],
-        comments: {},
+        // comments: {},
       };
       if (!route.params["isNewTrip"]) {
         db.collection("trips")

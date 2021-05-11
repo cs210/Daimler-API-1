@@ -17,9 +17,12 @@ import * as firebase from "firebase";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 
 export default function Comment({ navigation, route }) {
-  console.log("route params", route.params);
+  // console.log("route params", route.params);
   const item = route.params;
   const [comment, setComment] = useState("");
+  const [comments, setComments] = useState(route.params.comments);
+  // console.log("comments", route.params.comments);
+
 
   const onAddComment = async () => {
     // fill in thi smethod
@@ -29,7 +32,23 @@ export default function Comment({ navigation, route }) {
     //     comments: 
     //   })
     // }
-  }
+    console.log("comment", comment);
+    const post = {
+      comment: comment,
+      time: new Date().toISOString(),
+      uid: firebase.auth().currentUser.uid,
+      tripId: item.id,
+    };
+
+    db.collection("comments")
+    .add(post)
+    .then(() => {
+      console.log("Comment successfully written!");
+    })
+    .catch((error) => {
+      console.error("Error writing document: ", error);
+    });
+  };
   
   //delete later
   const onUserComment = async (item) => {
@@ -66,12 +85,14 @@ export default function Comment({ navigation, route }) {
       <Text style={styles.time}>
         {moment(route.params.time, moment.ISO_8601).format("LLL")}
       </Text>
-      <ScrollView></ScrollView>
+      <ScrollView>
+
+      </ScrollView>
       <View style={styles.textInputView}>
         <TextInput
           style={styles.textInput}
           placeholder="Add a comment"
-          onChangeText={(text) => setComment({ text })}
+          onChangeText={setComment}
         />
         <TouchableOpacity
           onPress={onAddComment}

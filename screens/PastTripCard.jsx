@@ -16,6 +16,7 @@ import * as firebase from "firebase";
 
 export default function PastTripCard(props) {
   const item = props.item;
+  // console.log("item", item);
   const friendsPic = props.friendsPic;
   const myUid = props.uid;
   const navigation = useNavigation();
@@ -137,7 +138,7 @@ export default function PastTripCard(props) {
             <MaterialCommunityIcons
               style={styles.icon}
               name="comment-text-outline"
-              color={item.likes.includes(myUid) ? "#00A398" : "#808080"}
+              color={"#808080"}
               size={25}
             />
           </View>

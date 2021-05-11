@@ -49,17 +49,44 @@ export default function Home({ navigation }) {
     const tripsFromDatabase = await fetchUsersTrips(followedUserIds);
     const userIdToNameMap = await fetchUsersNames(followedUserIds);
     for (let tripBatch of tripsFromDatabase) {
-      tripBatch.forEach((trip) => {
+      // console.log("tripBatch.length", tripBatch.length);
+      // console.log((typeof tripBatch));
+      // const tripData = tripBatch.data();
+      // const usersId = tripData["uid"];
+      // tripData["usersName"] = userIdToNameMap[usersId];
+      // tripData["id"] = trip.id;
+      // tripData["tripTitle"] = tripData.tripTitleText;
+      // const comments = await db.collection("comments").where("id", "==", trip.id).get();
+      // tripData["comments"] = comments;
+      for (const trip of tripBatch.docs) {
+        // tripBatch.forEach((trip) => {
         const tripData = trip.data();
         const usersId = tripData["uid"];
         tripData["usersName"] = userIdToNameMap[usersId];
         tripData["id"] = trip.id;
         tripData["tripTitle"] = tripData.tripTitleText;
+        const comments = await db
+          .collection("comments")
+          .where("tripId", "==", trip.id)
+          .get();
+        console.log("comments", comments.docs);
+        console.log("trip.id;", trip.id);
+        tripData["comments"] = comments.docs;
         parsedTrips.push(tripData);
-      });
+      }
     }
+    // console.log("parsedtrips.id", parsedTrips.id);
+
+    // const ids = parsedTrips.map(trip => trip.id);
+
     return parsedTrips;
   };
+
+  // const fetchComments = async () => {
+  //   await db.collection("comments").doc(ids).where("uid", "in", batchIds)
+  //   ();
+
+  // }
 
   const fetchMyFollowing = async () => {
     const userDoc = await db.collection("users").doc(myUid).get();
@@ -144,7 +171,7 @@ export default function Home({ navigation }) {
       fetchUsersPics();
     }, [])
   );
-  
+
   const noTripsComponent = () => {
     return (
       <Text style={styles.noTripText}>
@@ -168,7 +195,7 @@ export default function Home({ navigation }) {
       return item;
     });
     setFeedItems(newFeedItems);
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
