@@ -7,32 +7,46 @@ import {
   Image,
   KeyboardAvoidingView,
 } from "react-native";
-import React, { useState } from "react";
-import { findRegion, tripViewComponent } from "./TripViewer";
+import React, { useState, useEffect } from "react";
 import moment from "moment";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import db from "../firebase";
 import * as firebase from "firebase";
-import { ScrollView, TextInput } from "react-native-gesture-handler";
+import { FlatList, TextInput } from "react-native-gesture-handler";
+import uuidv4 from "uuid/v4";
 
 export default function Comment({ navigation, route }) {
-  // console.log("route params", route.params);
   const item = route.params;
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState(route.params.comments);
-  // console.log("comments", route.params.comments);
+  console.log("comments", route.params.comments);
 
+  useEffect(() => {
+    console.log("useEffect called");
+    // return () => console.log('unmounting...');
+    addUsersToComments();
+  }, []);
+
+  const addUsersToComments = async () => {
+    console.log("addUsersToComments called");
+    const commentsWithUsers = [];
+    for (const comment of route.params.comments) {
+      await db
+        .collection("users")
+        .where("uid", "==", comment.uid)
+        .get()
+        .then((users) => {
+          users.forEach((user) => {
+            comment.user = user.data();
+            commentsWithUsers.push(comment);
+          });
+        });
+    }
+    setComments(commentsWithUsers);
+  };
 
   const onAddComment = async () => {
-    // fill in thi smethod
-    // if (item.comments != null) {
-    //   const tripRef = await db.collection("trips").doc(item.id);
-    //   tripRef.update({
-    //     comments: 
-    //   })
-    // }
-    console.log("comment", comment);
     const post = {
       comment: comment,
       time: new Date().toISOString(),
@@ -41,37 +55,13 @@ export default function Comment({ navigation, route }) {
     };
 
     db.collection("comments")
-    .add(post)
-    .then(() => {
-      console.log("Comment successfully written!");
-    })
-    .catch((error) => {
-      console.error("Error writing document: ", error);
-    });
-  };
-  
-  //delete later
-  const onUserComment = async (item) => {
-    if (item.likes != null) {
-      const tripRef = await db.collection("trips").doc(item.id);
-      if (item.likes.includes(myUid)) {
-        tripRef.update({
-          likes: firebase.firestore.FieldValue.arrayRemove(myUid),
-        });
-        const index = item.likes.indexOf(myUid);
-        if (index > -1) {
-          item.likes.splice(index, 1);
-        }
-      } else {
-        item.likes.push(myUid);
-        tripRef.update({
-          likes: firebase.firestore.FieldValue.arrayUnion(myUid),
-        });
-      }
-      props.getUpdatedItem({
-        item,
+      .add(post)
+      .then(() => {
+        console.log("Comment successfully written!");
+      })
+      .catch((error) => {
+        console.error("Error writing document: ", error);
       });
-    }
   };
 
   return (
@@ -85,9 +75,30 @@ export default function Comment({ navigation, route }) {
       <Text style={styles.time}>
         {moment(route.params.time, moment.ISO_8601).format("LLL")}
       </Text>
-      <ScrollView>
-
-      </ScrollView>
+      <FlatList
+        data={comments}
+        renderItem={({ item }) => (
+          <View>
+            {item.user.profilePicture ? (
+              <Image
+                style={styles.profilePic}
+                source={{ uri: item.user.profilePicture }}
+              />
+            ) : (
+              <MaterialCommunityIcons
+                name="account-circle"
+                color={"#808080"}
+                size={50}
+              />
+            )}
+            <Text>
+              {item.comment}
+              {item.user.displayName}
+            </Text>
+          </View>
+        )}
+        keyExtractor={() => uuidv4()}
+      ></FlatList>
       <View style={styles.textInputView}>
         <TextInput
           style={styles.textInput}
@@ -138,7 +149,6 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     height: 30,
     borderRadius: 18,
-
   },
   appButtonContainer: {
     elevation: 8,
@@ -153,5 +163,12 @@ const styles = StyleSheet.create({
     color: "white",
     // fontWeight: "bold",
     alignSelf: "center",
+  },
+  profilePic: {
+    width: Dimensions.get("window").height * 0.058,
+    height: Dimensions.get("window").height * 0.058,
+    borderRadius: 50,
+    margin: 5,
+    marginLeft: 0,
   },
 });

@@ -16,7 +16,7 @@ import * as firebase from "firebase";
 
 export default function PastTripCard(props) {
   const item = props.item;
-  // console.log("item", item);
+  // console.log("item", item.comments);
   const friendsPic = props.friendsPic;
   const myUid = props.uid;
   const navigation = useNavigation();
