@@ -101,33 +101,35 @@ export default function PastTripCard(props) {
             item.coordinates
           )}
         </View>
-        <View>
-          {item.likes.length != 1 && (
-            <Text onPress={() => navigation.navigate("Likes", item.likes)}>
-              {" "}
-              {item.likes.length} likes{" "}
-            </Text>
-          )}
-          {item.likes.length == 1 && (
-            <Text onPress={() => navigation.navigate("Likes", item.likes)}>
-              {" "}
-              {item.likes.length} like{" "}
-            </Text>
-          )}
-        </View>
-        <View>
-          {item.comments.length != 1 && (
-            <Text onPress={() => navigation.navigate("Comment", item)}>
-              {" "}
-              {item.comments.length} comments{" "}
-            </Text>
-          )}
-          {item.comments.length == 1 && (
-            <Text onPress={() => navigation.navigate("Comment", item)}>
-              {" "}
-              {item.comments.length} comment{" "}
-            </Text>
-          )}
+        <View style={styles.row}>
+          <View>
+            {item.likes.length != 1 && (
+              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
+                {" "}
+                {item.likes.length} likes{" "}
+              </Text>
+            )}
+            {item.likes.length == 1 && (
+              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
+                {" "}
+                {item.likes.length} like{" "}
+              </Text>
+            )}
+          </View>
+          <View>
+            {item.comments.length != 1 && (
+              <Text onPress={() => navigation.navigate("Comment", item)}>
+                {" "}
+                {item.comments.length} comments{" "}
+              </Text>
+            )}
+            {item.comments.length == 1 && (
+              <Text onPress={() => navigation.navigate("Comment", item)}>
+                {" "}
+                {item.comments.length} comment{" "}
+              </Text>
+            )}
+          </View>
         </View>
         <View
           style={{
@@ -137,26 +139,28 @@ export default function PastTripCard(props) {
           }}
         />
         <View style={styles.reactionBar}>
-        <TouchableOpacity onPress={() => onUserLike(item)}>
-          <View style={styles.iconView}>
-            <MaterialCommunityIcons
-              style={styles.icon}
-              name="thumb-up-outline"
-              color={item.likes.includes(myUid) ? "#00A398" : "#808080"}
-              size={25}
-            />
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("Comment", item)}>
-          <View style={styles.iconView}>
-            <MaterialCommunityIcons
-              style={styles.icon}
-              name="comment-text-outline"
-              color={"#808080"}
-              size={25}
-            />
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => onUserLike(item)}>
+            <View style={styles.iconView}>
+              <MaterialCommunityIcons
+                style={styles.icon}
+                name="thumb-up-outline"
+                color={item.likes.includes(myUid) ? "#00A398" : "#808080"}
+                size={25}
+              />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Comment", item)}
+          >
+            <View style={styles.iconView}>
+              <MaterialCommunityIcons
+                style={styles.icon}
+                name="comment-text-outline"
+                color={"#808080"}
+                size={25}
+              />
+            </View>
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     </View>
@@ -195,8 +199,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   reactionBar: {
-    flexDirection: "row", 
-    alignItems: "center" 
+    flexDirection: "row",
+    alignItems: "center",
   },
   userName: {
     paddingLeft: 2,

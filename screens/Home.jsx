@@ -74,7 +74,6 @@ export default function Home({ navigation }) {
         parsedTrips.push(tripData);
       }
     }
-    console.log("pastTrips HOME", typeof parsedTrips)
     return parsedTrips;
   };
 

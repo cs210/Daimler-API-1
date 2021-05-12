@@ -36,34 +36,30 @@ export default function Profile({ navigation }) {
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    console.log("use effect called");
     loadPastTrips();
   }, [isFocused]);
 
   const parseTripsFromDatabase = async (tripsFromDatabase) => {
     const parsedTrips = [];
-    tripsFromDatabase.forEach((trip) => {
-    // for (const trip of tripsFromDatabase) {
+    for (const trip of tripsFromDatabase.docs) {
       const tripData = trip.data();
       tripData["id"] = trip.id;
       tripData["tripTitle"] = tripData.tripTitleText;
+      tripData["usersName"] = currentUser.displayName;
       const commentsArray = [];
-      console.log("trip id", trip.id);
-       db
-      .collection("comments")
-      .where("tripId", "==", trip.id)
-      .orderBy("time", "asc")
-      .get()
-      .then((comments) => {
-        comments.forEach((comment) => {
-          commentsArray.push(comment.data());
-          // console.log("commentsArray", commentsArray);
+      await db
+        .collection("comments")
+        .where("tripId", "==", trip.id)
+        .orderBy("time", "asc")
+        .get()
+        .then((comments) => {
+          comments.forEach((comment) => {
+            commentsArray.push(comment.data());
+          });
         });
-      });
       tripData["comments"] = commentsArray;
       parsedTrips.push(tripData);
-    });
-    // console.log("parsedTrips", parsedTrips)
+    }
     return parsedTrips;
   };
 
@@ -74,8 +70,7 @@ export default function Profile({ navigation }) {
       .where("uid", "==", currentUser.uid)
       .orderBy("time", "desc")
       .get();
-    const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
-    console.log("pastTrips", typeof pastTrips)
+    const parsedTrips = await parseTripsFromDatabase(tripsFromDatabase);
     setPastTrips(parsedTrips);
     setLoading(false);
   };
@@ -148,20 +143,23 @@ export default function Profile({ navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.spaceBetweenRow}>
         <View style={styles.row}>
-        {profilePicture ? (
-          <TouchableOpacity onPress={addProfilePicture}>
-            <Image style={styles.profilePic} source={{ uri: profilePicture }} />
-          </TouchableOpacity>
-        ) : (
-          <MaterialCommunityIcons
-            style={styles.profileIcon}
-            name="account-circle"
-            color={"#808080"}
-            size={90}
-            onPress={addProfilePicture}
-          />
-        )}
-        <Text style={styles.name}>{currentUser.displayName}</Text>
+          {profilePicture ? (
+            <TouchableOpacity onPress={addProfilePicture}>
+              <Image
+                style={styles.profilePic}
+                source={{ uri: profilePicture }}
+              />
+            </TouchableOpacity>
+          ) : (
+            <MaterialCommunityIcons
+              style={styles.profileIcon}
+              name="account-circle"
+              color={"#808080"}
+              size={90}
+              onPress={addProfilePicture}
+            />
+          )}
+          <Text style={styles.name}>{currentUser.displayName}</Text>
         </View>
 
         <MaterialCommunityIcons

@@ -13,11 +13,9 @@ import db from "../firebase";
 import * as firebase from "firebase";
 import { TextInput } from "react-native-gesture-handler";
 import uuidv4 from "uuid/v4";
-import {
-  KeyboardAwareFlatList,
-} from "react-native-keyboard-aware-scroll-view";
+import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 
-export default function Comment({ navigation, route }) {
+export default function Comment({ route }) {
   const item = route.params;
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
@@ -47,15 +45,8 @@ export default function Comment({ navigation, route }) {
       // Not sure if this is the best way - prevents infinte loop
       return;
     }
-    // if (commentsWithUsers.length == 0) {
-    //   return;
-    // }
     setComments(commentsWithUsers);
   };
-
-  // const addUserToComment = async () => {
-
-  // }
 
   const onAddComment = async () => {
     const post = {
@@ -68,7 +59,6 @@ export default function Comment({ navigation, route }) {
     db.collection("comments")
       .add(post)
       .then(() => {
-        console.log("Comment successfully written!");
         // you know you are the user for a comment just added
         db.collection("users")
           .where("uid", "==", firebase.auth().currentUser.uid)
@@ -88,6 +78,7 @@ export default function Comment({ navigation, route }) {
   return (
     <KeyboardAwareFlatList
       style={styles.container}
+      keyboardShouldPersistTaps={"handled"}
       ListHeaderComponent={
         <>
           <View>
@@ -115,7 +106,14 @@ export default function Comment({ navigation, route }) {
             />
           )}
           <View>
-            <Text style={styles.userName}>{item.user.displayName}</Text>
+            <View style={styles.row}>
+              <Text style={styles.commentUserName}>
+                {item.user.displayName}
+              </Text>
+              <Text style={styles.time}>
+                {moment(item.time, moment.ISO_8601).format("LLL")}
+              </Text>
+            </View>
             <Text style={styles.comment}>{item.comment}</Text>
           </View>
         </View>
@@ -158,11 +156,12 @@ const styles = StyleSheet.create({
     paddingLeft: 2,
     fontSize: 16,
   },
-  userName: {
+  commentUserName: {
     color: "#A9A9A9",
     paddingLeft: 4,
     fontSize: 12,
     paddingTop: 12,
+    width: "57%",
   },
   textInputView: {
     paddingBottom: 50,
@@ -174,7 +173,8 @@ const styles = StyleSheet.create({
   time: {
     color: "#A9A9A9",
     paddingLeft: 4,
-    paddingBottom: 20,
+    paddingBottom: 5,
+    paddingTop: 10,
     fontSize: 12,
   },
   textInput: {
@@ -185,15 +185,17 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 18,
     marginLeft: 10,
+    marginTop: 10,
   },
   appButtonContainer: {
     elevation: 8,
     backgroundColor: "gray",
     borderRadius: 18,
-    paddingVertical: 5,
+    paddingVertical: 8,
     paddingHorizontal: 12,
     marginLeft: 10,
     marginRight: 5,
+    marginTop: 7,
   },
   appButtonText: {
     fontSize: 18,
@@ -206,6 +208,7 @@ const styles = StyleSheet.create({
     height: Dimensions.get("window").height * 0.058,
     borderRadius: 50,
     margin: 5,
+    marginLeft: 0,
   },
   row: {
     flexDirection: "row",
