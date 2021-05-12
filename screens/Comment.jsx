@@ -5,31 +5,31 @@ import {
   StyleSheet,
   Dimensions,
   Image,
-  KeyboardAvoidingView,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import moment from "moment";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { useNavigation } from "@react-navigation/native";
 import db from "../firebase";
 import * as firebase from "firebase";
-import { FlatList, TextInput } from "react-native-gesture-handler";
+import { TextInput } from "react-native-gesture-handler";
 import uuidv4 from "uuid/v4";
+import {
+  KeyboardAwareFlatList,
+} from "react-native-keyboard-aware-scroll-view";
 
 export default function Comment({ navigation, route }) {
   const item = route.params;
   const [comment, setComment] = useState("");
-  const [comments, setComments] = useState(route.params.comments);
-  console.log("comments", route.params.comments);
+  const [comments, setComments] = useState([]);
 
   useEffect(() => {
-    console.log("useEffect called");
-    // return () => console.log('unmounting...');
     addUsersToComments();
   }, [comments]);
 
   const addUsersToComments = async () => {
-    console.log("addUsersToComments called");
+    if (comments.length != 0) {
+      return;
+    }
     const commentsWithUsers = [];
     for (const comment of route.params.comments) {
       await db
@@ -43,11 +43,19 @@ export default function Comment({ navigation, route }) {
           });
         });
     }
-    if (commentsWithUsers == comments) {
+    if (commentsWithUsers.length == comments.length) {
+      // Not sure if this is the best way - prevents infinte loop
       return;
     }
+    // if (commentsWithUsers.length == 0) {
+    //   return;
+    // }
     setComments(commentsWithUsers);
   };
+
+  // const addUserToComment = async () => {
+
+  // }
 
   const onAddComment = async () => {
     const post = {
@@ -61,6 +69,16 @@ export default function Comment({ navigation, route }) {
       .add(post)
       .then(() => {
         console.log("Comment successfully written!");
+        // you know you are the user for a comment just added
+        db.collection("users")
+          .where("uid", "==", firebase.auth().currentUser.uid)
+          .get()
+          .then((users) => {
+            users.forEach((user) => {
+              post.user = user.data();
+              setComments((comments) => [...comments, post]);
+            });
+          });
       })
       .catch((error) => {
         console.error("Error writing document: ", error);
@@ -68,57 +86,59 @@ export default function Comment({ navigation, route }) {
   };
 
   return (
-    <KeyboardAvoidingView
+    <KeyboardAwareFlatList
       style={styles.container}
-      behavior={"padding"}
-      keyboardVerticalOffset={50}
-    >
-      <Text style={styles.header}>{route.params.tripTitle}</Text>
-      <Text style={styles.userName}> {route.params.usersName}</Text>
-      <Text style={styles.time}>
-        {moment(route.params.time, moment.ISO_8601).format("LLL")}
-      </Text>
-      <FlatList
-        data={comments}
-        renderItem={({ item }) => (
-          // <Text>
-          //   {item.comment}
-          // </Text>
+      ListHeaderComponent={
+        <>
           <View>
-            {item.user.profilePicture ? (
-              <Image
-                style={styles.profilePic}
-                source={{ uri: item.user.profilePicture }}
-              />
-            ) : (
-              <MaterialCommunityIcons
-                name="account-circle"
-                color={"#808080"}
-                size={50}
-              />
-            )}
-            <Text>
-              {item.comment}
-              {item.user.displayName}
+            <Text style={styles.header}>{route.params.tripTitle}</Text>
+            <Text style={styles.userName}> {route.params.usersName}</Text>
+            <Text style={styles.time}>
+              {moment(route.params.time, moment.ISO_8601).format("LLL")}
             </Text>
           </View>
-        )}
-        keyExtractor={() => uuidv4()}
-      ></FlatList>
-      <View style={styles.textInputView}>
-        <TextInput
-          style={styles.textInput}
-          placeholder="Add a comment"
-          onChangeText={setComment}
-        />
-        <TouchableOpacity
-          onPress={onAddComment}
-          style={styles.appButtonContainer}
-        >
-          <Text style={styles.appButtonText}>Post</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+        </>
+      }
+      data={comments}
+      renderItem={({ item }) => (
+        <View style={styles.row}>
+          {item.user.profilePicture ? (
+            <Image
+              style={styles.profilePic}
+              source={{ uri: item.user.profilePicture }}
+            />
+          ) : (
+            <MaterialCommunityIcons
+              name="account-circle"
+              color={"#808080"}
+              size={50}
+            />
+          )}
+          <View>
+            <Text style={styles.userName}>{item.user.displayName}</Text>
+            <Text style={styles.comment}>{item.comment}</Text>
+          </View>
+        </View>
+      )}
+      keyExtractor={() => uuidv4()}
+      ListFooterComponent={
+        <>
+          <View style={styles.textInputView}>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Add a comment"
+              onChangeText={setComment}
+            />
+            <TouchableOpacity
+              onPress={onAddComment}
+              style={styles.appButtonContainer}
+            >
+              <Text style={styles.appButtonText}>Post</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      }
+    ></KeyboardAwareFlatList>
   );
 }
 
@@ -134,19 +154,28 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginVertical: 5,
   },
-  userName: {
+  comment: {
     paddingLeft: 2,
     fontSize: 16,
+  },
+  userName: {
+    color: "#A9A9A9",
+    paddingLeft: 4,
+    fontSize: 12,
+    paddingTop: 12,
+  },
+  textInputView: {
+    paddingBottom: 50,
+    // paddingTop: 20,
+    alignItems: "stretch",
+    flexDirection: "row",
+    // marginBottom: 30,
   },
   time: {
     color: "#A9A9A9",
     paddingLeft: 4,
+    paddingBottom: 20,
     fontSize: 12,
-  },
-  textInputView: {
-    paddingBottom: 50,
-    alignItems: "stretch",
-    flexDirection: "row",
   },
   textInput: {
     borderWidth: 1,
@@ -155,6 +184,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     height: 30,
     borderRadius: 18,
+    marginLeft: 10,
   },
   appButtonContainer: {
     elevation: 8,
@@ -163,6 +193,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 12,
     marginLeft: 10,
+    marginRight: 5,
   },
   appButtonText: {
     fontSize: 18,
@@ -175,6 +206,8 @@ const styles = StyleSheet.create({
     height: Dimensions.get("window").height * 0.058,
     borderRadius: 50,
     margin: 5,
-    marginLeft: 0,
+  },
+  row: {
+    flexDirection: "row",
   },
 });

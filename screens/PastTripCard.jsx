@@ -115,6 +115,20 @@ export default function PastTripCard(props) {
             </Text>
           )}
         </View>
+        <View>
+          {item.comments.length != 1 && (
+            <Text onPress={() => navigation.navigate("Comment", item)}>
+              {" "}
+              {item.comments.length} comments{" "}
+            </Text>
+          )}
+          {item.comments.length == 1 && (
+            <Text onPress={() => navigation.navigate("Comment", item)}>
+              {" "}
+              {item.comments.length} comment{" "}
+            </Text>
+          )}
+        </View>
         <View
           style={{
             paddingTop: 10,

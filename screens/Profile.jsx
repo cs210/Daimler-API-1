@@ -36,17 +36,34 @@ export default function Profile({ navigation }) {
   const isFocused = useIsFocused();
 
   useEffect(() => {
+    console.log("use effect called");
     loadPastTrips();
   }, [isFocused]);
 
-  const parseTripsFromDatabase = (tripsFromDatabase) => {
+  const parseTripsFromDatabase = async (tripsFromDatabase) => {
     const parsedTrips = [];
     tripsFromDatabase.forEach((trip) => {
+    // for (const trip of tripsFromDatabase) {
       const tripData = trip.data();
       tripData["id"] = trip.id;
       tripData["tripTitle"] = tripData.tripTitleText;
+      const commentsArray = [];
+      console.log("trip id", trip.id);
+       db
+      .collection("comments")
+      .where("tripId", "==", trip.id)
+      .orderBy("time", "asc")
+      .get()
+      .then((comments) => {
+        comments.forEach((comment) => {
+          commentsArray.push(comment.data());
+          // console.log("commentsArray", commentsArray);
+        });
+      });
+      tripData["comments"] = commentsArray;
       parsedTrips.push(tripData);
     });
+    // console.log("parsedTrips", parsedTrips)
     return parsedTrips;
   };
 
@@ -58,6 +75,7 @@ export default function Profile({ navigation }) {
       .orderBy("time", "desc")
       .get();
     const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
+    console.log("pastTrips", typeof pastTrips)
     setPastTrips(parsedTrips);
     setLoading(false);
   };

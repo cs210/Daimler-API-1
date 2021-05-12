@@ -63,6 +63,7 @@ export default function Home({ navigation }) {
         await db
           .collection("comments")
           .where("tripId", "==", trip.id)
+          .orderBy("time", "asc")
           .get()
           .then((comments) => {
             comments.forEach((comment) => {
@@ -73,6 +74,7 @@ export default function Home({ navigation }) {
         parsedTrips.push(tripData);
       }
     }
+    console.log("pastTrips HOME", typeof parsedTrips)
     return parsedTrips;
   };
 
