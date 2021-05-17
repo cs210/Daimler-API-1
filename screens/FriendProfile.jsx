@@ -4,7 +4,6 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
-  Image,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -12,7 +11,7 @@ import {
   View,
 } from "react-native";
 import React, { useState, useEffect } from "react";
-
+import CachedImage from 'react-native-expo-cached-image';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import db from "../firebase";
 import PastTripCard from "./PastTripCard";
@@ -165,7 +164,7 @@ export default function PastTrips({ navigation, route }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.rowName}>
         {profilePic ? (
-          <Image style={styles.profilePic} source={{ uri: profilePic }} />
+          <CachedImage style={styles.profilePic} source={{ uri: profilePic }} />
         ) : (
           <MaterialCommunityIcons
             style={styles.profileIcon}

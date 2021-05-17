@@ -16,7 +16,7 @@ import {
 } from "react-native-popup-menu";
 import React, { useState, useEffect } from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
-
+import CachedImage from 'react-native-expo-cached-image';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
@@ -105,7 +105,7 @@ export default function PastTripOverview({ navigation, route }) {
         <>
           <View style={styles.row}>
             {tripUser["profilePicture"] ? (
-              <Image
+              <CachedImage
                 style={styles.profilePic}
                 source={{ uri: tripUser["profilePicture"] }}
               />

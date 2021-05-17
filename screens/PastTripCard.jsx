@@ -4,11 +4,11 @@ import {
   View,
   StyleSheet,
   Dimensions,
-  Image,
 } from "react-native";
 import React from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
 import moment from "moment";
+import CachedImage from 'react-native-expo-cached-image';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import db from "../firebase";
@@ -72,7 +72,7 @@ export default function PastTripCard(props) {
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <TouchableOpacity onPress={() => onPressUser(item)}>
               {profilePicture ? (
-                <Image
+                <CachedImage
                   style={styles.profilePic}
                   source={{ uri: profilePicture }}
                 />

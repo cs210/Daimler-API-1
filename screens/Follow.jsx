@@ -2,18 +2,16 @@ import * as firebase from "firebase";
 
 import {
   FlatList,
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   Dimensions,
 } from "react-native";
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
+import CachedImage from 'react-native-expo-cached-image';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import db from "../firebase";
-import { useFocusEffect } from "@react-navigation/native";
 import uuidv4 from "uuid/v4";
 
 /**
@@ -22,44 +20,29 @@ import uuidv4 from "uuid/v4";
  */
 export default function Followers({ navigation, route }) {
   const [users, setUsers] = useState([]);
-  const [friendsPic, setFriendsPic] = useState({});
 
-  const follow = route.params["follow"];
-  useFocusEffect(
-    React.useCallback(() => {
-      async function fetchUsersPics() {
-        const dbUsers = await db.collection("users").get();
-        userPicDict = {};
-        dbUsers.forEach((user) => {
-          const userData = user.data();
-          userPicDict[userData.uid] = userData.profilePicture;
-        });
-        setFriendsPic(userPicDict);
-      }
-      fetchUsersPics();
-    }, [])
-  );
-  useFocusEffect(
-    React.useCallback(() => {
-      if (follow.length == 0) {
-        setUsers([]);
-        return;
-      }
-      async function fetchUsersNames() {
-        const dbUsers = await db
-          .collection("users")
-          .where("uid", "in", route.params["follow"])
-          .get();
-        userList = [];
-        dbUsers.forEach((user) => {
-          const userData = user.data();
-          userList.push(userData);
-        });
-        setUsers(userList);
-      }
-      fetchUsersNames();
-    }, [follow])
-  );
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    const parsedUsers = []
+    const userIds = route.params["follow"];
+    for (let i = 0; i < userIds.length; i += 10) {
+      // Firestore limits "in" queries to 10 elements
+      // so we must batch these queries
+      const batchIds = userIds.slice(i, i + 10);
+      const batchUsers = await db
+        .collection("users")
+        .where("uid", "in", batchIds)
+        .get();
+      batchUsers.forEach((user) => {
+        const userData = user.data();
+        parsedUsers.push(userData);
+      });
+    }
+    setUsers(parsedUsers);
+  };
 
   const onPressUser = (item) => {
     if (item.uid == firebase.auth().currentUser.uid) {
@@ -99,10 +82,10 @@ export default function Followers({ navigation, route }) {
                 >
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: "row" }}>
-                      {friendsPic[item.uid] ? (
-                        <Image
+                      {item.profilePicture ? (
+                        <CachedImage
                           style={styles.profilePic}
-                          source={{ uri: friendsPic[item.uid] }}
+                          source={{ uri: item.profilePicture }}
                         />
                       ) : (
                         <MaterialCommunityIcons

@@ -5,7 +5,6 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
-  Image,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -14,7 +13,7 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
-
+import CachedImage from 'react-native-expo-cached-image';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import PastTripCard from "./PastTripCard";
 import db from "../firebase";
@@ -145,10 +144,7 @@ export default function Profile({ navigation }) {
         <View style={styles.row}>
           {profilePicture ? (
             <TouchableOpacity onPress={addProfilePicture}>
-              <Image
-                style={styles.profilePic}
-                source={{ uri: profilePicture }}
-              />
+              <CachedImage style={styles.profilePic} source={{ uri: profilePicture }} />
             </TouchableOpacity>
           ) : (
             <MaterialCommunityIcons
