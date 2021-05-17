@@ -38,14 +38,27 @@ export default function Profile({ navigation }) {
     loadPastTrips();
   }, [isFocused]);
 
-  const parseTripsFromDatabase = (tripsFromDatabase) => {
+  const parseTripsFromDatabase = async (tripsFromDatabase) => {
     const parsedTrips = [];
-    tripsFromDatabase.forEach((trip) => {
+    for (const trip of tripsFromDatabase.docs) {
       const tripData = trip.data();
       tripData["id"] = trip.id;
       tripData["tripTitle"] = tripData.tripTitleText;
+      tripData["usersName"] = currentUser.displayName;
+      const commentsArray = [];
+      await db
+        .collection("comments")
+        .where("tripId", "==", trip.id)
+        .orderBy("time", "asc")
+        .get()
+        .then((comments) => {
+          comments.forEach((comment) => {
+            commentsArray.push(comment.data());
+          });
+        });
+      tripData["comments"] = commentsArray;
       parsedTrips.push(tripData);
-    });
+    }
     return parsedTrips;
   };
 
@@ -56,7 +69,7 @@ export default function Profile({ navigation }) {
       .where("uid", "==", currentUser.uid)
       .orderBy("time", "desc")
       .get();
-    const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
+    const parsedTrips = await parseTripsFromDatabase(tripsFromDatabase);
     setPastTrips(parsedTrips);
     setLoading(false);
   };
@@ -129,20 +142,20 @@ export default function Profile({ navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.spaceBetweenRow}>
         <View style={styles.row}>
-        {profilePicture ? (
-          <TouchableOpacity onPress={addProfilePicture}>
-            <CachedImage style={styles.profilePic} source={{ uri: profilePicture }} />
-          </TouchableOpacity>
-        ) : (
-          <MaterialCommunityIcons
-            style={styles.profileIcon}
-            name="account-circle"
-            color={"#808080"}
-            size={90}
-            onPress={addProfilePicture}
-          />
-        )}
-        <Text style={styles.name}>{currentUser.displayName}</Text>
+          {profilePicture ? (
+            <TouchableOpacity onPress={addProfilePicture}>
+              <CachedImage style={styles.profilePic} source={{ uri: profilePicture }} />
+            </TouchableOpacity>
+          ) : (
+            <MaterialCommunityIcons
+              style={styles.profileIcon}
+              name="account-circle"
+              color={"#808080"}
+              size={90}
+              onPress={addProfilePicture}
+            />
+          )}
+          <Text style={styles.name}>{currentUser.displayName}</Text>
         </View>
 
         <MaterialCommunityIcons
