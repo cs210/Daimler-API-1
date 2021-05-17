@@ -53,14 +53,26 @@ export default function Home({ navigation }) {
     const tripsFromDatabase = await fetchUsersTrips(followedUserIds);
     const userIdToNameMap = await fetchUsersNames(followedUserIds);
     for (let tripBatch of tripsFromDatabase) {
-      tripBatch.forEach((trip) => {
+      for (const trip of tripBatch.docs) {
         const tripData = trip.data();
         const usersId = tripData["uid"];
         tripData["usersName"] = userIdToNameMap[usersId];
         tripData["id"] = trip.id;
         tripData["tripTitle"] = tripData.tripTitleText;
+        const commentsArray = [];
+        await db
+          .collection("comments")
+          .where("tripId", "==", trip.id)
+          .orderBy("time", "asc")
+          .get()
+          .then((comments) => {
+            comments.forEach((comment) => {
+              commentsArray.push(comment.data());
+            });
+          });
+        tripData["comments"] = commentsArray;
         parsedTrips.push(tripData);
-      });
+      }
     }
     return parsedTrips;
   };

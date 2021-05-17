@@ -44,23 +44,37 @@ export default function PastTrips({ navigation, route }) {
 
   const loadPastTrips = async () => {
     setLoading(true);
-    const tripsFromDatabase = await db.collection("trips")
+    const tripsFromDatabase = await db
+      .collection("trips")
       .where("uid", "==", theirUid)
       .orderBy("time", "desc")
       .get();
-    const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
+    const parsedTrips = await parseTripsFromDatabase(tripsFromDatabase);
     setPastTrips(parsedTrips);
     setLoading(false);
   };
 
-  const parseTripsFromDatabase = (tripsFromDatabase) => {
+  const parseTripsFromDatabase = async (tripsFromDatabase) => {
     const parsedTrips = [];
-    tripsFromDatabase.forEach((trip) => {
+    for (const trip of tripsFromDatabase.docs) {
       const tripData = trip.data();
       tripData["id"] = trip.id;
       tripData["tripTitle"] = tripData.tripTitleText;
+      tripData["usersName"] = displayName;
+      const commentsArray = [];
+      await db
+        .collection("comments")
+        .where("tripId", "==", trip.id)
+        .orderBy("time", "asc")
+        .get()
+        .then((comments) => {
+          comments.forEach((comment) => {
+            commentsArray.push(comment.data());
+          });
+        });
+      tripData["comments"] = commentsArray;
       parsedTrips.push(tripData);
-    });
+    }
     return parsedTrips;
   };
 
