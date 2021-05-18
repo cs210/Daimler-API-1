@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
+  Image,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
@@ -13,6 +14,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 
+import AppIntroSlider from "react-native-app-intro-slider";
 import { NativeFormsModal } from "native-forms";
 import PastTripCard from "./PastTripCard";
 import db from "../firebase";
@@ -22,6 +24,7 @@ export default function Home({ navigation }) {
   const [feedItems, setFeedItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showNPSForm, setShowNPSForm] = useState(false);
+  const [firstTimeUser, setFirstTimeUser] = useState(false);
   const [friendsPic, setFriendsPic] = useState({});
   const myUid = firebase.auth().currentUser.uid;
   const isFocused = useIsFocused();
@@ -37,6 +40,11 @@ export default function Home({ navigation }) {
 
   const loadData = async () => {
     setIsLoading(true);
+    const userDoc = await db.collection("users").doc(myUid).get();
+    const openTimes = userDoc.data()["openAppTimestamps"];
+    if (openTimes.length <= 1) {
+      setFirstTimeUser(true);
+    }
     await loadFeedTrips();
     await loadNPSForm();
     setIsLoading(false);
@@ -188,7 +196,48 @@ export default function Home({ navigation }) {
     setFeedItems(newFeedItems);
   };
 
-  return (
+  const slides = [
+    {
+      key: "1",
+      title: "Welcome to Road Trip Pal!",
+      text: "Use this app to track your drive and all the stops you make along the way!",
+    },
+    {
+      key: "2",
+      text: "Customize your trip with pins! \nJust press and hold on the map to drop a pin on your route.",
+      image: require("../assets/map-screenshot.png"),
+    },
+    {
+      key: "3",
+      text: "Document your trip by adding photos and descriptions of your stops",
+      image: require("../assets/pin-screenshot.png"),
+    },
+    {
+      key: "4",
+      text: "Then, follow your friends and view their trips on your Feed",
+      image: require("../assets/feed-screenshot.png"),
+    },
+  ];
+
+  const introSlides = ({ item }) => {
+    return (
+      <View style={styles.slide}>
+        {item.title && <Text style={styles.title}>{item.title}</Text>}
+        {item.image && (
+          <Image style={{ width: 500, height: 500 }} source={item.image} />
+        )}
+        <Text style={styles.text}>{item.text}</Text>
+      </View>
+    );
+  };
+
+  const onDone = () => {
+    setFirstTimeUser(false);
+  };
+
+  return firstTimeUser ? (
+    <AppIntroSlider renderItem={introSlides} data={slides} onDone={onDone} />
+  ) : (
     <SafeAreaView style={styles.container}>
       {isLoading ? (
         <ActivityIndicator style={styles.activityIndicator} size={"large"} />
@@ -210,9 +259,7 @@ export default function Home({ navigation }) {
                 uid={myUid}
                 displayName={item.usersName}
                 getUpdatedItem={getUpdatedItem}
-              >
-                {" "}
-              </PastTripCard>
+              ></PastTripCard>
             )}
             ListEmptyComponent={noTripsComponent}
             refreshControl={
@@ -229,6 +276,15 @@ export default function Home({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  slide: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#00a398",
+    padding: 10,
+  },
+  title: { fontSize: 30, margin: 10 },
+  text: { fontSize: 18, margin: 10 },
   container: {
     flex: 1,
     backgroundColor: "#fff",
