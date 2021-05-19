@@ -21,6 +21,7 @@ import * as firebase from "firebase";
 export default function Notifications({ navigation, route }) {
   const [users, setUsers] = useState([]);
   const [likers, setLikers] = useState([]);
+  const [likedTrips, setLikedTrips] = useState({});
   const myUid = firebase.auth().currentUser.uid;
 
   useFocusEffect(
@@ -39,8 +40,11 @@ export default function Notifications({ navigation, route }) {
 
   const loadLikes = async () => {
     const pastTrips = [];
+    var sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const tripsFromDatabase = await db.collection("trips")
-      .where("uid", "==", currentUser.uid)
+      .where("uid", "==", firebase.auth().currentUser.uid)
+      // .where("time", ">=", sevenDaysAgo)
       .orderBy("time", "desc")
       .get();
     getLikes(tripsFromDatabase);
@@ -48,10 +52,13 @@ export default function Notifications({ navigation, route }) {
 
   const getLikes = async (tripsFromDatabase) => {
     const likersMap = {};
+    const trips = {};
     tripsFromDatabase.forEach((trip) => {
       const tripData = trip.data();
-      likersMap[tripData.uid] = tripData.likes;
+      likersMap[trip.id] = tripData.likes;
+      trips[trip.id] = tripData;
     });
+    setLikedTrips(trips);
     setUserLikesFunc(likersMap);
   };
 
@@ -61,8 +68,8 @@ export default function Notifications({ navigation, route }) {
       return;
     }
     const userLikesList = [];
-
-    likersMap.keys().forEach((key) => {
+    console.log(Object.keys(likersMap))
+    Object.keys(likersMap).forEach(async function(key) {
       const dbLikesUsers = await db
         .collection("users")
         .where("uid", "in", likersMap[key])
@@ -76,16 +83,28 @@ export default function Notifications({ navigation, route }) {
         individualTripInfo.push(key);
         userTripLikesList.push(individualTripInfo);
       });
-      userLikesList.concat(userTripLikesList);
-    }
-    setLikers(userLikesList);
+      userLikesList.push(...userTripLikesList);
+      // console.log(userLikesList.length)
+      setLikers(userLikesList);
+      console.log("length")
+      console.log(userLikesList.length)
+    });
   }
 
+  const onPressTrip = (item) => {
+    console.log(item)
+    const likedTrip = likedTrips[item];
+    console.log(likedTrip)
+    navigation.navigate("Past Trip", likedTrip );
+  };
+
   const setUsersFunc = async (followersList) => {
+    console.log("here")
     if (followersList.length == 0) {
       setUsers([]);
       return;
     }
+
     const dbUsers = await db
       .collection("users")
       .where("uid", "in", followersList)
@@ -204,12 +223,13 @@ export default function Notifications({ navigation, route }) {
                     <Text style={styles.userTitle}>{item[0].username}</Text>
                     <TouchableOpacity
                       style={styles.buttonAccept}
+                      onPress={() => onPressTrip(item[1])}
                     >
                       <Text>{item[1]}</Text>
                     </TouchableOpacity>
                   </View>
                   <View style={styles.userCardRow}>
-                    <Text style={styles.userText}>{item[0].displayName}</Text>
+                    <Text style={styles.userText}>liked your post</Text>
                   </View>
                 </View>
               </TouchableOpacity>
