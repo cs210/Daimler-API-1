@@ -4,7 +4,6 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
-  Image,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -12,7 +11,7 @@ import {
   View,
 } from "react-native";
 import React, { useState, useEffect } from "react";
-
+import CachedImage from 'react-native-expo-cached-image';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import db from "../firebase";
 import PastTripCard from "./PastTripCard";
@@ -44,23 +43,37 @@ export default function PastTrips({ navigation, route }) {
 
   const loadPastTrips = async () => {
     setLoading(true);
-    const tripsFromDatabase = await db.collection("trips")
+    const tripsFromDatabase = await db
+      .collection("trips")
       .where("uid", "==", theirUid)
       .orderBy("time", "desc")
       .get();
-    const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
+    const parsedTrips = await parseTripsFromDatabase(tripsFromDatabase);
     setPastTrips(parsedTrips);
     setLoading(false);
   };
 
-  const parseTripsFromDatabase = (tripsFromDatabase) => {
+  const parseTripsFromDatabase = async (tripsFromDatabase) => {
     const parsedTrips = [];
-    tripsFromDatabase.forEach((trip) => {
+    for (const trip of tripsFromDatabase.docs) {
       const tripData = trip.data();
       tripData["id"] = trip.id;
       tripData["tripTitle"] = tripData.tripTitleText;
+      tripData["usersName"] = displayName;
+      const commentsArray = [];
+      await db
+        .collection("comments")
+        .where("tripId", "==", trip.id)
+        .orderBy("time", "asc")
+        .get()
+        .then((comments) => {
+          comments.forEach((comment) => {
+            commentsArray.push(comment.data());
+          });
+        });
+      tripData["comments"] = commentsArray;
       parsedTrips.push(tripData);
-    });
+    }
     return parsedTrips;
   };
 
@@ -149,15 +162,15 @@ export default function PastTrips({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.spaceBetweenRow}>
+      <View style={styles.rowName}>
         {profilePic ? (
-          <Image style={styles.profilePic} source={{ uri: profilePic }} />
+          <CachedImage style={styles.profilePic} source={{ uri: profilePic }} />
         ) : (
           <MaterialCommunityIcons
             style={styles.profileIcon}
             name="account-circle"
             color={"#808080"}
-            size={100}
+            size={Dimensions.get("window").height * 0.1}
           />
         )}
         <Text style={styles.name}>{item.displayName}</Text>
@@ -222,6 +235,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 10,
   },
+  rowName: {
+    flexDirection: "row",
+  },
   row: {
     flexDirection: "row",
     alignItems: "center",
@@ -236,9 +252,8 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 28,
-    // color: "#00A398",
     fontWeight: "bold",
-    marginTop: 45,
+    marginTop: Dimensions.get("window").height * 0.042,
     width: Dimensions.get("window").height * 0.4,
   },
   follow: {

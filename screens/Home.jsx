@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
+  Image,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
@@ -11,19 +12,26 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 
+import AppIntroSlider from "react-native-app-intro-slider";
 import { NativeFormsModal } from "native-forms";
+import PastTripCard from "./PastTripCard";
 import db from "../firebase";
 import { netPromoterUrl } from "../keys";
-import { useFocusEffect } from "@react-navigation/native";
-import PastTripCard from "./PastTripCard";
 
 export default function Home({ navigation }) {
   const [feedItems, setFeedItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showNPSForm, setShowNPSForm] = useState(false);
+  const [firstTimeUser, setFirstTimeUser] = useState(false);
   const [friendsPic, setFriendsPic] = useState({});
   const myUid = firebase.auth().currentUser.uid;
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    loadFeedTrips();
+  }, [isFocused]);
 
   useEffect(() => {
     logOpenAppEvent();
@@ -32,13 +40,17 @@ export default function Home({ navigation }) {
 
   const loadData = async () => {
     setIsLoading(true);
+    const userDoc = await db.collection("users").doc(myUid).get();
+    const openTimes = userDoc.data()["openAppTimestamps"];
+    if (openTimes.length <= 1) {
+      setFirstTimeUser(true);
+    }
     await loadFeedTrips();
     await loadNPSForm();
     setIsLoading(false);
   };
 
   const loadFeedTrips = async () => {
-    setFeedItems([]);
     const feedTrips = await parseTripsForFeed();
     setFeedItems(feedTrips);
   };
@@ -49,14 +61,26 @@ export default function Home({ navigation }) {
     const tripsFromDatabase = await fetchUsersTrips(followedUserIds);
     const userIdToNameMap = await fetchUsersNames(followedUserIds);
     for (let tripBatch of tripsFromDatabase) {
-      tripBatch.forEach((trip) => {
+      for (const trip of tripBatch.docs) {
         const tripData = trip.data();
         const usersId = tripData["uid"];
         tripData["usersName"] = userIdToNameMap[usersId];
         tripData["id"] = trip.id;
         tripData["tripTitle"] = tripData.tripTitleText;
+        const commentsArray = [];
+        await db
+          .collection("comments")
+          .where("tripId", "==", trip.id)
+          .orderBy("time", "asc")
+          .get()
+          .then((comments) => {
+            comments.forEach((comment) => {
+              commentsArray.push(comment.data());
+            });
+          });
+        tripData["comments"] = commentsArray;
         parsedTrips.push(tripData);
-      });
+      }
     }
     return parsedTrips;
   };
@@ -111,8 +135,10 @@ export default function Home({ navigation }) {
   const loadNPSForm = async () => {
     const userDoc = await db.collection("users").doc(myUid).get();
     const userData = userDoc.data();
-    const hasOpenedAppManyTimes = userData["openAppTimestamps"].length > 4;
-    const shouldSeeNPS = hasOpenedAppManyTimes && !userData["hasDoneNPS"];
+    const isFamiliarWithApp = userData["openAppTimestamps"].length > 4;
+    const hasntDoneNPS = !userData["hasDoneNPS"];
+    const randomChance = Math.random() < 0.25;
+    const shouldSeeNPS = isFamiliarWithApp && hasntDoneNPS && randomChance;
     setShowNPSForm(shouldSeeNPS);
   };
 
@@ -144,7 +170,7 @@ export default function Home({ navigation }) {
       fetchUsersPics();
     }, [])
   );
-  
+
   const noTripsComponent = () => {
     return (
       <Text style={styles.noTripText}>
@@ -168,9 +194,50 @@ export default function Home({ navigation }) {
       return item;
     });
     setFeedItems(newFeedItems);
-  }
+  };
 
-  return (
+  const slides = [
+    {
+      key: "1",
+      title: "Welcome to Road Trip Pal!",
+      text: "Use this app to track your drive and all the stops you make along the way!",
+    },
+    {
+      key: "2",
+      text: "Customize your trip with pins! \nJust press and hold on the map to drop a pin on your route.",
+      image: require("../assets/map-screenshot.png"),
+    },
+    {
+      key: "3",
+      text: "Document your trip by adding photos and descriptions of your stops",
+      image: require("../assets/pin-screenshot.png"),
+    },
+    {
+      key: "4",
+      text: "Then, follow your friends and view their trips on your Feed",
+      image: require("../assets/feed-screenshot.png"),
+    },
+  ];
+
+  const introSlides = ({ item }) => {
+    return (
+      <View style={styles.slide}>
+        {item.title && <Text style={styles.title}>{item.title}</Text>}
+        {item.image && (
+          <Image style={{ width: 500, height: 500 }} source={item.image} />
+        )}
+        <Text style={styles.text}>{item.text}</Text>
+      </View>
+    );
+  };
+
+  const onDone = () => {
+    setFirstTimeUser(false);
+  };
+
+  return firstTimeUser ? (
+    <AppIntroSlider renderItem={introSlides} data={slides} onDone={onDone} />
+  ) : (
     <SafeAreaView style={styles.container}>
       {isLoading ? (
         <ActivityIndicator style={styles.activityIndicator} size={"large"} />
@@ -192,9 +259,7 @@ export default function Home({ navigation }) {
                 uid={myUid}
                 displayName={item.usersName}
                 getUpdatedItem={getUpdatedItem}
-              >
-                {" "}
-              </PastTripCard>
+              ></PastTripCard>
             )}
             ListEmptyComponent={noTripsComponent}
             refreshControl={
@@ -211,6 +276,15 @@ export default function Home({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  slide: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#00a398",
+    padding: 10,
+  },
+  title: { fontSize: 30, margin: 10 },
+  text: { fontSize: 18, margin: 10 },
   container: {
     flex: 1,
     backgroundColor: "#fff",

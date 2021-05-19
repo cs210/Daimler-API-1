@@ -14,6 +14,8 @@ import db from "../firebase";
  * This component is the settings page where the user can logout of the app.
  */
 export default function Settings({ navigation }) {
+  const uid = firebase.auth().currentUser.uid;
+
   const renderSeparator = () => {
     return <View style={styles.seperator} />;
   };
@@ -42,24 +44,27 @@ export default function Settings({ navigation }) {
     }
   };
 
-  const deleteAccount = () => {
-    var user = firebase.auth().currentUser;
-    console.log(user);
-    user
-      .delete()
-      .then(function () {
-        db.collection("users")
-          .doc(user.uid)
+  const deleteAccount = async () => {
+    const userDoc = await db.collection("users").doc(uid).get();
+    const followedUserIds = userDoc.data()["following"];
+    const followersUserIds = userDoc.data()["followers"];
+
+    firebase
+      .auth()
+      .currentUser.delete()
+      .then(
+        db
+          .collection("users")
+          .doc(uid)
           .delete()
           .then(() => {
             console.log("Document successfully deleted!");
+            updateFollow(followedUserIds, followersUserIds);
           })
           .catch((error) => {
             console.error("Error removing document: ", error);
-          });
-        console.log("success");
-        console.log(firebase.auth().currentUser);
-      })
+          })
+      )
       .catch(function (error) {
         Alert.alert(
           "Log in again before retrying this request.",
@@ -67,6 +72,24 @@ export default function Settings({ navigation }) {
           [{ text: "OK", onPress: () => console.error({ error }) }]
         );
       });
+  };
+
+  const updateFollow = async (followedUserIds, followersUserIds) => {
+    followedUserIds.forEach((id) => {
+      const userFollowingRef = db.collection("users").doc(id);
+      // Remove deleted user from their followers list
+      userFollowingRef.update({
+        followers: firebase.firestore.FieldValue.arrayRemove(uid),
+      });
+    });
+
+    followersUserIds.forEach((id) => {
+      const userFollowerRef = db.collection("users").doc(id);
+      // Remove deleted user from their following list
+      userFollowerRef.update({
+        following: firebase.firestore.FieldValue.arrayRemove(uid),
+      });
+    });
   };
 
   return (
@@ -93,7 +116,7 @@ const styles = StyleSheet.create({
   item: {
     padding: 10,
     fontSize: 18,
-    height:  Dimensions.get("window").height * 0.045,
+    height: Dimensions.get("window").height * 0.045,
     color: "#00A398",
     margin: 5,
   },

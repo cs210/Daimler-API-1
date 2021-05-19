@@ -35,7 +35,25 @@ export default function Notifications({ navigation, route }) {
     const userDoc = await db.collection("users").doc(myUid).get();
     const userData = userDoc.data();
     const followerRequests = userData["followerRequests"];
-    setUsersFunc(followerRequests);
+    await loadUsers(followerRequests);
+  };
+
+  const loadUsers = async (userIds) => {
+    const parsedUsers = []
+    for (let i = 0; i < userIds.length; i += 10) {
+      // Firestore limits "in" queries to 10 elements
+      // so we must batch these queries
+      const batchIds = userIds.slice(i, i + 10);
+      const batchUsers = await db
+        .collection("users")
+        .where("uid", "in", batchIds)
+        .get();
+      batchUsers.forEach((user) => {
+        const userData = user.data();
+        parsedUsers.push(userData);
+      });
+    }
+    setUsers(parsedUsers);
   };
 
   const loadLikes = async () => {
@@ -142,7 +160,7 @@ export default function Notifications({ navigation, route }) {
     if (index > -1) {
       users.splice(index, 1);
     }
-    setUsers(...users);
+    setUsers([...users]);
   };
 
   const onPressDecline = (item) => {
@@ -159,7 +177,7 @@ export default function Notifications({ navigation, route }) {
     if (index > -1) {
       users.splice(index, 1);
     }
-    setUsers(...users);
+    setUsers([...users]);
   };
 
   return (
@@ -225,7 +243,7 @@ export default function Notifications({ navigation, route }) {
                       style={styles.buttonAccept}
                       onPress={() => onPressTrip(item[1])}
                     >
-                      <Text>{item[1]}</Text>
+                      <Text>See post</Text>
                     </TouchableOpacity>
                   </View>
                   <View style={styles.userCardRow}>

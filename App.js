@@ -26,6 +26,8 @@ import TripViewer from "./screens/TripViewer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
+import Comment from "./screens/Comment";
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -150,7 +152,7 @@ const App = () => {
       <NavigationContainer>
         {loggedIn == null ? (
           <Stack.Navigator>
-            <Stack.Screen name="Splash Screen" component={SplashScreen} />
+            <Stack.Screen name="Road Trip Pal" component={SplashScreen} />
           </Stack.Navigator>
         ) : loggedIn ? (
           <Stack.Navigator>
@@ -170,6 +172,7 @@ const App = () => {
             <Stack.Screen name="Friend Profile" component={FriendProfile} />
             <Stack.Screen name="Follow" component={Follow} />
             <Stack.Screen name="Likes" component={Likes} />
+            <Stack.Screen name="Comment" component={Comment} />
           </Stack.Navigator>
         ) : (
           <Stack.Navigator>

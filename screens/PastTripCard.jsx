@@ -4,11 +4,11 @@ import {
   View,
   StyleSheet,
   Dimensions,
-  Image,
 } from "react-native";
 import React from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
 import moment from "moment";
+import CachedImage from 'react-native-expo-cached-image';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import db from "../firebase";
@@ -16,6 +16,7 @@ import * as firebase from "firebase";
 
 export default function PastTripCard(props) {
   const item = props.item;
+  // console.log("item", item.comments);
   const friendsPic = props.friendsPic;
   const myUid = props.uid;
   const navigation = useNavigation();
@@ -71,7 +72,7 @@ export default function PastTripCard(props) {
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <TouchableOpacity onPress={() => onPressUser(item)}>
               {profilePicture ? (
-                <Image
+                <CachedImage
                   style={styles.profilePic}
                   source={{ uri: profilePicture }}
                 />
@@ -100,19 +101,35 @@ export default function PastTripCard(props) {
             item.coordinates
           )}
         </View>
-        <View>
-          {item.likes.length != 1 && (
-            <Text onPress={() => navigation.navigate("Likes", item.likes)}>
-              {" "}
-              {item.likes.length} likes{" "}
-            </Text>
-          )}
-          {item.likes.length == 1 && (
-            <Text onPress={() => navigation.navigate("Likes", item.likes)}>
-              {" "}
-              {item.likes.length} like{" "}
-            </Text>
-          )}
+        <View style={styles.row}>
+          <View>
+            {item.likes.length != 1 && (
+              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
+                {" "}
+                {item.likes.length} likes{" "}
+              </Text>
+            )}
+            {item.likes.length == 1 && (
+              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
+                {" "}
+                {item.likes.length} like{" "}
+              </Text>
+            )}
+          </View>
+          <View>
+            {item.comments.length != 1 && (
+              <Text onPress={() => navigation.navigate("Comment", item)}>
+                {" "}
+                {item.comments.length} comments{" "}
+              </Text>
+            )}
+            {item.comments.length == 1 && (
+              <Text onPress={() => navigation.navigate("Comment", item)}>
+                {" "}
+                {item.comments.length} comment{" "}
+              </Text>
+            )}
+          </View>
         </View>
         <View
           style={{
@@ -121,16 +138,30 @@ export default function PastTripCard(props) {
             borderBottomWidth: 1,
           }}
         />
-        <TouchableOpacity onPress={() => onUserLike(item)}>
-          <View>
-            <MaterialCommunityIcons
-              style={styles.icon}
-              name="thumb-up-outline"
-              color={item.likes.includes(myUid) ? "#00A398" : "#808080"}
-              size={25}
-            />
-          </View>
-        </TouchableOpacity>
+        <View style={styles.reactionBar}>
+          <TouchableOpacity onPress={() => onUserLike(item)}>
+            <View style={styles.iconView}>
+              <MaterialCommunityIcons
+                style={styles.icon}
+                name="thumb-up-outline"
+                color={item.likes.includes(myUid) ? "#00A398" : "#808080"}
+                size={25}
+              />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Comment", item)}
+          >
+            <View style={styles.iconView}>
+              <MaterialCommunityIcons
+                style={styles.icon}
+                name="comment-text-outline"
+                color={"#808080"}
+                size={25}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -167,6 +198,10 @@ const styles = StyleSheet.create({
     paddingLeft: 4,
     fontSize: 12,
   },
+  reactionBar: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   userName: {
     paddingLeft: 2,
     fontSize: 16,
@@ -195,6 +230,9 @@ const styles = StyleSheet.create({
   icon: {
     alignSelf: "center",
     marginVertical: 10,
+  },
+  iconView: {
+    width: Dimensions.get("window").width * 0.5,
   },
   activityIndicator: {
     margin: 50,

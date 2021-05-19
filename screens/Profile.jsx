@@ -5,20 +5,19 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
-  Image,
   SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
-
+import React, { useEffect, useState } from "react";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import CachedImage from 'react-native-expo-cached-image';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import PastTripCard from "./PastTripCard";
 import db from "../firebase";
 import { getImageUrl } from "./TripOverview";
-import { useFocusEffect } from "@react-navigation/native";
-import PastTripCard from "./PastTripCard";
 
 /**
  * This component shows a profile which includes the number of followers
@@ -33,26 +32,44 @@ export default function Profile({ navigation }) {
   const [following, setFollowing] = useState([]);
   const [profilePicture, setProfilePicture] = useState(null);
   const currentUser = firebase.auth().currentUser;
+  const isFocused = useIsFocused();
 
-  const parseTripsFromDatabase = (tripsFromDatabase) => {
+  useEffect(() => {
+    loadPastTrips();
+  }, [isFocused]);
+
+  const parseTripsFromDatabase = async (tripsFromDatabase) => {
     const parsedTrips = [];
-    tripsFromDatabase.forEach((trip) => {
+    for (const trip of tripsFromDatabase.docs) {
       const tripData = trip.data();
       tripData["id"] = trip.id;
       tripData["tripTitle"] = tripData.tripTitleText;
+      tripData["usersName"] = currentUser.displayName;
+      const commentsArray = [];
+      await db
+        .collection("comments")
+        .where("tripId", "==", trip.id)
+        .orderBy("time", "asc")
+        .get()
+        .then((comments) => {
+          comments.forEach((comment) => {
+            commentsArray.push(comment.data());
+          });
+        });
+      tripData["comments"] = commentsArray;
       parsedTrips.push(tripData);
-    });
+    }
     return parsedTrips;
   };
 
   const loadPastTrips = async () => {
     setLoading(true);
-    setPastTrips([]);
-    const tripsFromDatabase = await db.collection("trips")
+    const tripsFromDatabase = await db
+      .collection("trips")
       .where("uid", "==", currentUser.uid)
       .orderBy("time", "desc")
       .get();
-    const parsedTrips = parseTripsFromDatabase(tripsFromDatabase);
+    const parsedTrips = await parseTripsFromDatabase(tripsFromDatabase);
     setPastTrips(parsedTrips);
     setLoading(false);
   };
@@ -91,9 +108,7 @@ export default function Profile({ navigation }) {
   };
 
   const addProfilePicture = async () => {
-    const userRef = await db
-      .collection("users")
-      .doc(currentUser.uid);
+    const userRef = await db.collection("users").doc(currentUser.uid);
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -126,23 +141,23 @@ export default function Profile({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.spaceBetweenRow}>
-        {profilePicture ? (
-          <TouchableOpacity onPress={addProfilePicture}>
-            <Image style={styles.profilePic} source={{ uri: profilePicture }} />
-          </TouchableOpacity>
-        ) : (
-          <MaterialCommunityIcons
-            style={styles.profileIcon}
-            name="account-circle"
-            color={"#808080"}
-            size={90}
-            onPress={addProfilePicture}
-          />
-        )}
+        <View style={styles.row}>
+          {profilePicture ? (
+            <TouchableOpacity onPress={addProfilePicture}>
+              <CachedImage style={styles.profilePic} source={{ uri: profilePicture }} />
+            </TouchableOpacity>
+          ) : (
+            <MaterialCommunityIcons
+              style={styles.profileIcon}
+              name="account-circle"
+              color={"#808080"}
+              size={90}
+              onPress={addProfilePicture}
+            />
+          )}
+          <Text style={styles.name}>{currentUser.displayName}</Text>
+        </View>
 
-        <Text style={styles.name}>
-          {currentUser.displayName}
-        </Text>
         <MaterialCommunityIcons
           style={styles.settingsIcon}
           name="account-cog"
@@ -164,17 +179,17 @@ export default function Profile({ navigation }) {
       ) : (
         <FlatList
           data={pastTrips}
-        renderItem={({ item }) => (
+          renderItem={({ item }) => (
             <PastTripCard
-            item={item}
-            profilePic={profilePicture}
-            displayName={currentUser.displayName}
-            uid={currentUser.uid}
-            getUpdatedItem={getUpdatedItem}
-          >
-            {" "}
-          </PastTripCard>
-                )}
+              item={item}
+              profilePic={profilePicture}
+              displayName={currentUser.displayName}
+              uid={currentUser.uid}
+              getUpdatedItem={getUpdatedItem}
+            >
+              {" "}
+            </PastTripCard>
+          )}
           ListEmptyComponent={noTripsComponent}
         />
       )}
@@ -206,12 +221,12 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").height * 0.1,
     height: Dimensions.get("window").height * 0.1,
     margin: 10,
-    borderRadius: 50,
+    borderRadius: 1000,
   },
   name: {
     fontSize: 28,
     fontWeight: "bold",
-    marginTop: 45,
+    marginTop: Dimensions.get("window").height * 0.042,
     width: Dimensions.get("window").height * 0.3,
   },
   time: {
