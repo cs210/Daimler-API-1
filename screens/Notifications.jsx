@@ -72,6 +72,8 @@ export default function Notifications({ navigation, route }) {
     const likersMap = {};
     const trips = {};
     tripsFromDatabase.forEach((trip) => {
+      console.log("hi");
+      // by making key tripData.uid, you are resplacing the entry constantly - should use a trip unique ID instead?
       const tripData = trip.data();
       likersMap[trip.id] = tripData.likes;
       trips[trip.id] = tripData;
@@ -93,6 +95,7 @@ export default function Notifications({ navigation, route }) {
         .where("uid", "in", likersMap[key])
         .get();
 
+      console.log("dbLikesUsers", dbLikesUsers)
       const userTripLikesList = [];
       dbLikesUsers.forEach((user) => {
         const userData = user.data();
