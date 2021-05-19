@@ -1,5 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
+import * as TaskManager from 'expo-task-manager';
 
 import {
   Dimensions,
@@ -37,6 +38,15 @@ export default function TripMap({ navigation }) {
   const [isTripRecording, setIsTripRecording] = useState(false);
   const [isTripStarted, setIsTripStarted] = useState(false);
   const [time, setTime] = useState("");
+  const LOCATION_TASK_NAME = 'background-location-task';
+
+  TaskManager.defineTask(LOCATION_TASK_NAME, ({ data: { locations }, error }) => {
+    if (error) {
+      // check `error.message` for more details.
+      return;
+    }
+    console.log('Received new locations', locations);
+  });
 
   useFocusEffect(
     React.useCallback(() => {
@@ -59,11 +69,11 @@ export default function TripMap({ navigation }) {
 
   useEffect(() => {
     updateUsersLocation();
-    let timer = setInterval(updateUsersLocation, 4000);
+    // let timer = setInterval(updateUsersLocation, 4000);
     // clean-up interval timer on un-mount
-    return () => {
-      clearInterval(timer);
-    };
+    // return () => {
+    //   clearInterval(timer);
+    // };
   }, [isTripRecording]);
 
   const updateUsersLocation = async () => {
@@ -73,7 +83,11 @@ export default function TripMap({ navigation }) {
       return;
     }
     let locationAccuracy = { accuracy: Location.Accuracy.Balanced };
-    let location = await Location.getCurrentPositionAsync(locationAccuracy);
+    // let location = await Location.getCurrentPositionAsync(locationAccuracy);
+    let location = await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+      accuracy: locationAccuracy,
+      timeInterval: 5000,
+    });
     updateLocationInfo(location);
   };
 
