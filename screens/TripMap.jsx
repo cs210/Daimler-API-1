@@ -40,14 +40,6 @@ export default function TripMap({ navigation }) {
   const [time, setTime] = useState("");
   const LOCATION_TASK_NAME = 'background-location-task';
 
-  TaskManager.defineTask(LOCATION_TASK_NAME, ({ data: { locations }, error }) => {
-    if (error) {
-      // check `error.message` for more details.
-      return;
-    }
-    console.log('Received new locations', locations);
-  });
-
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
@@ -82,16 +74,30 @@ export default function TripMap({ navigation }) {
       setErrorMsg("Permission to access location was denied");
       return;
     }
-    let locationAccuracy = { accuracy: Location.Accuracy.Balanced };
+    console.log("updateUsersLocationcalled");
+    // let locationAccuracy = { accuracy: Location.Accuracy.Balanced };
     // let location = await Location.getCurrentPositionAsync(locationAccuracy);
-    let location = await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-      accuracy: locationAccuracy,
-      timeInterval: 5000,
+    await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+      accuracy: Location.Accuracy.Balanced,
+      timeInterval: 500000,
     });
-    updateLocationInfo(location);
   };
 
+  TaskManager.defineTask(LOCATION_TASK_NAME, ({ data: { locations }, error }) => {
+    if (error) {
+      // check `error.message` for more details.
+      return;
+    }
+    // console.log('Received new locations', locations);
+    setInterval(() => {
+      console.log('This will run every 1 second!');
+      console.log("coordinates", coordinates);
+      updateLocationInfo(locations[0]);
+    }, 10000);
+  });
+
   const updateLocationInfo = (location) => {
+    // const location = locations[0];
     setLocation(location);
     setRegion({
       latitude: location.coords.latitude,
@@ -144,13 +150,16 @@ export default function TripMap({ navigation }) {
     navigation.navigate("Trip Overview", data);
   };
 
-  const onPauseTripPress = () => {
+  const onPauseTripPress = async () => {
     if (!isTripStarted) {
       setIsTripStarted(true);
       setIsTripRecording(true);
       setIsTripPaused(false);
       setTime(new Date().toISOString());
     } else {
+      if (isTripPaused) {
+        await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
+      }
       setIsTripPaused(!isTripPaused);
       setIsTripRecording(!isTripRecording);
     }
