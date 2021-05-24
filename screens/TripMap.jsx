@@ -54,6 +54,7 @@ export default function TripMap({ navigation }) {
     React.useCallback(() => {
       if (!isTripStarted) {
         setPins([]);
+        console.log("setcoordinates called in usefocuseffect");
         setCoordinates([]);
       }
     }, [isTripRecording, isTripStarted])
@@ -79,7 +80,7 @@ export default function TripMap({ navigation }) {
     // let location = await Location.getCurrentPositionAsync(locationAccuracy);
     await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
       accuracy: Location.Accuracy.Balanced,
-      timeInterval: 500000,
+      timeInterval: 5000,
     });
   };
 
@@ -88,12 +89,17 @@ export default function TripMap({ navigation }) {
       // check `error.message` for more details.
       return;
     }
-    // console.log('Received new locations', locations);
-    setInterval(() => {
-      console.log('This will run every 1 second!');
-      console.log("coordinates", coordinates);
+    console.log('Received new locations', locations);
+    const randomNumb = Math.floor(Math.random() * 10) + 1 ;
+    console.log("randomNumb", randomNumb);
+    if (randomNumb == 8 || randomNumb == 4) {
       updateLocationInfo(locations[0]);
-    }, 10000);
+    }
+    // setInterval(() => {
+    //   console.log('This will run every 1 second!');
+    //   console.log("coordinates", coordinates);
+    //   updateLocationInfo(locations[0]);
+    // }, 10000);
   });
 
   const updateLocationInfo = (location) => {
@@ -110,6 +116,7 @@ export default function TripMap({ navigation }) {
       longitude: location.coords.longitude,
     };
     if (isTripRecording) {
+      console.log("setcoordinates called in updateInfo with coordinates", keys);
       setCoordinates(coordinates => ([...coordinates, keys]));
     }
   };
