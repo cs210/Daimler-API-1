@@ -92,9 +92,10 @@ export default function TripMap({ navigation }) {
     console.log('Received new locations', locations);
     const randomNumb = Math.floor(Math.random() * 10) + 1 ;
     console.log("randomNumb", randomNumb);
-    if (randomNumb == 8 || randomNumb == 4) {
-      updateLocationInfo(locations[0]);
-    }
+    console.log("coordinates", coordinates);
+    // if (randomNumb == 8 || randomNumb == 4) {
+    updateLocationInfo(locations[0]);
+    //}
     // setInterval(() => {
     //   console.log('This will run every 1 second!');
     //   console.log("coordinates", coordinates);
