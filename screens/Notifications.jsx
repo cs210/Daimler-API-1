@@ -63,7 +63,7 @@ export default function Notifications({ navigation, route }) {
     console.log(sevenDaysAgo)
     const tripsFromDatabase = await db.collection("trips")
       .where("uid", "==", firebase.auth().currentUser.uid)
-      .where("time", ">=", sevenDaysAgo)
+      // .where("time", ">=", sevenDaysAgo)
       .orderBy("time", "desc")
       .get();
     getLikes(tripsFromDatabase);
