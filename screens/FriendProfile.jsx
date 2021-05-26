@@ -10,11 +10,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState, useEffect } from "react";
-import CachedImage from 'react-native-expo-cached-image';
+import React, { useEffect, useState } from "react";
+
+import CachedImage from "react-native-expo-cached-image";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import db from "../firebase";
 import PastTripCard from "./PastTripCard";
+import db from "../firebase";
 
 /**
  * This component shows a profile which includes the number of followers
@@ -211,9 +212,7 @@ export default function PastTrips({ navigation, route }) {
               displayName={displayName}
               uid={myUid}
               getUpdatedItem={getUpdatedItem}
-            >
-              {" "}
-            </PastTripCard>
+            />
           )}
           ListEmptyComponent={noTripsComponent}
         />

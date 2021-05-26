@@ -1,22 +1,25 @@
+import * as firebase from "firebase";
+
 import {
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  StyleSheet,
-  Dimensions,
 } from "react-native";
-import React from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
-import moment from "moment";
-import CachedImage from 'react-native-expo-cached-image';
+
+import CachedImage from "react-native-expo-cached-image";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { useNavigation } from "@react-navigation/native";
+import React from "react";
 import db from "../firebase";
-import * as firebase from "firebase";
+import moment from "moment";
+import { useNavigation } from "@react-navigation/native";
 
 export default function PastTripCard(props) {
   const item = props.item;
-  // console.log("item", item.comments);
   const friendsPic = props.friendsPic;
   const myUid = props.uid;
   const navigation = useNavigation();
@@ -94,6 +97,11 @@ export default function PastTripCard(props) {
 
           <Text style={styles.tripName}>{item.tripTitle}</Text>
         </View>
+      </TouchableOpacity>
+      <ScrollView horizontal={true}>
+        {item?.tripPhotos?.map((photo, i) => (
+          <Image key={i} source={{ uri: photo }} style={styles.image} />
+        ))}
         <View style={styles.tripCard}>
           {tripViewComponent(
             item.pins,
@@ -101,68 +109,62 @@ export default function PastTripCard(props) {
             item.coordinates
           )}
         </View>
-        <View style={styles.row}>
-          <View>
-            {item.likes.length != 1 && (
-              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
-                {" "}
-                {item.likes.length} likes{" "}
-              </Text>
-            )}
-            {item.likes.length == 1 && (
-              <Text onPress={() => navigation.navigate("Likes", item.likes)}>
-                {" "}
-                {item.likes.length} like{" "}
-              </Text>
-            )}
-          </View>
-          <View>
-            {item.comments.length != 1 && (
-              <Text onPress={() => navigation.navigate("Comment", item)}>
-                {" "}
-                {item.comments.length} comments{" "}
-              </Text>
-            )}
-            {item.comments.length == 1 && (
-              <Text onPress={() => navigation.navigate("Comment", item)}>
-                {" "}
-                {item.comments.length} comment{" "}
-              </Text>
-            )}
-          </View>
+      </ScrollView>
+      <View style={styles.row}>
+        <View>
+          {item.likes.length != 1 && (
+            <Text onPress={() => navigation.navigate("Likes", item.likes)}>
+              {item.likes.length} likes
+            </Text>
+          )}
+          {item.likes.length == 1 && (
+            <Text onPress={() => navigation.navigate("Likes", item.likes)}>
+              {item.likes.length} like
+            </Text>
+          )}
         </View>
-        <View
-          style={{
-            paddingTop: 10,
-            borderBottomColor: "lightgray",
-            borderBottomWidth: 1,
-          }}
-        />
-        <View style={styles.reactionBar}>
-          <TouchableOpacity onPress={() => onUserLike(item)}>
-            <View style={styles.iconView}>
-              <MaterialCommunityIcons
-                style={styles.icon}
-                name="thumb-up-outline"
-                color={item.likes.includes(myUid) ? "#00A398" : "#808080"}
-                size={25}
-              />
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Comment", item)}
-          >
-            <View style={styles.iconView}>
-              <MaterialCommunityIcons
-                style={styles.icon}
-                name="comment-text-outline"
-                color={"#808080"}
-                size={25}
-              />
-            </View>
-          </TouchableOpacity>
+        <View>
+          {item.comments.length != 1 && (
+            <Text onPress={() => navigation.navigate("Comment", item)}>
+              {item.comments.length} comments
+            </Text>
+          )}
+          {item.comments.length == 1 && (
+            <Text onPress={() => navigation.navigate("Comment", item)}>
+              {item.comments.length} comment
+            </Text>
+          )}
         </View>
-      </TouchableOpacity>
+      </View>
+      <View
+        style={{
+          paddingTop: 10,
+          borderBottomColor: "lightgray",
+          borderBottomWidth: 1,
+        }}
+      />
+      <View style={styles.reactionBar}>
+        <TouchableOpacity onPress={() => onUserLike(item)}>
+          <View style={styles.iconView}>
+            <MaterialCommunityIcons
+              style={styles.icon}
+              name="thumb-up-outline"
+              color={item.likes.includes(myUid) ? "#00A398" : "#808080"}
+              size={25}
+            />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("Comment", item)}>
+          <View style={styles.iconView}>
+            <MaterialCommunityIcons
+              style={styles.icon}
+              name="comment-text-outline"
+              color={"#808080"}
+              size={25}
+            />
+          </View>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -210,6 +212,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
+    padding: 10,
   },
   tripName: {
     fontSize: 20,
@@ -243,5 +246,10 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     margin: 5,
     marginLeft: 0,
+  },
+  image: {
+    width: Dimensions.get("window").width * 0.9,
+    height: Dimensions.get("window").height * 0.4,
+    margin: 10,
   },
 });

@@ -1,3 +1,5 @@
+import * as ImageManipulator from "expo-image-manipulator";
+import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase";
 
 import {
@@ -54,6 +56,7 @@ export const getImageUrl = (uri) => {
 export default function TripOverview({ navigation, route }) {
   const [tripTitle, setTripTitle] = useState("");
   const [loadingSave, setLoadingSave] = useState(false);
+  const [tripPhotos, setTripPhotos] = useState([]);
 
   const onSaveTrip = () => {
     setLoadingSave(true);
@@ -63,9 +66,13 @@ export default function TripOverview({ navigation, route }) {
       tripTitleText = "Road Trip";
     }
     const promises = [];
+    const tripUrls = [];
     const pins = route.params["pins"];
     const coordinates = route.params["coordinates"];
     const time = route.params["time"];
+    for (let tripPhoto of tripPhotos) {
+      promises.push(getImageUrl(tripPhoto.uri));
+    }
     for (let pin of pins) {
       if (pin.photos) {
         for (let photo of pin.photos) {
@@ -75,9 +82,13 @@ export default function TripOverview({ navigation, route }) {
     }
     Promise.all(promises).then((urls) => {
       var count = 0;
+      for (var j = 0; j < tripPhotos.length; j++) {
+        tripUrls.push(urls[count]);
+        count++;
+      }
       for (var i = 0; i < pins.length; i++) {
         if (pins[i].photos) {
-          for (photo of pins[i].photos) {
+          for (let photo of pins[i].photos) {
             photo.uri = urls[count];
             count++;
           }
@@ -86,12 +97,12 @@ export default function TripOverview({ navigation, route }) {
       const user = firebase.auth().currentUser;
       const post = {
         tripTitleText: tripTitleText,
+        tripPhotos: tripUrls,
         pins: pins,
         coordinates: coordinates,
         time: time,
         uid: user.uid,
         likes: [],
-        // comments: {},
       };
       if (!route.params["isNewTrip"]) {
         db.collection("trips")
@@ -141,6 +152,30 @@ export default function TripOverview({ navigation, route }) {
     );
   };
 
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      base64: true,
+      quality: 0,
+    });
+    if (!result.cancelled) {
+      const manipulatedImage = await ImageManipulator.manipulateAsync(
+        result.uri,
+        [
+          {
+            resize: { width: result.width * 0.4, height: result.height * 0.4 },
+          },
+        ],
+        { compress: 0 }
+      );
+      const updatedPhotos = tripPhotos.concat([
+        { key: tripPhotos.length, uri: manipulatedImage.uri },
+      ]);
+      setTripPhotos(updatedPhotos);
+    }
+  };
+
   return (
     <View>
       {loadingSave ? (
@@ -150,18 +185,36 @@ export default function TripOverview({ navigation, route }) {
           contentContainerStyle={styles.container}
           ListHeaderComponent={
             <>
-              <View style={styles.tripTitleView}>
-                <Text style={styles.tripTitleText}> Name </Text>
-                <TextInput
-                  style={styles.titleInput}
-                  placeholder="Enter trip title"
-                  onChangeText={(text) => setTripTitle({ text })}
-                  defaultValue={route.params["tripTitleText"]}
-                />
+              <View>
+                <View style={styles.tripTitleView}>
+                  <Text style={styles.tripTitleText}> Name </Text>
+                  <TextInput
+                    style={styles.titleInput}
+                    placeholder="Enter trip title"
+                    onChangeText={(text) => setTripTitle({ text })}
+                    defaultValue={route.params["tripTitleText"]}
+                  />
+                </View>
+                <TouchableOpacity
+                  style={styles.appButtonContainer}
+                  onPress={pickImage}
+                >
+                  <Text style={styles.appButtonText}> Add Photo to Trip</Text>
+                </TouchableOpacity>
               </View>
             </>
           }
-          data={route.params["pins"]}
+          data={
+            tripPhotos.length > 0
+              ? [
+                  {
+                    description: "",
+                    title: "Trip Summary",
+                    photos: tripPhotos,
+                  },
+                ].concat(route.params["pins"])
+              : route.params["pins"]
+          }
           renderItem={pinImages}
           keyExtractor={(item, index) => index.toString()}
           ListFooterComponent={
@@ -224,7 +277,7 @@ const styles = StyleSheet.create({
   tripTitleView: {
     margin: 10,
     alignItems: "stretch",
-    height:  Dimensions.get("window").width * 0.085,
+    height: Dimensions.get("window").width * 0.085,
     flexDirection: "row",
   },
   tripTitleText: {
@@ -269,9 +322,9 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   image: {
-      width: Dimensions.get("window").width * 0.4,
-      height: Dimensions.get("window").width * 0.4,
-      margin: 5,
-      padding: 5,
-  }
+    width: Dimensions.get("window").width * 0.4,
+    height: Dimensions.get("window").width * 0.4,
+    margin: 5,
+    padding: 5,
+  },
 });

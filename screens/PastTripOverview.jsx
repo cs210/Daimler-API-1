@@ -14,9 +14,10 @@ import {
   MenuOptions,
   MenuTrigger,
 } from "react-native-popup-menu";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { findRegion, tripViewComponent } from "./TripViewer";
-import CachedImage from 'react-native-expo-cached-image';
+
+import CachedImage from "react-native-expo-cached-image";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { ScrollView } from "react-native-gesture-handler";
 import db from "../firebase";
@@ -27,10 +28,10 @@ import moment from "moment";
  * of the trip. It allows you to delete the trip.
  */
 export default function PastTripOverview({ navigation, route }) {
-  const { pins, tripTitle, time, coordinates, id, uid } = route.params;
+  const { pins, tripTitle, tripPhotos, time, coordinates, id, uid } =
+    route.params;
   const [isFriendTrip, setIsFriendTrip] = useState(true);
   const [tripUser, setTripUser] = useState("");
-
   useEffect(() => {
     loadUserData();
   }, []);
@@ -59,6 +60,7 @@ export default function PastTripOverview({ navigation, route }) {
     const data = {
       tripTitleText: tripTitle,
       pins: pins,
+      tripPhotos: tripPhotos,
       coordinates: coordinates,
       time: time,
       id: id,
@@ -82,8 +84,8 @@ export default function PastTripOverview({ navigation, route }) {
           <ScrollView horizontal={true}>
             {item.photos.map((photo, i) => (
               <Image
-                key={photo.key}
-                source={{ uri: photo.uri }}
+                key={i}
+                source={{ uri: photo.uri ?? photo }}
                 style={{
                   width: Dimensions.get("window").height * 0.23,
                   height: Dimensions.get("window").height * 0.23,
@@ -138,12 +140,21 @@ export default function PastTripOverview({ navigation, route }) {
           </View>
           <Text style={styles.header}> {tripTitle} </Text>
           <Text style={styles.date}>
-            {" "}
             {moment(time, moment.ISO_8601).format("LLL")}
           </Text>
         </>
       }
-      data={pins}
+      data={
+        tripPhotos && tripPhotos.length > 0
+          ? [
+              {
+                description: "",
+                title: "Trip Summary",
+                photos: tripPhotos,
+              },
+            ].concat(pins)
+          : pins
+      }
       renderItem={pinImages}
       keyExtractor={(item, index) => index.toString()}
       ListFooterComponent={

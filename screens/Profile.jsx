@@ -200,9 +200,7 @@ export default function Profile({ navigation }) {
               displayName={currentUser.displayName}
               uid={currentUser.uid}
               getUpdatedItem={getUpdatedItem}
-            >
-              {" "}
-            </PastTripCard>
+            />
           )}
           ListEmptyComponent={noTripsComponent}
         />
