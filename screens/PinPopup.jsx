@@ -1,6 +1,8 @@
+import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 
 import {
+  Dimensions,
   Image,
   ImageBackground,
   Modal,
@@ -10,7 +12,6 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   View,
-  Dimensions,
 } from "react-native";
 import React, { useState } from "react";
 
@@ -34,8 +35,17 @@ export default function PinPopup(props) {
       quality: 0,
     });
     if (!result.cancelled) {
+      const manipulatedImage = await ImageManipulator.manipulateAsync(
+        result.uri,
+        [
+          {
+            resize: { width: result.width * 0.4, height: result.height * 0.4 },
+          },
+        ],
+        { compress: 0 }
+      );
       const updatedPhotos = pinPhotos.concat([
-        { key: pinPhotos.length, uri: result.uri },
+        { key: pinPhotos.length, uri: manipulatedImage.uri },
       ]);
       setPinPhotos(updatedPhotos);
     }
@@ -171,7 +181,7 @@ const styles = StyleSheet.create({
   buttonFlexView: {
     marginBottom: 15,
     alignItems: "stretch",
-    height:  Dimensions.get("window").height * 0.058,
+    height: Dimensions.get("window").height * 0.058,
     flexDirection: "row",
   },
   text: {
