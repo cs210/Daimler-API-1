@@ -21,13 +21,19 @@ import * as firebase from "firebase";
 export default function Notifications({ navigation, route }) {
   const [users, setUsers] = useState([]);
   const [likers, setLikers] = useState([]);
+  const [trips, setTrips] = useState([]);
   const [likedTrips, setLikedTrips] = useState({});
+  const [comments, setComments] = useState([]);
+  const [commentedTrips, setCommentedTrips] = useState({});
+  const [commentUserMap, setCommentUserMap] = useState({});
   const myUid = firebase.auth().currentUser.uid;
 
   useFocusEffect(
     React.useCallback(() => {
       loadFollowerRequests();
+      loadTrips();
       loadLikes();
+      loadComments();
     }, [])
   );
 
@@ -56,32 +62,95 @@ export default function Notifications({ navigation, route }) {
     setUsers(parsedUsers);
   };
 
-  const loadLikes = async () => {
+  const loadTrips = async () => {
     const pastTrips = [];
     var sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    console.log(sevenDaysAgo)
     const tripsFromDatabase = await db.collection("trips")
       .where("uid", "==", firebase.auth().currentUser.uid)
       // .where("time", ">=", sevenDaysAgo)
       .orderBy("time", "desc")
       .get();
-    getLikes(tripsFromDatabase);
+    setTrips(tripsFromDatabase);
   };
 
-  const getLikes = async (tripsFromDatabase) => {
+  const loadComments = async () => {
+    const commentsMap = {};
+    const tripMap = {};
+    trips.forEach(async function(trip) {
+      const tripData = trip.data();
+      const tripComments = [];
+      await db.collection("comments")
+        .where("tripId", "==", trip.id)
+        .orderBy("time", "desc")
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            tripComments.push(doc.data().uid);
+          });
+        })
+      if (tripComments.length != 0) {
+        commentsMap[trip.id] = tripComments;
+        tripMap[trip.id] = tripData;
+        setCommentedTrips(tripMap);
+        setCommentUserMap(commentsMap);
+        console.log(commentsMap)
+      }
+    });
+    setUserCommentsFunc(commentUserMap);
+  }
+
+  const loadLikes = async () => {
     const likersMap = {};
-    const trips = {};
-    tripsFromDatabase.forEach((trip) => {
-      console.log("hi");
+    const tripMap = {};
+    trips.forEach((trip) => {
       // by making key tripData.uid, you are resplacing the entry constantly - should use a trip unique ID instead?
       const tripData = trip.data();
       likersMap[trip.id] = tripData.likes;
-      trips[trip.id] = tripData;
+      tripMap[trip.id] = tripData;
     });
-    setLikedTrips(trips);
+    setLikedTrips(tripMap);
     setUserLikesFunc(likersMap);
   };
+
+  const setUserCommentsFunc = async (commentsMap) => {
+    if (commentsMap.size == 0) {
+      setComments([]);
+      return;
+    }
+    const userCommentsList = [];
+    console.log("comments map")
+    console.log(Object.keys(commentsMap))
+    Object.keys(commentsMap).forEach(async function(key) {
+      console.log("map key")
+      console.log(commentsMap[key])
+
+      for (let i = 0; i < commentsMap[key].length; i += 10) {
+        // Firestore limits "in" queries to 10 elements
+        // so we must batch these queries
+        const batchDbIds = commentsMap[key].slice(i, i + 10);
+        const batchDbCommentsUsers = await db
+          .collection("users")
+          .where("uid", "in", batchDbIds)
+          .get();
+        batchDbCommentsUsers.forEach((user) => {
+          const userTripCommentsList = [];
+          batchDbCommentsUsers.forEach((user) => {
+            const userData = user.data();
+            const individualTripInfo = [];
+            individualTripInfo.push(userData);
+            individualTripInfo.push(key);
+            userTripCommentsList.push(individualTripInfo);
+          });
+          userCommentsList.push(...userTripCommentsList);
+          // console.log(userLikesList.length)
+          setComments(userCommentsList);
+          console.log("length")
+          console.log(userCommentsList.length)
+        });
+      }
+    });
+  }
 
   const setUserLikesFunc = async (likersMap) => {
     if (likersMap.size == 0) {
@@ -89,55 +158,35 @@ export default function Notifications({ navigation, route }) {
       return;
     }
     const userLikesList = [];
-    console.log(Object.keys(likersMap))
     Object.keys(likersMap).forEach(async function(key) {
-      const dbLikesUsers = await db
-        .collection("users")
-        .where("uid", "in", likersMap[key])
-        .get();
-
-      console.log("dbLikesUsers", dbLikesUsers)
-      const userTripLikesList = [];
-      dbLikesUsers.forEach((user) => {
-        const userData = user.data();
-        const individualTripInfo = [];
-        individualTripInfo.push(userData);
-        individualTripInfo.push(key);
-        userTripLikesList.push(individualTripInfo);
-      });
-      userLikesList.push(...userTripLikesList);
-      // console.log(userLikesList.length)
-      setLikers(userLikesList);
-      console.log("length")
-      console.log(userLikesList.length)
+      for (let i = 0; i < likersMap[key].length; i += 10) {
+        // Firestore limits "in" queries to 10 elements
+        // so we must batch these queries
+        const batchDbIds = likersMap[key].slice(i, i + 10);
+        const batchDbLikesUsers = await db
+          .collection("users")
+          .where("uid", "in", batchDbIds)
+          .get();
+        batchDbLikesUsers.forEach((user) => {
+          const userTripLikesList = [];
+          batchDbLikesUsers.forEach((user) => {
+            const userData = user.data();
+            const individualTripInfo = [];
+            individualTripInfo.push(userData);
+            individualTripInfo.push(key);
+            userTripLikesList.push(individualTripInfo);
+          });
+          userLikesList.push(...userTripLikesList);
+          // console.log(userLikesList.length)
+          setLikers(userLikesList);
+        });
+      }
     });
   }
 
   const onPressTrip = (item) => {
-    console.log(item)
     const likedTrip = likedTrips[item];
-    console.log(likedTrip)
     navigation.navigate("Past Trip", likedTrip );
-  };
-
-  const setUsersFunc = async (followersList) => {
-    console.log("here")
-    if (followersList.length == 0) {
-      setUsers([]);
-      return;
-    }
-
-    const dbUsers = await db
-      .collection("users")
-      .where("uid", "in", followersList)
-      .get();
-
-    const userList = [];
-    dbUsers.forEach((user) => {
-      const userData = user.data();
-      userList.push(userData);
-    });
-    setUsers(userList);
   };
 
   const onPressUser = (item) => {
@@ -227,7 +276,7 @@ export default function Notifications({ navigation, route }) {
         ></FlatList>
       </View>
       <View style={styles.peopleView}>
-        <Text style={styles.titleText}>Activity</Text>
+        <Text style={styles.titleText}>Likes</Text>
         <FlatList
           style={styles.list}
           contentContainerStyle={{
@@ -252,6 +301,40 @@ export default function Notifications({ navigation, route }) {
                   </View>
                   <View style={styles.userCardRow}>
                     <Text style={styles.userText}>liked your post</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          }}
+          keyExtractor={() => uuidv4()}
+        ></FlatList>
+      </View>
+      <View style={styles.peopleView}>
+        <Text style={styles.titleText}>Comments</Text>
+        <FlatList
+          style={styles.list}
+          contentContainerStyle={{
+            alignItems: "center",
+          }}
+          data={comments}
+          renderItem={({ item }) => {
+            return (
+              <TouchableOpacity
+                style={styles.userCard}
+                onPress={() => onPressUser(item[0])}
+              >
+                <View style={styles.userCardInfo}>
+                  <View style={styles.userCardRow}>
+                    <Text style={styles.userTitle}>{item[0].username}</Text>
+                    <TouchableOpacity
+                      style={styles.buttonAccept}
+                      onPress={() => onPressTrip(item[1])}
+                    >
+                      <Text>See post</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.userCardRow}>
+                    <Text style={styles.userText}>commented on your post</Text>
                   </View>
                 </View>
               </TouchableOpacity>
