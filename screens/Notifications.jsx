@@ -91,25 +91,30 @@ export default function Notifications({ navigation, route }) {
     const userLikesList = [];
     console.log(Object.keys(likersMap))
     Object.keys(likersMap).forEach(async function(key) {
-      const dbLikesUsers = await db
-        .collection("users")
-        .where("uid", "in", likersMap[key])
-        .get();
+      for (let i = 0; i < likersMap[key].length; i += 10) {
+        // Firestore limits "in" queries to 10 elements
+        // so we must batch these queries
+        const batchIds = likersMap[key].slice(i, i + 10);
+        const dbLikesUsers = await db
+          .collection("users")
+          .where("uid", "in", batchIds)
+          .get();
 
-      console.log("dbLikesUsers", dbLikesUsers)
-      const userTripLikesList = [];
-      dbLikesUsers.forEach((user) => {
-        const userData = user.data();
-        const individualTripInfo = [];
-        individualTripInfo.push(userData);
-        individualTripInfo.push(key);
-        userTripLikesList.push(individualTripInfo);
-      });
-      userLikesList.push(...userTripLikesList);
-      // console.log(userLikesList.length)
-      setLikers(userLikesList);
-      console.log("length")
-      console.log(userLikesList.length)
+        console.log("dbLikesUsers", dbLikesUsers)
+        const userTripLikesList = [];
+        dbLikesUsers.forEach((user) => {
+          const userData = user.data();
+          const individualTripInfo = [];
+          individualTripInfo.push(userData);
+          individualTripInfo.push(key);
+          userTripLikesList.push(individualTripInfo);
+        });
+        userLikesList.push(...userTripLikesList);
+        // console.log(userLikesList.length)
+        setLikers(userLikesList);
+        console.log("length")
+        console.log(userLikesList.length)
+      }
     });
   }
 
