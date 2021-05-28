@@ -33,7 +33,7 @@ export default function Notifications({ navigation, route }) {
       loadFollowerRequests();
       loadTrips();
       loadLikes();
-      loadComments();
+      // loadComments();
     }, [])
   );
 
@@ -97,7 +97,7 @@ export default function Notifications({ navigation, route }) {
         console.log(commentsMap)
       }
     });
-    setUserCommentsFunc(commentUserMap);
+    setUserCommentsFunc();
   }
 
   const loadLikes = async () => {
@@ -113,41 +113,52 @@ export default function Notifications({ navigation, route }) {
     setUserLikesFunc(likersMap);
   };
 
-  const setUserCommentsFunc = async (commentsMap) => {
-    if (commentsMap.size == 0) {
+  const setUserCommentsFunc = async () => {
+    if (commentUserMap.size == 0) {
       setComments([]);
       return;
     }
     const userCommentsList = [];
     console.log("comments map")
-    console.log(Object.keys(commentsMap))
-    Object.keys(commentsMap).forEach(async function(key) {
+    console.log(Object.keys(commentUserMap))
+    Object.keys(commentUserMap).forEach((key) => {
       console.log("map key")
-      console.log(commentsMap[key])
+      console.log(commentUserMap[key])
 
-      for (let i = 0; i < commentsMap[key].length; i += 10) {
+      for (let i = 0; i < commentUserMap[key].length; i += 10) {
         // Firestore limits "in" queries to 10 elements
         // so we must batch these queries
-        const batchDbIds = commentsMap[key].slice(i, i + 10);
-        const batchDbCommentsUsers = await db
-          .collection("users")
-          .where("uid", "in", batchDbIds)
-          .get();
-        batchDbCommentsUsers.forEach((user) => {
-          const userTripCommentsList = [];
-          batchDbCommentsUsers.forEach((user) => {
-            const userData = user.data();
-            const individualTripInfo = [];
-            individualTripInfo.push(userData);
-            individualTripInfo.push(key);
-            userTripCommentsList.push(individualTripInfo);
-          });
-          userCommentsList.push(...userTripCommentsList);
-          // console.log(userLikesList.length)
-          setComments(userCommentsList);
-          console.log("length")
-          console.log(userCommentsList.length)
+        const batchDbIds = commentUserMap[key].slice(i, i + 10);
+        // console.log(batchDbIds)
+        const batchDbCommentsUsers = [];
+        batchDbIds.forEach(async function(dbId) {
+          console.log("dbId")
+          console.log(dbId)
+          const batchDbCommentsUser = await db
+            .collection("users")
+            .where("uid", "==", dbId)
+            .get();
+          batchDbCommentsUsers.push(batchDbCommentsUser);
+          console.log(batchDbCommentsUsers.length)
+          console.log(batchDbCommentsUser.data())
         });
+
+        console.log("batch db")
+        console.log(batchDbCommentsUsers)
+
+        const userTripCommentsList = [];
+        batchDbCommentsUsers.forEach((user) => {
+          const userData = user.data();
+          const individualTripInfo = [];
+          individualTripInfo.push(userData);
+          individualTripInfo.push(key);
+          userTripCommentsList.push(individualTripInfo);
+        });
+        userCommentsList.push(...userTripCommentsList);
+        // console.log(userLikesList.length)
+        setComments(userCommentsList);
+        console.log("length")
+        console.log(comments.length)
       }
     });
   }
@@ -167,19 +178,19 @@ export default function Notifications({ navigation, route }) {
           .collection("users")
           .where("uid", "in", batchDbIds)
           .get();
+
+        const userTripLikesList = [];
         batchDbLikesUsers.forEach((user) => {
-          const userTripLikesList = [];
-          batchDbLikesUsers.forEach((user) => {
-            const userData = user.data();
-            const individualTripInfo = [];
-            individualTripInfo.push(userData);
-            individualTripInfo.push(key);
-            userTripLikesList.push(individualTripInfo);
-          });
-          userLikesList.push(...userTripLikesList);
-          // console.log(userLikesList.length)
-          setLikers(userLikesList);
+          const userData = user.data();
+          const individualTripInfo = [];
+          individualTripInfo.push(userData);
+          individualTripInfo.push(key);
+          userTripLikesList.push(individualTripInfo);
         });
+        userLikesList.push(...userTripLikesList);
+        setLikers(userLikesList);
+        // console.log("length")
+        // console.log(userLikesList.length)
       }
     });
   }
@@ -276,7 +287,7 @@ export default function Notifications({ navigation, route }) {
         ></FlatList>
       </View>
       <View style={styles.peopleView}>
-        <Text style={styles.titleText}>Likes</Text>
+        <Text style={styles.titleText}>Activity</Text>
         <FlatList
           style={styles.list}
           contentContainerStyle={{
@@ -301,40 +312,6 @@ export default function Notifications({ navigation, route }) {
                   </View>
                   <View style={styles.userCardRow}>
                     <Text style={styles.userText}>liked your post</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            );
-          }}
-          keyExtractor={() => uuidv4()}
-        ></FlatList>
-      </View>
-      <View style={styles.peopleView}>
-        <Text style={styles.titleText}>Comments</Text>
-        <FlatList
-          style={styles.list}
-          contentContainerStyle={{
-            alignItems: "center",
-          }}
-          data={comments}
-          renderItem={({ item }) => {
-            return (
-              <TouchableOpacity
-                style={styles.userCard}
-                onPress={() => onPressUser(item[0])}
-              >
-                <View style={styles.userCardInfo}>
-                  <View style={styles.userCardRow}>
-                    <Text style={styles.userTitle}>{item[0].username}</Text>
-                    <TouchableOpacity
-                      style={styles.buttonAccept}
-                      onPress={() => onPressTrip(item[1])}
-                    >
-                      <Text>See post</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.userCardRow}>
-                    <Text style={styles.userText}>commented on your post</Text>
                   </View>
                 </View>
               </TouchableOpacity>
