@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
-import * as TaskManager from "expo-task-manager";
+import * as TaskManager from 'expo-task-manager';
 
 import {
   Dimensions,
@@ -38,13 +38,14 @@ export default function TripMap({ navigation }) {
   const [isTripRecording, setIsTripRecording] = useState(false);
   const [isTripStarted, setIsTripStarted] = useState(false);
   const [time, setTime] = useState("");
-  const LOCATION_TASK_NAME = "background-location-task";
+  const LOCATION_TASK_NAME = 'background-location-task';
 
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
-        const { status } =
-          await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const {
+          status,
+        } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       })();
     }, [])
   );
@@ -74,16 +75,13 @@ export default function TripMap({ navigation }) {
     });
   };
 
-  TaskManager.defineTask(
-    LOCATION_TASK_NAME,
-    ({ data: { locations }, error }) => {
-      if (error) {
-        console.log("Error: ", error.message);
-        return;
-      }
-      updateLocationInfo(locations[0]);
+  TaskManager.defineTask(LOCATION_TASK_NAME, ({ data: { locations }, error }) => {
+    if (error) {
+      // check `error.message` for more details.
+      return;
     }
-  );
+    updateLocationInfo(locations[0]);
+  });
 
   const updateLocationInfo = (location) => {
     setLocation(location);
@@ -98,7 +96,7 @@ export default function TripMap({ navigation }) {
       longitude: location.coords.longitude,
     };
     if (isTripRecording) {
-      setCoordinates((coordinates) => [...coordinates, keys]);
+      setCoordinates(coordinates => ([...coordinates, keys]));
     }
   };
 
@@ -121,7 +119,7 @@ export default function TripMap({ navigation }) {
     markers[marker.key].hideCallout();
   };
 
-  const onFinishTripPress = async () => {
+  const onFinishTripPress = () => {
     if ((pins.length == 0 && coordinates.length == 0) || !isTripStarted) {
       navigation.navigate("Feed");
       return;
@@ -135,7 +133,6 @@ export default function TripMap({ navigation }) {
     };
     setIsTripRecording(false);
     setIsTripStarted(false);
-    await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
     navigation.navigate("Trip Overview", data);
   };
 
@@ -148,8 +145,6 @@ export default function TripMap({ navigation }) {
     } else {
       if (isTripPaused) {
         await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
-      } else {
-        updateUsersLocation();
       }
       setIsTripPaused(!isTripPaused);
       setIsTripRecording(!isTripRecording);
