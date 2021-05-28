@@ -2,31 +2,26 @@ import * as firebase from "firebase";
 
 import {
   FlatList,
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   Dimensions
 } from "react-native";
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
+import CachedImage from 'react-native-expo-cached-image';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { Searchbar } from "react-native-paper";
 import db from "../firebase";
-import { useFocusEffect } from "@react-navigation/native";
 import uuidv4 from "uuid/v4";
 
 export default function SearchScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [users, setUsers] = useState([]);
-  const [friendsPic, setFriendsPic] = useState({});
 
-  useFocusEffect(
-    React.useCallback(() => {
-      loadUserData();
-    }, [])
-  );
+  useEffect(() => {
+    loadUserData();
+  }, []);
 
   const loadUserData = async () => {
     const userList = []
@@ -35,10 +30,8 @@ export default function SearchScreen({ navigation }) {
     usersDoc.forEach(user => {
       const userData = user.data();
       userList.push(userData);
-      userPicDict[userData.uid] = userData.profilePicture;
     });
     setUsers(userList);
-    setFriendsPic(userPicDict);
   };
 
   const onPressUser = (item) => {
@@ -90,10 +83,10 @@ export default function SearchScreen({ navigation }) {
                     >
                       <View style={{ flex: 1 }}>
                         <View style={{ flexDirection: "row" }}>
-                          {friendsPic[item.uid] ? (
-                            <Image
+                          {item.profilePicture ? (
+                            <CachedImage
                               style={styles.profilePic}
-                              source={{ uri: friendsPic[item.uid] }}
+                              source={{ uri: item.profilePicture  }}
                             />
                           ) : (
                             <MaterialCommunityIcons

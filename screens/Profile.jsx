@@ -1,3 +1,4 @@
+import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import * as firebase from "firebase";
 
@@ -5,7 +6,6 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
-  Image,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -15,6 +15,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 
+import CachedImage from "react-native-expo-cached-image";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import PastTripCard from "./PastTripCard";
 import db from "../firebase";
@@ -117,7 +118,16 @@ export default function Profile({ navigation }) {
       quality: 0,
     });
     if (!result.cancelled) {
-      getImageUrl(result.uri).then((url) => {
+      const manipulatedImage = await ImageManipulator.manipulateAsync(
+        result.uri,
+        [
+          {
+            resize: { width: result.width * 0.4, height: result.height * 0.4 },
+          },
+        ],
+        { compress: 0 }
+      );
+      getImageUrl(manipulatedImage.uri).then((url) => {
         userRef.update({
           profilePicture: url,
         });
@@ -145,7 +155,7 @@ export default function Profile({ navigation }) {
         <View style={styles.row}>
           {profilePicture ? (
             <TouchableOpacity onPress={addProfilePicture}>
-              <Image
+              <CachedImage
                 style={styles.profilePic}
                 source={{ uri: profilePicture }}
               />
@@ -190,9 +200,7 @@ export default function Profile({ navigation }) {
               displayName={currentUser.displayName}
               uid={currentUser.uid}
               getUpdatedItem={getUpdatedItem}
-            >
-              {" "}
-            </PastTripCard>
+            />
           )}
           ListEmptyComponent={noTripsComponent}
         />
