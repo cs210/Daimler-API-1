@@ -60,7 +60,6 @@ export default function Notifications({ navigation, route }) {
     const pastTrips = [];
     var sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    console.log(sevenDaysAgo)
     const tripsFromDatabase = await db.collection("trips")
       .where("uid", "==", firebase.auth().currentUser.uid)
       // .where("time", ">=", sevenDaysAgo)
@@ -73,7 +72,6 @@ export default function Notifications({ navigation, route }) {
     const likersMap = {};
     const trips = {};
     tripsFromDatabase.forEach((trip) => {
-      console.log("hi");
       // by making key tripData.uid, you are resplacing the entry constantly - should use a trip unique ID instead?
       const tripData = trip.data();
       likersMap[trip.id] = tripData.likes;
@@ -89,7 +87,6 @@ export default function Notifications({ navigation, route }) {
       return;
     }
     const userLikesList = [];
-    console.log(Object.keys(likersMap))
     Object.keys(likersMap).forEach(async function(key) {
       for (let i = 0; i < likersMap[key].length; i += 10) {
         // Firestore limits "in" queries to 10 elements
@@ -100,7 +97,6 @@ export default function Notifications({ navigation, route }) {
           .where("uid", "in", batchIds)
           .get();
 
-        console.log("dbLikesUsers", dbLikesUsers)
         const userTripLikesList = [];
         dbLikesUsers.forEach((user) => {
           const userData = user.data();
@@ -110,23 +106,17 @@ export default function Notifications({ navigation, route }) {
           userTripLikesList.push(individualTripInfo);
         });
         userLikesList.push(...userTripLikesList);
-        // console.log(userLikesList.length)
         setLikers(userLikesList);
-        console.log("length")
-        console.log(userLikesList.length)
       }
     });
   }
 
   const onPressTrip = (item) => {
-    console.log(item)
     const likedTrip = likedTrips[item];
-    console.log(likedTrip)
     navigation.navigate("Past Trip", likedTrip );
   };
 
   const setUsersFunc = async (followersList) => {
-    console.log("here")
     if (followersList.length == 0) {
       setUsers([]);
       return;
