@@ -20,11 +20,14 @@ import * as firebase from "firebase";
  */
 export default function Notifications({ navigation, route }) {
   const [users, setUsers] = useState([]);
+  const [likers, setLikers] = useState([]);
+  const [likedTrips, setLikedTrips] = useState({});
   const myUid = firebase.auth().currentUser.uid;
 
   useFocusEffect(
     React.useCallback(() => {
       loadFollowerRequests();
+      loadLikes();
     }, [])
   );
 
@@ -51,6 +54,85 @@ export default function Notifications({ navigation, route }) {
       });
     }
     setUsers(parsedUsers);
+  };
+
+  const loadLikes = async () => {
+    const pastTrips = [];
+    var sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const tripsFromDatabase = await db.collection("trips")
+      .where("uid", "==", firebase.auth().currentUser.uid)
+      // .where("time", ">=", sevenDaysAgo)
+      .orderBy("time", "desc")
+      .get();
+    getLikes(tripsFromDatabase);
+  };
+
+  const getLikes = async (tripsFromDatabase) => {
+    const likersMap = {};
+    const trips = {};
+    tripsFromDatabase.forEach((trip) => {
+      // by making key tripData.uid, you are resplacing the entry constantly - should use a trip unique ID instead?
+      const tripData = trip.data();
+      likersMap[trip.id] = tripData.likes;
+      trips[trip.id] = tripData;
+    });
+    setLikedTrips(trips);
+    setUserLikesFunc(likersMap);
+  };
+
+  const setUserLikesFunc = async (likersMap) => {
+    if (likersMap.size == 0) {
+      setLikers([]);
+      return;
+    }
+    const userLikesList = [];
+    Object.keys(likersMap).forEach(async function(key) {
+      for (let i = 0; i < likersMap[key].length; i += 10) {
+        // Firestore limits "in" queries to 10 elements
+        // so we must batch these queries
+        const batchIds = likersMap[key].slice(i, i + 10);
+        const dbLikesUsers = await db
+          .collection("users")
+          .where("uid", "in", batchIds)
+          .get();
+
+        const userTripLikesList = [];
+        dbLikesUsers.forEach((user) => {
+          const userData = user.data();
+          const individualTripInfo = [];
+          individualTripInfo.push(userData);
+          individualTripInfo.push(key);
+          userTripLikesList.push(individualTripInfo);
+        });
+        userLikesList.push(...userTripLikesList);
+        setLikers(userLikesList);
+      }
+    });
+  }
+
+  const onPressTrip = (item) => {
+    const likedTrip = likedTrips[item];
+    navigation.navigate("Past Trip", likedTrip );
+  };
+
+  const setUsersFunc = async (followersList) => {
+    if (followersList.length == 0) {
+      setUsers([]);
+      return;
+    }
+
+    const dbUsers = await db
+      .collection("users")
+      .where("uid", "in", followersList)
+      .get();
+
+    const userList = [];
+    dbUsers.forEach((user) => {
+      const userData = user.data();
+      userList.push(userData);
+    });
+    setUsers(userList);
   };
 
   const onPressUser = (item) => {
@@ -131,6 +213,40 @@ export default function Notifications({ navigation, route }) {
                     >
                       <Text>Decline</Text>
                     </TouchableOpacity>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          }}
+          keyExtractor={() => uuidv4()}
+        ></FlatList>
+      </View>
+      <View style={styles.peopleView}>
+        <Text style={styles.titleText}>Activity</Text>
+        <FlatList
+          style={styles.list}
+          contentContainerStyle={{
+            alignItems: "center",
+          }}
+          data={likers}
+          renderItem={({ item }) => {
+            return (
+              <TouchableOpacity
+                style={styles.userCard}
+                onPress={() => onPressUser(item[0])}
+              >
+                <View style={styles.userCardInfo}>
+                  <View style={styles.userCardRow}>
+                    <Text style={styles.userTitle}>{item[0].username}</Text>
+                    <TouchableOpacity
+                      style={styles.buttonAccept}
+                      onPress={() => onPressTrip(item[1])}
+                    >
+                      <Text>See post</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.userCardRow}>
+                    <Text style={styles.userText}>liked your post</Text>
                   </View>
                 </View>
               </TouchableOpacity>
