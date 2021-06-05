@@ -20,6 +20,11 @@ import PastTripCard from "./PastTripCard";
 import db from "../firebase";
 import { netPromoterUrl } from "../keys";
 
+/**
+ * This component displays the home feed. It shows the trips of those that 
+ * you are following and your trips. Each of the trips is a PastTripCard 
+ * component.
+ */
 export default function Home({ navigation }) {
   const [feedItems, setFeedItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);

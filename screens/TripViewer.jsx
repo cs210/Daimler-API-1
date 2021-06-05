@@ -3,6 +3,10 @@ import MapView, { Marker, Polyline } from "react-native-maps";
 
 import React from "react";
 
+/**
+ * This component displays the map with the route and pins from a past trip.
+ * It is used in a past trip card.
+ */
 export const findRegion = (pins, coords) => {
   let minLatitude = 90;
   let maxLatitude = -90;

@@ -15,6 +15,11 @@ import { TextInput } from "react-native-gesture-handler";
 import uuidv4 from "uuid/v4";
 import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 
+
+/**
+ * This component displays a list of comments when you click the comment button on 
+ * a past trip card. There is a text box that allows you to add a new comment.
+ */
 export default function Comment({ route }) {
   const item = route.params;
   const [comment, setComment] = useState("");

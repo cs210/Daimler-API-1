@@ -15,6 +15,10 @@ import { Searchbar } from "react-native-paper";
 import db from "../firebase";
 import uuidv4 from "uuid/v4";
 
+/**
+ * This component allows you to search for other users on the app and view their profiles
+ * when you click on their name.
+ */
 export default function SearchScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [users, setUsers] = useState([]);

@@ -19,7 +19,7 @@ import db from "../firebase";
 
 /**
  * This component shows a profile which includes the number of followers
- * and people you are following. It also contains a list of all past trips
+ * and people someone is following. It also contains a list of all past trips
  * when user presses the "Profile" button from the tab bar. Clicking on
  * a past trip will take you to the trip overview.
  */

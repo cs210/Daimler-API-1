@@ -16,7 +16,7 @@ import * as firebase from "firebase";
 
 /**
  * This component displays the notifications - currently the follow requests
- * that someone has.
+ * that someone has and likes that they have recieved.
  */
 export default function Notifications({ navigation, route }) {
   const [users, setUsers] = useState([]);

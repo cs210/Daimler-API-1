@@ -18,6 +18,10 @@ import db from "../firebase";
 import moment from "moment";
 import { useNavigation } from "@react-navigation/native";
 
+/**
+ * This component displays a past trip. It shows the user's name, profile photo, trip
+ * description, images of the trip or route of the trip, and number of likes and comments.
+ */
 export default function PastTripCard(props) {
   const item = props.item;
   const friendsPic = props.friendsPic;
@@ -221,7 +225,7 @@ const styles = StyleSheet.create({
   tripCard: {
     width: Dimensions.get("window").width * 1.02,
     height: Dimensions.get("window").height * 0.4,
-    paddingLeft: 10,
+    paddingLeft: 30,
     paddingTop: 15,
   },
   noTripText: {
@@ -251,5 +255,6 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").width * 0.9,
     height: Dimensions.get("window").height * 0.4,
     margin: 10,
+    marginLeft: 20,
   },
 });
